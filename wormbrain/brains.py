@@ -2,7 +2,7 @@ import numpy as np
 import mistofrutta.struct.irrarray as irrarray
 from copy import deepcopy as deepcopy
 
-class neurons:
+class Brains:
     '''
     Container for neuron coordinates. It relies on the arrays with "irregular"
     strides from the repository github.org/francescorandi/mistofrutta, which

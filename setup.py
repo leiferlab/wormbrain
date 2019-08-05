@@ -2,10 +2,10 @@
 
 from distutils.core import setup
 
-setup(name='smallbrain',
+setup(name='wormbrain',
       version='0.1',
       description='Handling small brains',
       author='Francesco Randi',
       author_email='francesco.randi@gmail.com',
-      packages=['smallbrain'],
+      packages=['wormbrain'],
      )
