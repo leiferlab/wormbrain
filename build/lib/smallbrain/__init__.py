@@ -1,4 +1,5 @@
-__all__ = ['neurons.neurons', 'neurons2.neurons2']
+__all__ = ['neurons.neurons','neurons_old.neurons_old','brainmatch']
 
 from .neurons import neurons
-from .neurons2 import neurons2
+from .neurons_old import neurons_old
+from . import brainmatch

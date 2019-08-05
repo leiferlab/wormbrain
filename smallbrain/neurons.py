@@ -1,54 +1,79 @@
 import numpy as np
 import mistofrutta.struct.irrarray as irrarray
+from copy import deepcopy as deepcopy
 
 class neurons:
-    
-    def __init__(self, coordYX, volFrame0, zOfFrame, properties={}, 
+    '''
+    Container for neuron coordinates. It relies on the arrays with "irregular"
+    strides from the repository github.org/francescorandi/mistofrutta, which
+    are just a shorter notation for specific types of slices of numpy arrays.
+    '''
+    def __init__(self, coord, volFrame0, zOfFrame=None, properties={}, 
                  stabilize_z=True, coord_ordering='yx'):
-                 
-        coordZYX, self.nInVolume = self._conv_coord_2d_to_3d(coordYX, volFrame0, dtype=int)
+
+        coordZYX, self.nInVolume = self._conv_coord_2d_to_3d(coord, 
+                                        volFrame0, dtype=int)
         
         self.coord = irrarray(coordZYX, self.nInVolume, strideNames=["vol"])
         self.volFrame0 = volFrame0
-        self.zOfFrame = zOfFrame
         
-        self.curvature = properties['curvature']
-        self.curvature = irrarray(self.curvature, self.nInVolume)
-        self.boxIndices = properties['boxIndices']
-        self.boxNPlane = properties['boxNPlane']
+        if zOfFrame != None: self.zOfFrame = zOfFrame
         
-        if stabilize_z:
-            self.coord = self._stabilize_z(self.coord, 
-                self.curvature,
-                nPlane=self.boxNPlane, boxIndices=self.boxIndices,
-                method="xyMaxCurvature")
-                
-            self.coord = np.rint(self.coord).astype(int)
+        if len(properties.keys())!=0:
+            self.curvature = properties['curvature']
+            self.curvature = irrarray(self.curvature, self.nInVolume, 
+                                        strideNames=["vol"])
+            self.boxIndices = properties['boxIndices']
+            self.boxNPlane = properties['boxNPlane']
+        
+            if stabilize_z:
+                self.coord = self._stabilize_z(self.coord, 
+                    self.curvature,
+                    nPlane=self.boxNPlane, boxIndices=self.boxIndices,
+                    method="xyMaxCurvature")
+                    
+                self.coord = np.rint(self.coord).astype(int)
                 
     def __getitem__(self, i):
         '''
         Allow for direct indexing of the class to access the coordinates.
         '''
-        return self.coord__getitem__(i)
+        return self.coord.__getitem__(i)
+        
+    def __setitem__(self, i, value):
+        '''
+        Allow for direct indexing of the class to write in the coordinates.
+        '''
+        self.coord.__setitem__(i,value)
         
     def __call__(self, *args, **kwargs):
+        '''
+        Upon call, use the __call__ method of the coordinates irrarray.
+        '''
         return self.coord.__call__(*args, **kwargs)
         
-    def trueCoords(self, volumes, xyOrdering='zyx'):
+    def copy(self):
+        return deepcopy(self)
+        
+    def trueCoords(self, vol, coord_ordering='zyx'):
         '''
         Return the coordinates replacing z with its actual values, from 
         zOfFrame.
         '''
+        if type(vol)!=list: vol = [vol]
         # Get the neurons in the requested volumes
-        trueCoords = self.coord(v=volumes, dtype=np.float)
+        trueCoords = self.coord(vol=vol, dtype=np.float)
+        intCoords = self.coord(vol=vol)
         
-        L = len(volumes)
+        L = len(vol)
         for l in np.arange(L):
-            trueCoords[l][:,zindex] = self.zOfFrame[l][trueCoords[l][:,zindex]]
+            trueCoords[l][:,0] = self.zOfFrame[vol[l]][intCoords[l][:,0]]
         
-        # Ordering stuff
-        if xyOrdering=="xyz": 
-            trueCoords = trueCoords[:,::-1]
+            # Ordering stuff
+            if coord_ordering=="xyz": 
+                trueCoords[l] = trueCoords[l][:,::-1]
+                
+        if len(trueCoords)==1: trueCoords = trueCoords[0]
                 
         return trueCoords
         
@@ -85,8 +110,8 @@ class neurons:
             
         Returns
         -------
-        coord_3d: numpy arrays
-            coord_3d[j, n] gives the coordinate n of neuron j in volume l.
+        coord_3d: numpy array
+            coord_3d[j, n] gives the coordinate n of neuron j.
         nInVolume: numpy array
             nInVolume[l] gives the number of neurons in volume l.
         '''
@@ -166,7 +191,7 @@ class neurons:
         
         Parameters
         ----------
-        coord: numpy arrays
+        coord: numpy array
             coord_3d[j, n] gives the coordinate n of neuron j (counting from 
             neuron 0 in volume 0).
             The z coordinate must be the index of the corresponding frame, and
@@ -190,9 +215,8 @@ class neurons:
             
         Returns
         -------
-        coord_3d_out: list of numpy arrays
-            coord_3d_out[l][j, n] gives the coordinate n of the stabilized neuron j 
-            in volume l.
+        coord_3d_out: numpy array
+            coord_3d_out[j, n] gives the coordinate n of the stabilized neuron j 
         '''
         # Determine the index of the z coordinate in the input and output arrays
         z_indices = {"zyx":0,"xyz":2}

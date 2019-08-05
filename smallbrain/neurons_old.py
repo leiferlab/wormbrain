@@ -1,6 +1,6 @@
 import numpy as np
 
-class neurons:
+class neurons_old:
     '''
     Basic class containing coordinates of possibly many brains stacked on top
     of each other.
