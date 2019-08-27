@@ -144,12 +144,12 @@ def _register_displacement(A,B,**kwargs):
     return A, B
     
 
-def plot_matches(A, B, Match, mode='3d',plotNow=True):
+def plot_matches(A, B, Match, mode='3d',plotNow=True,**kwargs):
     
     if mode=='3d':
-        fig, ax = _plot_matches_3d(A, B, Match)
+        fig, ax = _plot_matches_3d(A, B, Match, **kwargs)
     if mode=='2d':
-        fig, ax = _plot_matches_2d(A, B, Match)
+        fig, ax = _plot_matches_2d(A, B, Match, **kwargs)
         
     if plotNow==True:
         plt.show()
@@ -161,6 +161,9 @@ def plot_matches(A, B, Match, mode='3d',plotNow=True):
 def _plot_matches_3d(A, B, Match):
     cfn = plt.gcf().number
     if len(plt.gcf().axes)!=0: cfn += 1
+    
+    showAll=True
+    if 'showAll' in kwargs: showAll=kwargs['showAll']
     
     fig = plt.figure(cfn)
     ax = fig.add_subplot(111,projection='3d')
@@ -175,14 +178,18 @@ def _plot_matches_3d(A, B, Match):
         else:
             j = -j//10
             ax.scatter(B[i,0],B[i,1],B[i,2],'*',c='blue')
-            ax.plot((A[j,0],B[i,0]),(A[j,1],B[i,1]),(A[j,2],B[i,2]),'--',c='orange')
+            if showAll:
+                ax.plot((A[j,0],B[i,0]),(A[j,1],B[i,1]),(A[j,2],B[i,2]),'--',c='orange')
             
     return fig, ax
     
 
-def _plot_matches_2d(A, B, Match):
+def _plot_matches_2d(A, B, Match, **kwargs):
     cfn = plt.gcf().number
     if len(plt.gcf().axes)!=0: cfn += 1
+    
+    showAll=True
+    if 'showAll' in kwargs: showAll=kwargs['showAll']
     
     fig = plt.figure(cfn)
     ax = fig.add_subplot(111)
@@ -201,6 +208,7 @@ def _plot_matches_2d(A, B, Match):
         else:
             j = -j//10
             ax.plot(B[i,p],B[i,q],'*b')
-            ax.plot((A[j,p],B[i,p]),(A[j,q],B[i,q]),'--',c='orange')
+            if showAll:
+                ax.plot((A[j,p],B[i,p]),(A[j,q],B[i,q]),'--',c='orange')
             
     return fig, ax
