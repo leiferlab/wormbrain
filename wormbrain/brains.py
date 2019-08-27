@@ -1,20 +1,26 @@
 import numpy as np
 import mistofrutta.struct.irrarray as irrarray
 from copy import deepcopy as deepcopy
+import json
+import re
 
 class Brains:
     '''
-    Container for neuron coordinates. It relies on the arrays with "irregular"
+    Container for neuron coordinates. It depends on the arrays with "irregular"
     strides from the repository github.org/francescorandi/mistofrutta, which
     are just a shorter notation for specific types of slices of numpy arrays.
+    '''
+    
+    filename = "neuronCoord.txt"
+    
     '''
     def __init__(self, coord, volFrame0, zOfFrame=None, properties={}, 
                  stabilize_z=True, coord_ordering='yx'):
 
-        coordZYX, self.nInVolume = self._conv_coord_2d_to_3d(coord, 
+        coordZYX, self.nInVolume, self.nInFrame = self._conv_coord_2d_to_3d(coord, 
                                         volFrame0, dtype=int)
         
-        self.coord = irrarray(coordZYX, self.nInVolume, strideNames=["vol"])
+        self.coord = irrarray(coordZYX, [self.nInVolume], strideNames=["vol"])
         self.volFrame0 = volFrame0
         
         if zOfFrame != None: self.zOfFrame = zOfFrame
@@ -33,7 +39,71 @@ class Brains:
                     method="xyMaxCurvature")
                     
                 self.coord = np.rint(self.coord).astype(int)
-                
+    '''
+    
+    # New
+    def __init__(self, coordZYX, nInVolume, zOfFrame=None, properties={}, 
+                 stabilize_z=True):
+
+        #coordZYX, self.nInVolume, self.nInFrame = self._conv_coord_2d_to_3d(coord, 
+        #                                volFrame0, dtype=int)
+        self.nInVolume = nInVolume
+        self.coord = irrarray(coordZYX, [self.nInVolume], strideNames=["vol"])
+        #self.volFrame0 = volFrame0
+        
+        if zOfFrame != None: self.zOfFrame = zOfFrame
+        
+        if len(properties.keys())!=0:
+            self.curvature = properties['curvature']
+            self.curvature = irrarray(self.curvature, self.nInVolume, 
+                                        strideNames=["vol"])
+            self.boxIndices = properties['boxIndices']
+            self.boxNPlane = properties['boxNPlane']
+        
+            if stabilize_z:
+                self.coord = self._stabilize_z(self.coord, 
+                    self.curvature,
+                    nPlane=self.boxNPlane, boxIndices=self.boxIndices,
+                    method="xyMaxCurvature")
+                    
+                self.coord = np.rint(self.coord).astype(int)
+    
+    # New
+    @classmethod
+    def from_find_neurons(cls, coord, volFrame0, *args, **kwargs):
+        coordZYX, nInVolume, nInFrame = cls._conv_coord_2d_to_3d(coord, 
+                                        volFrame0, dtype=int)
+                                        
+        return cls(coordZYX, nInVolume, *args, **kwargs)
+    
+    # New
+    @classmethod
+    def from_file(cls, folder, filename=""):
+        # for future multiple methods from loading from different formats
+        #ext = filename.split(".")[-1]
+        
+        if folder[-1]!="/": folder += "/"
+        
+        if filename=="":
+            filename = cls.filename
+        f = open(folder+filename)
+        c = json.load(f)
+        f.close()
+        
+        coordZYX = np.array(c['coordZYX'])
+        nInVolume = np.array(c['nInVolume'])
+        zOfFrame = [np.array(z) for z in c['zOfFrame']]
+        properties = {}
+        props = c['properties']
+        properties['curvature'] = [np.array(curv) for curv in props['curvature']]
+        properties['boxIndices'] = [np.array(bi) for bi in props['boxIndices']]
+        properties['boxNPlane'] = props['boxNPlane']
+        
+        # Don't do any implicit stabilization if loaded from file. 
+        stabilize_z = False 
+        
+        return cls(coordZYX, nInVolume, zOfFrame, properties, stabilize_z)
+
     def __getitem__(self, i):
         '''
         Allow for direct indexing of the class to access the coordinates.
@@ -51,9 +121,37 @@ class Brains:
         Upon call, use the __call__ method of the coordinates irrarray.
         '''
         return self.coord.__call__(*args, **kwargs)
-        
+    
     def copy(self):
         return deepcopy(self)
+    
+    def to_file(self, foldername, filename=""):
+        if foldername[-1]!="/": foldername += "/"
+        
+        diz = {}
+        diz['coordZYX'] = [c.tolist() for c in self.coord]
+        diz['nInVolume'] = self.nInVolume.tolist()
+        diz['zOfFrame'] = [z.tolist() for z in self.zOfFrame]
+        props = {}
+        props['curvature'] = [c.tolist() for c in self.curvature]
+        props['boxIndices'] = [c.tolist() for c in self.boxIndices]
+        props['boxNPlane'] = self.boxNPlane
+        diz['properties'] = props
+        
+        if filename=="":
+            filename = self.filename
+        
+        output = json.dumps(diz, indent=4)
+        # Prettify the json serialization 
+        o1 = re.sub(r'\[\s+(\d)', r'[\1', output)
+        o2 = re.sub(r'(\d),\s+(\d)', r'\1, \2', o1)
+        o3 = re.sub(r'(\d)\s+\]',r'\1]',o2)
+        
+        f = open(foldername+filename,'w')
+        f.write(o3)
+        f.close()
+        
+        #np.savetxt(foldername+self.filename, self.coord)
         
     def trueCoords(self, vol, coord_ordering='zyx'):
         '''
@@ -174,7 +272,7 @@ class Brains:
             coord_3d[g:g+q] = NeuronInVolume
             g += q
             
-        return coord_3d, np.array(nInVolume)
+        return coord_3d, np.array(nInVolume), np.array(nInFrame)
         
     @staticmethod
     def _stabilize_z(coord, curvature, nPlane=7, boxIndices=
@@ -240,3 +338,35 @@ class Brains:
         coord[:,z_index] += np.sum(z*curv,axis=1)/np.sum(curv,axis=1)
         
         return coord
+    
+    def fit_sphere(self):
+        curvature = self.curvature
+        boxIndices = self.boxIndices
+        boxNPlane = self.boxNPlane
+        
+        # Calculate weights(z) [i.e. curvature] taking the maximum curvature 
+        # in each plane.
+        curv = np.zeros((self.coord.shape[0],boxNPlane))
+        for pl in np.arange(boxNPlane):
+            c = np.max(curvature[:,boxIndices[pl]],axis=1)
+            curv[:,pl] = c
+        
+        # Use the value in plane nPlane//2+1 and nPlane//2+2 to "fit" the radius
+        # of the sphere for each neuron
+        R = self._sphere_radius(curv[:,boxNPlane//2+1:boxNPlane//2+2+1]/curv[:,boxNPlane//2+1,None])
+        
+        # Calculate the ratio between the curvature in the central plane and
+        # the radius. This is the number by which you need to multiply the
+        # signal to get the peak signal out.
+        
+        # This has become just the radius because I fitted the values after
+        # normalizing them
+        #yOverR = curv[:,boxNPlane//2+1]/R
+        yOverR = 1./R
+        
+        return irrarray(yOverR, self.nInVolume, strideNames=["vol"])
+        
+    @staticmethod
+    def _sphere_radius(y, dx=1.0):
+        y0sq = y[:,0]**2
+        return np.sqrt(y0sq + ((y0sq-y[:,1]**2-dx**2)/(2.0*dx))**2)

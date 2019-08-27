@@ -56,6 +56,8 @@ def match(A, B, method='nearest', registration='None', **kwargs):
         A, B = _register_centroid(A,B,**kwargs)
     elif registration=='displacement':
         A, B = _register_displacement(A,B,**kwargs)
+    elif registration=='tps':
+        A, B = _register_tps(A,B,**kwargs)
     
     if method=='nearest':
         Match = _match_nearest(A,B,**kwargs)
@@ -104,6 +106,8 @@ def _match_nearest(A, B, **kwargs):
                         Match[pt] *= -10
                         run = False
                     jj += 1
+                    
+                    if jj > MatchAll.shape[0] - 2: run = False
             
             #Match[pts] *= -10
                 #Match[pt] = np.where( (not np.isin(MatchAll[1,pt],Match)) and (DD[MatchAll[1,pt],pt] < DDth), MatchAll[1,pt], -10*Match[pt])
