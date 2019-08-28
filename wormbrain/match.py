@@ -54,13 +54,14 @@ def match(A, B, method='nearest', registration='None', **kwargs):
     '''
     
     if registration=='centroid':
-        A, B = _register_centroid(A,B,**kwargs)
+        A, B = wormb.reg.centroid(A,B,**kwargs)
     elif registration=='displacement':
-        A, B = _register_displacement(A,B,**kwargs)
+        A, B = wormb.reg._displacement(A,B,**kwargs)
     #elif registration=='tps':
-    #    A, B = _register_tps(A,B,**kwargs)
+    #    A, B = wormb.reg.tps(A,B,**kwargs)
     elif registration=="dsmm":
-        A, B = wormb.reg._dsmm(A,B,**kwargs) #TODO implement parallelization inside it
+        A, B, p = wormb.reg.dsmm(A,B,**kwargs) #TODO implement parallelization inside it
+        return p
     
     if method=='nearest':
         Match = _match_nearest(A,B,**kwargs)
@@ -116,35 +117,6 @@ def _match_nearest(A, B, **kwargs): #TODO implement it on multiple As
                 #Match[pt] = np.where( (not np.isin(MatchAll[1,pt],Match)) and (DD[MatchAll[1,pt],pt] < DDth), MatchAll[1,pt], -10*Match[pt])
                 
     return Match
-    
-def _register_centroid(A,B,**kwargs):
-    centroidAxes = kwargs['centroidAxes'] #tuple
-    centroidA = np.average(A,axis=0)
-    centroidB = np.average(B,axis=0)
-    centroidAB = centroidA - centroidB
-    
-    for axis in centroidAxes:
-        B[:,axis] += centroidAB[axis]
-        
-    return A,B
-    
-def _register_displacement(A,B,**kwargs):
-    # get both distance and vectors
-    DD, Dv = pairwise_distance(A, B, returnAll=True)
-    
-    # extract the vectors of the closest matches
-    Match = np.argsort(DD, axis=0)[0]
-    Dvp = Dv[Match,:,np.arange(len(Match))]
-    
-    if kwargs['displacementMethod']=="median":
-        Dvshift = np.median(Dvp, axis=(0))
-    else:
-        Dvshift = np.average(Dvp, axis=(0))
-    
-    for i in np.arange(Dvshift.shape[0]):
-        B[:,i] += Dvshift[i]
-    
-    return A, B
     
 
 def plot_matches(A, B, Match, mode='3d',plotNow=True,**kwargs):

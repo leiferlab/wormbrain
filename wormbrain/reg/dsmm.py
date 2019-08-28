@@ -3,30 +3,10 @@ from scipy.special import gamma as spgamma
 from scipy.special import digamma as spdigamma
 from scipy.special import polygamma as sppolygamma
 from scipy.optimize import root as sproot
-import wormbrain as wormb
+from wormbrain.match import pairwise_distance
+import multiprocessing as mp
 
-X = np.loadtxt("data/fish_X.txt")#[:-4]
-X = np.random.permutation(X)[:40]
-Y = np.loadtxt("data/fish_Y.txt")
-#Y = np.random.permutation(Y)[:60]
-
-# Preprocess ("normalize" in Vemuri's language)
-# Signficantly reduces convergence time
-X -= np.average(X,axis=0)
-X /= np.max(np.absolute(X),axis=0)
-X += np.min(X,axis=0)
-Y -= np.average(Y,axis=0)
-Y /= np.max(np.absolute(Y),axis=0)
-Y += np.min(Y,axis=0)
-
-Y_orig = np.copy(Y)
-
-N = X.shape[0]
-M = Y.shape[0]
-D = X.shape[1]
-
-def neighborhood(A,pwise_dist,cutoff=2.): 
-    #D = pairwise_distance(A,A)
+def _neighborhood(A,pwise_dist,cutoff=2.): 
     D = pwise_dist
     mediana = np.average(np.sort(D,axis=0)[1,:])
     neighborWeights = np.where(D<cutoff*mediana,1.,0.)
@@ -34,7 +14,7 @@ def neighborhood(A,pwise_dist,cutoff=2.):
     
     return neighborN, neighborWeights
             
-def studt(X,Y,sigma2,Gamma,D,pwise_dist):
+def _studt(X,Y,sigma2,Gamma,D,pwise_dist):
     Gamma = Gamma
     A = spgamma(0.5*(Gamma+D))
     B = np.sqrt(2.*sigma2) * (Gamma+spgamma(0.5))**(0.5*D) * spgamma(0.5*Gamma)
@@ -42,7 +22,7 @@ def studt(X,Y,sigma2,Gamma,D,pwise_dist):
     
     return A[:,None]/(B[:,None]*C)
     
-def eqforgamma(Gamma,Gamma_old,p,u,D,CDE_term):
+def _eqforgamma(Gamma,Gamma_old,p,u,D,CDE_term):
     Gammahalves = 0.5*Gamma
     A = -spdigamma(Gammahalves)
     B = np.log(Gammahalves)
@@ -52,7 +32,7 @@ def eqforgamma(Gamma,Gamma_old,p,u,D,CDE_term):
     
     return (1.+A+B+CDE_term), Jac
     
-def eqforalpha(alpha,p,sumPoverN):
+def _eqforalpha(alpha,p,sumPoverN):
     #Eq. (20)', switching indices for x and y to match their first paper. 
     #Added an alpha to the first term inside the \biggl ( in the final line!!
     A_term = np.exp(alpha*sumPoverN)
@@ -61,28 +41,48 @@ def eqforalpha(alpha,p,sumPoverN):
     D_term = -B_term/C_term
     
     return np.sum(p*(alpha*sumPoverN+D_term[:,None]))
+    
+def dsmm(A,B,**kwargs):
+    # If multiple A pointsets are passed, run the registrations in parallel
+    if len(A.shape)==3:
+        pool = mp.Pool(kwargs['cores'])
+        P = [pool.apply(_dsmm, args=(A[i],B,True), kwargs=kwargs)
+             for i in np.arange(A.shape[0])]
+        return P
+        
+    elif len(A.shape)==2:
+        return _dsmm(A,B,**kwargs)
 
-def _dsmm():
+def _dsmm(A,B,returnOnlyP=False,beta=2.0,llambda=1.5,neighbor_cutoff=10.0,
+            conv_epsilon=1e-3,eq_tol=1e-2):
+    # This is the version running with a single pair of pointsets.
+    # This registers Y onto X (Y is what is changed)
+    # In wormb.match, I always pass A,B, where B is the refBrain.
+    Y = np.copy(A)
+    X = np.copy(B)
+    
+    # Preprocess ("normalize" in Vemuri's language)
+    X -= np.average(X,axis=0)
+    X /= np.max(np.absolute(X),axis=0)
+    X += np.min(X,axis=0)
+    Y -= np.average(Y,axis=0)
+    Y /= np.max(np.absolute(Y),axis=0)
+    Y += np.min(Y,axis=0)
+    
+    N = X.shape[0]
+    M = Y.shape[0]
+    D = X.shape[1]
+    
     # Init parameters
     pwise_dist = pairwise_distance(X,Y,squared=True).T
-    beta = 2.
     beta2 = beta**2
     w = np.ones((M,N))*(1./M)
     Gamma = np.ones(M)*5.
     Gamma_old = np.copy(Gamma)
-    '''extrap_order = 5
-    interp_x = np.arange(extrap_order+1)
-    extrap_x = np.array([(extrap_order+2)**i for i in np.arange(extrap_order+1)[::-1]]).astype(np.float)
-    Gamma_olds = np.empty((extrap_order+1,M))'''
     sigma2 = np.sum(pwise_dist)/(D*M*N)
-    G = np.exp(-pairwise_distance(Y,Y,squared=True)/(2.*beta2))
-    llambda = 1.5
+    pwise_distYY = pairwise_distance(Y,Y,squared=True)
+    G = np.exp(-pwise_distYY/(2.*beta2))
     Identity = np.diag(np.ones(M))
-
-    # Convergence
-    relerr = 1000.
-    regerror = np.sum(pairwise_distance(X,Y,squared=True))
-    epsilon = 1e-3
 
     # Allocate arrays
     F_t = np.empty((M,N))
@@ -97,13 +97,17 @@ def _dsmm():
     #Additional stuff from new paper
     sumPoverN = np.empty((M,N)) 
     alpha=1.
-    neighborN, neighborWeights = neighborhood(Y,2.)
+    neighborN, neighborWeights = _neighborhood(Y,pwise_distYY,neighbor_cutoff)
+    
+    # Convergence
+    relerr = 1000.
+    regerror = np.sum(pairwise_distance(X,Y,squared=True))
 
     i = 0
     ##### array[y,x]
-    while relerr > epsilon:
+    while relerr > conv_epsilon:
         #Step3 (Eq. (5))
-        F_t[:] = studt(X,Y,sigma2,Gamma,D,pwise_dist)
+        F_t[:] = _studt(X,Y,sigma2,Gamma,D,pwise_dist)
 
         #Step3:E-Step
         #Eq. (17)'
@@ -116,9 +120,9 @@ def _dsmm():
         #u = np.absolute(u)
         
         #Eq. (20)'
-        neighborN, neighborWeights = neighborhood(Y,10.)
+        neighborN, neighborWeights = _neighborhood(Y,pwise_distYY,neighbor_cutoff)
         sumPoverN = np.sum(neighborWeights[...,None]*p[None,...],axis=1)/neighborN[:,None]  
-        Result = sproot(eqforalpha,x0=alpha,args=(p,sumPoverN),method="hybr",tol=1e-2)
+        Result = sproot(_eqforalpha,x0=alpha,args=(p,sumPoverN),method="hybr",tol=eq_tol)
         alpha = Result['x'][0]
 
         #Step4:M-Step
@@ -126,39 +130,22 @@ def _dsmm():
         expAlphaSumPoverN = np.exp(alpha*sumPoverN)
         w[:] = expAlphaSumPoverN/np.sum(expAlphaSumPoverN,axis=0)[None,:]
         
-        #Eq. (23) TODO extrapolate the Gamma!!!! 
+        #Eq. (23)
         Gamma_old = np.copy(Gamma)
-        '''Gamma_olds[0:-1] = Gamma_olds[1:]
-        Gamma_olds[-1] = np.absolute(Gamma)
-        if i<extrap_order:
-            Gamma_guess = Gamma_old
-        if i>extrap_order+10:
-            #print(extrap_x)
-            #quit()
-            polyfitP = np.polyfit(interp_x,Gamma_olds,extrap_order)
-            Gamma_guess = np.sum(polyfitP*extrap_x[:,None],axis=0)#Gamma_guess*0.9+0.1*
-            #print(Gamma_guess[0])
-            #print(Gamma_old[0])
-            #plt.plot(Gamma_guess,'r')
-            #plt.plot(Gamma_old,'g')
-            #plt.show()
-            #quit()
-            #print(np.average(np.power(Gamma_guess-Gamma_old,2)))'''
-        # C,D,E_terms were terms in the function eqforgamma, but since they never 
-        # change, I calculate it just once out here. 
+        # C,D,E_terms were terms in the function _eqforgamma, but since they 
+        # never change, I calculate them just once out here. 
         Gammaoldpdhalves = np.absolute(0.5*(Gamma_old+D))
         C_term = np.sum(p*(np.log(u)-u),axis=1)/np.sum(p,axis=1)
         D_term = spdigamma(Gammaoldpdhalves)
         E_term = -np.log(Gammaoldpdhalves)
         CDE_term = C_term + D_term + E_term
-        te = time.time()
-        Result = sproot(eqforgamma,x0=Gamma_old,args=(Gamma_old,p,u,D,CDE_term),method="hybr",tol=1e-2,jac=True)
+        Result = sproot(_eqforgamma,x0=Gamma_old,args=(Gamma_old,p,u,D,CDE_term),method="hybr",tol=eq_tol,jac=True)
         Gamma = Result['x']
 
         #Eq. (26)
         hatP[:] = p*u
         hatPI[:] = np.diag(np.dot(hatP,np.ones(N)))
-        G[:] = np.exp(-0.5/beta2*pairwise_distance(Y,Y,squared=True).T) # TODO don't calculate pwise_distYY twice!
+        G[:] = np.exp(-0.5/beta2*pwise_distYY.T) 
         hatPIG[:] = np.dot(hatPI,G)
         hatPX[:] = np.dot(hatP,X)
         hatPIY[:] = np.dot(hatPI,Y)
@@ -169,6 +156,7 @@ def _dsmm():
         #Step5 moved here to optimize
         Y += np.dot(G,W)
         pwise_dist = pairwise_distance(X,Y,squared=True).T
+        pwise_distYY = pairwise_distance(Y,Y,squared=True)
 
         #Back to Step4 
         #Eq. (27)
@@ -181,3 +169,8 @@ def _dsmm():
         regerror = np.sum(pwise_dist)
         relerr = np.absolute((regerror-regerror_old)/regerror_old)
         i += 1
+    
+    if returnOnlyP:
+        return p
+    else:    
+        return Y, X, p

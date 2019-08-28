@@ -7,5 +7,5 @@ setup(name='wormbrain',
       description='Handling small brains',
       author='Francesco Randi',
       author_email='francesco.randi@gmail.com',
-      packages=['wormbrain'],
+      packages=['wormbrain','wormbrain.reg'],
      )
