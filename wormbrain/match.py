@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-def pairwise_distance(A,B,returnAll=False,thresholdDz=0.0):
+def pairwise_distance(A,B,returnAll=False,squared=False,thresholdDz=0.0):
     '''
     Calculates the pairwise distance between points belonging to two sets of 
     points.
@@ -20,13 +20,14 @@ def pairwise_distance(A,B,returnAll=False,thresholdDz=0.0):
         Indexes are D[index_point_in_A, index_point_in_B].
         
     '''
-    Dv = A[...,None]-B.T
+    Dv = A[:,None]-B[None,:]
 
     if thresholdDz!=0.0:
         Dv[:,2,:] = 0.5*(np.sign(np.absolute(Dv[:,2,:])-thresholdDz)+1.0)*Dv[:,2,:]
         
-    D = np.sqrt(np.sum(np.power(Dv,2),axis=1)) # [a,b]
-    #D = np.sum(np.power(A[...,None]-B.T,2),axis=1) # [a,b]
+    D = np.sum(np.power(Dv,2),axis=-1) # [a,b]
+    if not squared:
+        D = np.sqrt(D)
         
     if returnAll==True:
         return D, Dv
@@ -56,8 +57,10 @@ def match(A, B, method='nearest', registration='None', **kwargs):
         A, B = _register_centroid(A,B,**kwargs)
     elif registration=='displacement':
         A, B = _register_displacement(A,B,**kwargs)
-    elif registration=='tps':
-        A, B = _register_tps(A,B,**kwargs)
+    #elif registration=='tps':
+    #    A, B = _register_tps(A,B,**kwargs)
+    elif registration=="dsmm":
+        A, B = wormb.reg._dsmm(A,B,**kwargs) #TODO implement parallelization inside it
     
     if method=='nearest':
         Match = _match_nearest(A,B,**kwargs)
@@ -65,7 +68,7 @@ def match(A, B, method='nearest', registration='None', **kwargs):
     
     
     
-def _match_nearest(A, B, **kwargs):
+def _match_nearest(A, B, **kwargs): #TODO implement it on multiple As
     # Calculate pairwise distance between every pair of points in (B, A).T
     # Pass thresholdDz if it is in kwargs
     if "thresholdDz" in kwargs.keys():
