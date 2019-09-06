@@ -117,6 +117,27 @@ double dsmm::digamma(double x, int order, int order2) {
     return y;
 }
 
+double dsmm::logmenodigamma(double x, int order, int order2) {
+    double coeff[15] = {-0.5,-1./12.,0.0,1./120.,0.0,-1./256.,0.0,1./240.,0.0,-5./660.,0.0,691./32760.,0.0,-1./12.};
+    
+    double xporder2 = x+order2;
+    double y = log(x/xporder2); 
+    
+    for(int j=0;j<order2;j++) {
+        y += 1./(x+j);
+    }
+    
+    for (int k=0;k<order;k++) {
+        if(coeff[k]!=0.0){
+            y -= coeff[k]/xporder2;
+            //y += coeff[k]/pow(xporder2,(double)k+1.); // VERSION 1
+        }
+        xporder2 *= xporder2;
+    }
+    
+    return y;
+}
+
 
 void dsmm::studt(double *pwise_dist, int M, int N, double sigma2, double *Gamma, int D, double *out){
     // With Mahalanobis distance = pwise_dist/sigma^2
@@ -142,7 +163,8 @@ void dsmm::studt(double *pwise_dist, int M, int N, double sigma2, double *Gamma,
 double dsmm::eqforgamma(double x, double CDE_term) {
     double z = 0.5*x;
     //double A = -boost::math::digamma(z) + log(z);
-    double A = -digamma(z,5,10) + log(z);
+    //double A = -digamma(z,5,10) + log(z);
+    double A = logmenodigamma(z,5,10);
     return A+CDE_term+1.;
 }
 
