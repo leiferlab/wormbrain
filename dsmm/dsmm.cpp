@@ -1,5 +1,3 @@
-//#include "stdafx.h"
-
 #include "dsmm.hpp"
 #include "dsmm_utils.hpp"
 #include <cstdlib>
