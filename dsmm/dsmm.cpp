@@ -20,6 +20,43 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
            double *sumPoverN, double *expAlphaSumPoverN) { //Passing the allocated arrays, Eigen Matrix header added inside.
     // write docs
     
+    //"Normalize" in Vemuri's language
+    double avg,max;
+    for(int d=0;d<D;d++){
+        avg = 0.0;
+        max = 0.0;
+        for(int m=0;m<M;m++){
+            avg += Y[m*D+d];
+        }
+        avg /= M;
+        for(int m=0;m<M;m++){
+            Y[m*D+d] -= avg;
+        }
+        for(int m=0;m<M;m++){
+            if(max<abs(Y[m*D+d])){max=abs(Y[m*D+d]);}
+        }
+        for(int m=0;m<M;m++){
+            Y[m*D+d] /= max;
+        }
+    }
+    for(int d=0;d<D;d++){
+        avg = 0.0;
+        max = 0.0;
+        for(int n=0;n<N;n++){
+            avg += X[n*D+d];
+        }
+        avg /= N;
+        for(int n=0;n<N;n++){
+            X[n*D+d] -= avg;
+        }
+        for(int n=0;n<N;n++){
+            if(max<abs(X[n*D+d])){max=abs(X[n*D+d]);}
+        }
+        for(int n=0;n<N;n++){
+            X[n*D+d] /= max;
+        }
+    }
+    
     typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> Matrice;
     typedef Eigen::Map<Matrice> MatrixMap;
     
@@ -30,7 +67,7 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
     MatrixMap hatP_(hatP,M,N), hatPIG_(hatPIG,M,M), hatPX_(hatPX,M,D), hatPIY_(hatPIY,M,D); 
     MatrixMap G_(G,M,M), W_(W,M,D), GW_(GW,M,D);
     //MatrixMap sumPoverN_(sumPoverN,M,N);
-
+    
 	double oneovermn = 1. / M / N;
 	for (int mn=0; mn < M*N; mn++) {
 		w[mn] = oneovermn;

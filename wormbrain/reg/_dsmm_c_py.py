@@ -3,13 +3,16 @@ import numpy as np
 
 def dsmmc(Y,X,returnOnlyP=False,beta=2.0,llambda=1.5,neighbor_cutoff=10.0,
             conv_epsilon=1e-3,eq_tol=1e-2):
+    
+    '''
     # Preprocess ("normalize" in Vemuri's language)
     X -= np.average(X,axis=0)
     X /= np.max(np.absolute(X),axis=0)
-    X += np.min(X,axis=0)
+    #X += np.min(X,axis=0)
     Y -= np.average(Y,axis=0)
     Y /= np.max(np.absolute(Y),axis=0)
-    Y += np.min(Y,axis=0)
+    #Y += np.min(Y,axis=0)
+    '''
 
     N = X.shape[0]
     M = Y.shape[0]
