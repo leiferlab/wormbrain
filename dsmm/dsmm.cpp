@@ -82,13 +82,22 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
     double regerror=pwise_dist_.sum(), regerror_old=pwise_dist_.sum(), relerror=1000.;
     double beta2 = pow(beta,2.0);
     
-    for(int mm=0;mm<M*M;mm++){
+    /**for(int mm=0;mm<M*M;mm++){
         G[mm] = dsmm::fastexp(-pwise_distYY[mm]*0.5/beta2);
         //G[mm] = exp(-pwise_distYY[mm]*0.5/beta2);
+    }**/
+    // FIXME If something goes wrong, these are the newly introduced updates.
+    double gtmp;
+    for(int m=0;m<M;m++){
+        for(int m2=m;m2<M;m2++){
+            gtmp = dsmm::fastexp(-pwise_distYY[m*M+m2]*0.5/beta2);
+            G[m*M+m2] = gtmp;
+            G[m2*M+m] = gtmp;
+        }
     }
     
     int iter = 0;
-    double aa=0.0, bb=0.0;
+    double aa=0.0, bb=0.0, tmpgd;
     bool mentre = true;
     while((relerror>conv_epsilon) && (mentre)) {
         regerror_old=pwise_dist_.sum();
@@ -115,8 +124,10 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
         //Python code
         //u[:] = (Gamma[:,None] + D) / (Gamma[:,None] + pwise_dist/sigma2)
         for(int m=0;m<M;m++){
+            tmpgd = Gamma[m]+D;
             for(int n=0;n<N;n++){
-                u[m*N+n] = (Gamma[m]+D) / (Gamma[m]+pwise_dist[m*N+n]/sigma2);
+                //u[m*N+n] = (Gamma[m]+D) / (Gamma[m]+pwise_dist[m*N+n]/sigma2);
+                u[m*N+n] = tmpgd / (Gamma[m]+pwise_dist[m*N+n]/sigma2);
             }
         }
         
@@ -165,10 +176,10 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
                 p_sum += p[m*N+n];
             }
             c_term /= p_sum;
-            d_term = dsmm::digamma(goldpdhalves);
-            //d_term = boost::math::digamma(goldpdhalves);
-            e_term = -log(goldpdhalves);
-            CDE_term[m] = c_term+d_term+e_term;
+            //d_term = dsmm::digamma(goldpdhalves);
+            //e_term = -log(goldpdhalves);
+            
+            CDE_term[m] = c_term-dsmm::logmenodigamma(goldpdhalves);//+d_term+e_term; FIXME
         }
         
         dsmm::solveforgamma(CDE_term,M,Gamma);
@@ -199,31 +210,44 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
             }
         }*************/
         
+        //FIXME whole two for loops
+        for(int m=0;m<M;m++){
+            for(int m2=m;m2<M;m2++){
+                gtmp = dsmm::fastexp(-pwise_distYY[m*M+m2]*0.5/beta2);
+                G[m*M+m2] = gtmp;
+                G[m2*M+m] = gtmp;
+            }
+        }
+        
         for(int m=0;m<M;m++){
             for(int m2=0;m2<M;m2++){
-                G[m*M+m2] = dsmm::fastexp(-0.5/beta2*pwise_distYY[m*M+m2]);
+                //G[m*M+m2] = dsmm::fastexp(-0.5/beta2*pwise_distYY[m*M+m2]); //FIXME
                 //G[m*M+m2] = exp(-0.5/beta2*pwise_distYY[m*M+m2]);
                 hatPIG[m*M+m2] = hatPI_diag[m]*G[m*M+m2];
                 if(m2==m){ hatPIG[m*M+m2] += lambda*sigma2;}  
             }
         }
+        
+        
+        
         for(int m=0;m<M;m++){
             for(int d=0;d<D;d++){hatPIY[m*D+d] = hatPI_diag[m]*Y[m*D+d];}
         }
         
         //Python code
         //hatPX[:] = np.dot(hatP,X)
-        hatPX_.noalias() = hatP_*X_;
+        hatPX_.noalias() = hatP_*X_; 
         
         //Python code
         //#hatPIG+lambda*sigma2*Identity done above
         //A = np.linalg.inv(hatPIG+lambda*sigma2*I1_) 
         //B = hatPX - hatPIY
         //W = np.dot(A,B)
-        W_.noalias() = hatPIG_.inverse()*(hatPX_-hatPIY_);
+        W_.noalias() = hatPIG_.inverse()*(hatPX_-hatPIY_); 
         
         //Step5 moved here to optimize
         Y_.noalias() += G_*W_;
+        //Y_.noalias() += G_*(hatPIG_.inverse()*(hatP_*X_-hatPIY_));
         
         dsmm::pwise_dist2(Y,X,M,N,D,pwise_dist);
         dsmm::pwise_dist2_same(Y,M,D,pwise_distYY);
