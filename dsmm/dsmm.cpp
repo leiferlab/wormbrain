@@ -1,3 +1,5 @@
+//#include "stdafx.h"
+
 #include "dsmm.hpp"
 #include "dsmm_utils.hpp"
 #include <cstdlib>
@@ -28,6 +30,15 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
     MatrixMap hatP_(hatP,M,N), hatPIG_(hatPIG,M,M), hatPX_(hatPX,M,D), hatPIY_(hatPIY,M,D); 
     MatrixMap G_(G,M,M), W_(W,M,D), GW_(GW,M,D);
     //MatrixMap sumPoverN_(sumPoverN,M,N);
+
+	double oneovermn = 1. / M / N;
+	for (int mn=0; mn < M*N; mn++) {
+		w[mn] = oneovermn;
+	}
+	double gamma0 = 3.;
+	for (int m = 0; m < M; m++) {
+		Gamma[m] = gamma0;
+	}
     
     dsmm::pwise_dist2(Y,X,M,N,D,pwise_dist);
     dsmm::pwise_dist2_same(Y,M,D,pwise_distYY); 

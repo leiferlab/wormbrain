@@ -16,13 +16,13 @@ def dsmmc(Y,X,returnOnlyP=False,beta=2.0,llambda=1.5,neighbor_cutoff=10.0,
     D = X.shape[1]
 
     # Init parameters
-    pwise_dist = wormb.match.pairwise_distance(Y,X,squared=True)
-    pwise_distYY = wormb.match.pairwise_distance(Y,Y,squared=True)
-    w = np.ones((M,N))*(1./M/N)
-    Gamma = np.ones(M)*3.
-    beta2 = beta**2
-    G = np.exp(-pwise_distYY/(2.*beta2))
-    Identity = np.diag(np.ones(M))
+    #pwise_dist = wormb.match.pairwise_distance(Y,X,squared=True)
+    #pwise_distYY = wormb.match.pairwise_distance(Y,Y,squared=True)
+    #w = np.ones((M,N))*(1./M/N)
+    #Gamma = np.ones(M)*3.
+    #beta2 = beta**2
+    #G = np.exp(-pwise_distYY/(2.*beta2))
+    #Identity = np.diag(np.ones(M))
 
     # Allocate arrays
     '''F_t = np.empty((M,N))
@@ -39,6 +39,11 @@ def dsmmc(Y,X,returnOnlyP=False,beta=2.0,llambda=1.5,neighbor_cutoff=10.0,
     W = np.empty((M,D))
     GW = np.empty((M,D))'''
     
+	pwise_dist = np.empty((M,N))
+	pwise_distYY = np.empty((M,M))
+	w = np.empty((M,N))
+	Gamma = np.empty(M)
+	G = np.empty((M,M))
     F_t = np.empty((M,N))
     wF_t = np.empty((M,N))
     wF_t_sum = np.empty(N)
