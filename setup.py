@@ -9,6 +9,8 @@ _dsmm_c = Extension('wormbrain.reg._dsmm_c',
                         'dsmm',
                         '/home/francesco/.local/lib/boost_1_71_0',
                         '/home/francesco/.local/lib/eigen',
+						'../eigen',
+						'../boost',
                         numpy.get_include()
                         ],
                     extra_compile_args=['-ffast-math','-O3'])

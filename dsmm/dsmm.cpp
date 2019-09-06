@@ -44,7 +44,7 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
     int iter = 0;
     double aa=0.0, bb=0.0;
     bool mentre = true;
-    while(relerror>conv_epsilon and mentre) {
+    while((relerror>conv_epsilon) && (mentre)) {
         regerror_old=pwise_dist_.sum();
         //Step3 (Eq. (5))
         dsmm::studt(pwise_dist,M,N,sigma2,Gamma,D,F_t);
