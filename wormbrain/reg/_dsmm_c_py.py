@@ -39,11 +39,11 @@ def dsmmc(Y,X,returnOnlyP=False,beta=2.0,llambda=1.5,neighbor_cutoff=10.0,
     W = np.empty((M,D))
     GW = np.empty((M,D))'''
     
-	pwise_dist = np.empty((M,N))
-	pwise_distYY = np.empty((M,M))
-	w = np.empty((M,N))
-	Gamma = np.empty(M)
-	G = np.empty((M,M))
+    pwise_dist = np.empty((M,N))
+    pwise_distYY = np.empty((M,M))
+    w = np.empty((M,N))
+    Gamma = np.empty(M)
+    G = np.empty((M,M))
     F_t = np.empty((M,N))
     wF_t = np.empty((M,N))
     wF_t_sum = np.empty(N)
