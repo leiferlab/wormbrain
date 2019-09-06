@@ -15,7 +15,8 @@ _dsmm_c = Extension('wormbrain.reg._dsmm_c',
 						'/projects/LEIFER/lib/include/boost',
                         numpy.get_include()
                         ],
-                    extra_compile_args=['-ffast-math','-O3','-std=c++11'])
+                    extra_compile_args=['-ffast-math','-O3'])#
+
 
 setup(name='wormbrain',
       version='0.1',
