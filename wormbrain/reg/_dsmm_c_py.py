@@ -52,6 +52,7 @@ def dsmmc(Y,X,returnOnlyP=False,beta=2.0,llambda=1.5,neighbor_cutoff=10.0,
     wF_t_sum = np.empty(N)
     p = np.empty((M,N))
     u = np.empty((M,N))
+    Match = np.ones(M,dtype=np.int32)*(-10)
     CDE_term = np.empty(M)
     hatP = np.empty((M,N))
     hatPI_diag = np.empty(M)
@@ -68,8 +69,8 @@ def dsmmc(Y,X,returnOnlyP=False,beta=2.0,llambda=1.5,neighbor_cutoff=10.0,
 
     wormb.reg._dsmmc_bare(X,Y,M,N,D,beta,llambda,neighbor_cutoff,alpha,conv_epsilon,
            pwise_dist,pwise_distYY,Gamma,CDE_term,
-           w,F_t,wF_t,wF_t_sum,p,u,
+           w,F_t,wF_t,wF_t_sum,p,u,Match,
            hatP,hatPI_diag,hatPIG,hatPX,hatPIY,
            G,W,GW,sumPoverN,expAlphaSumPoverN)
               
-    return Y,X,p
+    return Y,X,p,Match

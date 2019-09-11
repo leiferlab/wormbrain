@@ -12,7 +12,7 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
            double *pwise_dist, double *pwise_distYY,
            double *Gamma, double *CDE_term,
            double *w, double *F_t, double *wF_t, double *wF_t_sum, 
-           double *p, double *u,
+           double *p, double *u, int *Match,
            double *hatP, double *hatPI_diag, double *hatPIG, double *hatPX, double *hatPIY,
            double *G, double *W, double *GW, 
            double *sumPoverN, double *expAlphaSumPoverN) { //Passing the allocated arrays, Eigen Matrix header added inside.
@@ -292,5 +292,46 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
         }**/
         iter++;
     }
-    std::cout<<iter<<"\n";
+    //std::cout<<iter<<"\n";
+    
+    // Find the closest matches (the posteriors sometimes go bad when there
+    // are a lot of outliers).
+    // FIXME This doesn't work really, because sometimes the match extracted via
+    // the posteriors is reasonable but is not the closest match. You
+    // practically need to run the nearest neighbor matching that you have
+    // in Python, so that you take the argmax for the posterior if the
+    // distance to that match is within a threshold from the median/average
+    // first neighbor distance (maybe filtered on the pairs with enough confidence
+    // otherwise you also have the distances between points that are far because
+    // the correspondence is missing.
+    
+    // Find average of minimum distance in pwise_distYY
+    double mindist;
+    double avgmindist=0.0;
+    for(int m=0;m<M;m++){
+        mindist = pwise_distYY[m*M];
+        for(int m2=0;m2<M;m2++){
+            if(mindist>pwise_distYY[m*M+m2] && m2!=m){
+                mindist=pwise_distYY[m*M+m2];
+            }
+        }
+        avgmindist += mindist;
+    }
+    avgmindist /= M;
+    
+    double maxp;
+    int match_index;
+    for(int m=0;m<M;m++){
+        match_index = -1;
+        maxp = 0.0;
+        for(int n=0;n<N;n++){
+            if(maxp<p[m*N+n]){
+                maxp = p[m*N+n];
+                match_index = n;
+            }
+        }
+        if(pwise_dist[m*N+match_index]<2.*avgmindist && maxp>0.5){
+            Match[m] = match_index;
+        }
+    }
 }

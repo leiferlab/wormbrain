@@ -36,18 +36,18 @@ static PyObject *_dsmmc_bare(PyObject *self, PyObject *args) {
     double beta, lambda, neighbor_cutoff, alpha, conv_epsilon;
     //bool releaseGIL;
     PyObject *X_o, *Y_o, *pwise_dist_o, *pwise_distYY_o, *Gamma_o, *CDE_term_o;
-    PyObject *w_o, *F_t_o, *wF_t_o, *wF_t_sum_o, *p_o, *u_o;
+    PyObject *w_o, *F_t_o, *wF_t_o, *wF_t_sum_o, *p_o, *u_o, *Match_o;
     PyObject *hatP_o, *hatPI_diag_o, *hatPIG_o, *hatPX_o, *hatPIY_o;
     PyObject *G_o, *W_o, *GW_o, *sumPoverN_o, *expAlphaSumPoverN_o;
     
-    if(!PyArg_ParseTuple(args, "OOiiidddddOOOOOOOOOOOOOOOOOOOO", 
+    if(!PyArg_ParseTuple(args, "OOiiidddddOOOOOOOOOOOOOOOOOOOOO", 
         &X_o, &Y_o, &M, &N, &D, 
         &beta, &lambda, &neighbor_cutoff,
         &alpha, &conv_epsilon,
         &pwise_dist_o, &pwise_distYY_o,
         &Gamma_o, &CDE_term_o,
         &w_o, &F_t_o, &wF_t_o, &wF_t_sum_o,
-        &p_o, &u_o,
+        &p_o, &u_o, &Match_o,
         &hatP_o, &hatPI_diag_o, &hatPIG_o, &hatPX_o, &hatPIY_o,
         &G_o, &W_o, &GW_o,
         &sumPoverN_o, &expAlphaSumPoverN_o)) return NULL;
@@ -64,6 +64,7 @@ static PyObject *_dsmmc_bare(PyObject *self, PyObject *args) {
     PyObject *wF_t_sum_a = PyArray_FROM_OTF(wF_t_sum_o, NPY_FLOAT64, NPY_IN_ARRAY);
     PyObject *p_a = PyArray_FROM_OTF(p_o, NPY_FLOAT64, NPY_IN_ARRAY);
     PyObject *u_a = PyArray_FROM_OTF(u_o, NPY_FLOAT64, NPY_IN_ARRAY);
+    PyObject *Match_a = PyArray_FROM_OTF(Match_o, NPY_INT32, NPY_IN_ARRAY);
     PyObject *hatP_a = PyArray_FROM_OTF(hatP_o, NPY_FLOAT64, NPY_IN_ARRAY);
     PyObject *hatPI_diag_a = PyArray_FROM_OTF(hatPI_diag_o, NPY_FLOAT64, NPY_IN_ARRAY);
     PyObject *hatPIG_a = PyArray_FROM_OTF(hatPIG_o, NPY_FLOAT64, NPY_IN_ARRAY);
@@ -80,6 +81,7 @@ static PyObject *_dsmmc_bare(PyObject *self, PyObject *args) {
     if (X_a == NULL || Y_a == NULL || pwise_dist_a == NULL || pwise_distYY_a == NULL
         || Gamma_a == NULL || CDE_term_a == NULL || w_a == NULL || F_t_a == NULL
         || wF_t_a == NULL || wF_t_sum_a == NULL || p_a == NULL || u_a == NULL
+        || Match_a == NULL
         || hatP_a == NULL || hatPI_diag_a == NULL || hatPIG_a == NULL || hatPX_a == NULL
         || hatPIY_a == NULL || G_a == NULL || W_a == NULL || GW_a == NULL
         || sumPoverN_a == NULL || expAlphaSumPoverN_a == NULL
@@ -96,6 +98,7 @@ static PyObject *_dsmmc_bare(PyObject *self, PyObject *args) {
         Py_XDECREF(wF_t_sum_a);
         Py_XDECREF(p_a);
         Py_XDECREF(u_a);
+        Py_XDECREF(Match_a);
         Py_XDECREF(hatP_a);
         Py_XDECREF(hatPI_diag_a);
         Py_XDECREF(hatPIG_a);
@@ -122,6 +125,7 @@ static PyObject *_dsmmc_bare(PyObject *self, PyObject *args) {
     double *wF_t_sum = (double*)PyArray_DATA(wF_t_sum_a);
     double *p = (double*)PyArray_DATA(p_a);
     double *u = (double*)PyArray_DATA(u_a);
+    int *Match = (int*)PyArray_DATA(Match_a);
     double *hatP = (double*)PyArray_DATA(hatP_a);
     double *hatPI_diag = (double*)PyArray_DATA(hatPI_diag_a);
     double *hatPIG = (double*)PyArray_DATA(hatPIG_a);
@@ -145,7 +149,7 @@ static PyObject *_dsmmc_bare(PyObject *self, PyObject *args) {
     
     dsmm::_dsmm(X,Y,M,N,D,beta,lambda,neighbor_cutoff,alpha,conv_epsilon,
            pwise_dist,pwise_distYY,Gamma,CDE_term,
-           w,F_t,wF_t,wF_t_sum,p,u,
+           w,F_t,wF_t,wF_t_sum,p,u,Match,
            hatP,hatPI_diag,hatPIG,hatPX,hatPIY,
            G,W,GW,sumPoverN,expAlphaSumPoverN);
     
@@ -174,6 +178,7 @@ static PyObject *_dsmmc_bare(PyObject *self, PyObject *args) {
     Py_XDECREF(wF_t_sum_a);
     Py_XDECREF(p_a);
     Py_XDECREF(u_a);
+    Py_XDECREF(Match_a);
     Py_XDECREF(hatP_a);
     Py_XDECREF(hatPI_diag_a);
     Py_XDECREF(hatPIG_a);
