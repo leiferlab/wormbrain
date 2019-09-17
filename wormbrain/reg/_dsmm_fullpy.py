@@ -121,7 +121,7 @@ def _dsmm_fullpy(Y,X,returnOnlyP=False,beta=2.0,llambda=1.5,neighbor_cutoff=10.0
     
     # Init parameters
     pwise_dist = pairwise_distance(Y,X,squared=True)
-    mf.approx.pwise_dist2(Y,X,M,N,D,pwise_dist)
+    #mf.approx.pwise_dist2(Y,X,M,N,D,pwise_dist)
     beta2 = beta**2
     w = np.ones((M,N))*(1./M/N)
     Gamma = np.ones(M)*3.

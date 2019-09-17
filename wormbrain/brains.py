@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 import mistofrutta.struct.irrarray as irrarray
 from copy import deepcopy as deepcopy
 import json
@@ -51,7 +52,8 @@ class Brains:
         self.coord = irrarray(coordZYX, [self.nInVolume], strideNames=["vol"])
         #self.volFrame0 = volFrame0
         
-        if zOfFrame != None: self.zOfFrame = zOfFrame
+        if zOfFrame == None: zOfFrame = np.zeros((len(self.nInVolume),1))
+        self.zOfFrame = zOfFrame
         
         if len(properties.keys())!=0:
             self.curvature = properties['curvature']
@@ -66,11 +68,16 @@ class Brains:
                     nPlane=self.boxNPlane, boxIndices=self.boxIndices,
                     method="xyMaxCurvature")
                     
-                self.coord = np.rint(self.coord).astype(int)
+            self.coord = np.rint(self.coord)
+            
+        self.coord = self.coord.astype(int)
     
     # New
     @classmethod
-    def from_find_neurons(cls, coord, volFrame0, *args, **kwargs):
+    def from_find_neurons(cls, coord, volFrame0=None, *args, **kwargs):
+        if volFrame0 is None:
+            volFrame0 = np.arange(len(coord)+1,dtype=int)
+
         coordZYX, nInVolume, nInFrame = cls._conv_coord_2d_to_3d(coord, 
                                         volFrame0, dtype=int)
                                         
@@ -108,6 +115,7 @@ class Brains:
         '''
         Allow for direct indexing of the class to access the coordinates.
         '''
+        print(i, "I'm in __getitem__")
         return self.coord.__getitem__(i)
         
     def __setitem__(self, i, value):
@@ -162,7 +170,7 @@ class Brains:
         # Get the neurons in the requested volumes
         trueCoords = self.coord(vol=vol, dtype=np.float)
         intCoords = self.coord(vol=vol)
-        
+                
         L = len(vol)
         for l in np.arange(L):
             trueCoords[l][:,0] = self.zOfFrame[vol[l]][intCoords[l][:,0]]
@@ -221,7 +229,7 @@ class Brains:
         # Initialize the lists containing the neurons coordinates.
         nTotal = np.sum(nInFrame)
         
-        coord_3d = np.zeros((nTotal,3))
+        coord_3d = np.zeros((nTotal,3),dtype=type(coord_2d[0][0]))
         nInVolume = []
         L = len(volFrame0)-1
         
@@ -250,7 +258,7 @@ class Brains:
                     Z = np.ones(nInFrame[i],dtype=dtype)*(i-firstframe)*dz
                 else:
                     Z = np.ones(nInFrame[i])*zOfFrame[l][i-firstframe]
-                    
+   
                 # Depending on the specified ordering, extract X and Y from 
                 # coord_2d
                 if coord_2d_ordering=='xy':
@@ -335,7 +343,7 @@ class Brains:
                 centralIndices[pl] = boxIndices[pl][sh0//2]
             curv = curvature[:,centralIndices] #look just along z
         
-        coord[:,z_index] += np.sum(z*curv,axis=1)/np.sum(curv,axis=1)
+        coord[:,z_index] = coord[:,z_index].astype(float) + np.sum(z*curv,axis=1)/np.sum(curv,axis=1)
         
         return coord
     
@@ -370,3 +378,67 @@ class Brains:
     def _sphere_radius(y, dx=1.0):
         y0sq = y[:,0]**2
         return np.sqrt(y0sq + ((y0sq-y[:,1]**2-dx**2)/(2.0*dx))**2)
+        
+    def plot(self, indices,mode='3d',plotNow=True,**kwargs):
+        try:
+            len(indices)
+        except:
+            indices = np.array([indices])
+        
+        if mode=='3d':
+            fig, ax = self._plot_3d(indices, **kwargs)
+        if mode=='2d':
+            fig, ax = self._plot_2d(indices, **kwargs)
+            
+        if plotNow==True:
+            plt.show()
+            return
+        else:
+            return fig, ax
+            
+            
+    def _plot_3d(self, indices, **kwargs):
+        cfn = plt.gcf().number
+        if len(plt.gcf().axes)!=0: cfn += 1
+        
+        showAll=True
+        if 'showAll' in kwargs: showAll=kwargs['showAll']
+        
+        fig = plt.figure(cfn)
+        ax = fig.add_subplot(111,projection='3d')
+        
+        for index in indices:
+            brain = self.trueCoords(index)
+            ax.scatter(brain.T[2],brain.T[1],brain.T[0],'o')
+                
+        return fig, ax
+        
+
+    def _plot_2d(self, indices, **kwargs):
+        cfn = plt.gcf().number
+        if len(plt.gcf().axes)!=0: cfn += 1
+        
+        showAll=True
+        if 'showAll' in kwargs: showAll=kwargs['showAll']
+        
+        fig = plt.figure(cfn)
+        ax = fig.add_subplot(111)
+        p = 0 # x in plot
+        q = 1 # y in plot
+        r = 2
+
+        ax.plot(A.T[p],A.T[q],'og')#,markersize=3)
+        ax.plot(B.T[p],B.T[q],'or',markersize=2)
+
+        I = len(Match)
+        for i in np.arange(I):
+            j = Match[i]
+            if j>0:
+                ax.plot((A[j,p],B[i,p]),(A[j,q],B[i,q]),'k-')
+            else:
+                j = -j//10
+                ax.plot(B[i,p],B[i,q],'*b')
+                if showAll:
+                    ax.plot((A[j,p],B[i,p]),(A[j,q],B[i,q]),'--',c='orange')
+                
+        return fig, ax

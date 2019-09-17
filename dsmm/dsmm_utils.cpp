@@ -168,17 +168,27 @@ double dsmm::eqforgamma(double x, double CDE_term) {
     return A+CDE_term+1.;
 }
 
-void dsmm::solveforgamma(double *X, int sizeX, double *out) {
+double dsmm::eqforgamma_mod(double x, double CDE_term) {
+    double z = 0.5*abs(x);
+    //double A = -boost::math::digamma(z) + log(z);
+    //double A = -digamma(z,5,10) + log(z);
+    double A = logmenodigamma(z,5,10);
+    return A+CDE_term+1.;
+}
+
+void dsmm::solveforgamma(double *X, int sizeX, double *out, double eq_tol) {
     double xi;
     double inizio = 1.0;
     double fattore = 2.0;
-    bool sale = false;
-    tolerance tolleranza = 0.001;
-    boost::uintmax_t massimo = 100;
+    bool sale = false; //THIS IS false!!! FIXME TODO
+    tolerance tolleranza = eq_tol;
+    boost::uintmax_t massimo = 1000;
     
     for(int i=0;i<sizeX;i++) {
         xi = X[i];
-        std::pair<double, double> result = boost::math::tools::bracket_and_solve_root(std::bind(eqforgamma,std::placeholders::_1,xi), inizio, fattore, sale, tolleranza, massimo);
+        //inizio = X[i];
+        std::pair<double, double> result = boost::math::tools::bracket_and_solve_root(std::bind(eqforgamma,std::placeholders::_1,xi), inizio, fattore, sale, tolleranza, massimo); //FIXME TODO
+        //std::pair<double, double> result = boost::math::tools::toms748_solve(std::bind(eqforgamma,std::placeholders::_1,xi),0.0,20.,tolleranza,massimo);
         out[i] = 0.5*(result.first + result.second);
     }
 }
@@ -213,12 +223,12 @@ double dsmm::eqforalpha(double alpha, double *p, int M, int N, double *sumPoverN
     return y;
 }
 
-void dsmm::solveforalpha(double *p, int M, int N, double *sumPoverN, double &alpha) {
+void dsmm::solveforalpha(double *p, int M, int N, double *sumPoverN, double &alpha, double eq_tol, double alpha0) {
     double inizio = 0.2;
     double fattore = 2.0;
     bool sale = true;
-    tolerance tolleranza = 0.001;
-    boost::uintmax_t massimo = 100;
+    tolerance tolleranza = eq_tol;
+    boost::uintmax_t massimo = 1000;
     std::pair<double, double> result = boost::math::tools::bracket_and_solve_root(std::bind(dsmm::eqforalpha,std::placeholders::_1,p,M,N,sumPoverN), inizio, fattore, sale, tolleranza, massimo);
     alpha = 0.5*(result.first + result.second);
 }

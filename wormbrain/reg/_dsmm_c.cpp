@@ -33,17 +33,18 @@ PyMODINIT_FUNC PyInit__dsmm_c(void) {
 static PyObject *_dsmmc_bare(PyObject *self, PyObject *args) {
 
     int M, N, D;
-    double beta, lambda, neighbor_cutoff, alpha, conv_epsilon;
+    double beta, lambda, neighbor_cutoff, alpha, gamma0, conv_epsilon, eq_tol;
     //bool releaseGIL;
     PyObject *X_o, *Y_o, *pwise_dist_o, *pwise_distYY_o, *Gamma_o, *CDE_term_o;
     PyObject *w_o, *F_t_o, *wF_t_o, *wF_t_sum_o, *p_o, *u_o, *Match_o;
     PyObject *hatP_o, *hatPI_diag_o, *hatPIG_o, *hatPX_o, *hatPIY_o;
     PyObject *G_o, *W_o, *GW_o, *sumPoverN_o, *expAlphaSumPoverN_o;
     
-    if(!PyArg_ParseTuple(args, "OOiiidddddOOOOOOOOOOOOOOOOOOOOO", 
+    if(!PyArg_ParseTuple(args, "OOiiidddddddOOOOOOOOOOOOOOOOOOOOO", 
         &X_o, &Y_o, &M, &N, &D, 
         &beta, &lambda, &neighbor_cutoff,
-        &alpha, &conv_epsilon,
+        &alpha, &gamma0,
+        &conv_epsilon, &eq_tol,
         &pwise_dist_o, &pwise_distYY_o,
         &Gamma_o, &CDE_term_o,
         &w_o, &F_t_o, &wF_t_o, &wF_t_sum_o,
@@ -147,7 +148,8 @@ static PyObject *_dsmmc_bare(PyObject *self, PyObject *args) {
     //////////////////////////////////
     //////////////////////////////////
     
-    dsmm::_dsmm(X,Y,M,N,D,beta,lambda,neighbor_cutoff,alpha,conv_epsilon,
+    dsmm::_dsmm(X,Y,M,N,D,beta,lambda,neighbor_cutoff,alpha,gamma0,
+           conv_epsilon,eq_tol,
            pwise_dist,pwise_distYY,Gamma,CDE_term,
            w,F_t,wF_t,wF_t_sum,p,u,Match,
            hatP,hatPI_diag,hatPIG,hatPX,hatPIY,

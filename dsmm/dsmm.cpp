@@ -8,7 +8,8 @@
 
 void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
            double beta, double lambda, double neighbor_cutoff,
-           double alpha, double conv_epsilon,
+           double alpha, double gamma0,
+           double conv_epsilon, double eq_tol,
            double *pwise_dist, double *pwise_distYY,
            double *Gamma, double *CDE_term,
            double *w, double *F_t, double *wF_t, double *wF_t_sum, 
@@ -70,7 +71,7 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
 	for (int mn=0; mn < M*N; mn++) {
 		w[mn] = oneovermn;
 	}
-	double gamma0 = 3.;
+
 	for (int m = 0; m < M; m++) {
 		Gamma[m] = gamma0;
 	}
@@ -97,7 +98,7 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
     }
     
     int iter = 0;
-    double aa=0.0, bb=0.0, tmpgd;
+    double aa=0.0, bb=0.0, tmpgd, alpha_old;
     bool mentre = true;
     while((relerror>conv_epsilon) && (mentre)) {
         regerror_old=pwise_dist_.sum();
@@ -133,7 +134,8 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
         
         //Eq. (20)'
         dsmm::sumPoverN(pwise_distYY, M, N, neighbor_cutoff, p, sumPoverN);
-        dsmm::solveforalpha(p,M,N,sumPoverN,alpha);
+        alpha_old = alpha;
+        dsmm::solveforalpha(p,M,N,sumPoverN,alpha,eq_tol,alpha_old);
         
         //Step4:M-Step
         // Eq. (18)'
@@ -166,7 +168,7 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
         //E_term = -np.log(Gammaoldpdhalves)
         //CDE_term = C_term + D_term + E_term
         
-        double goldpdhalves, c_term,p_sum,d_term,e_term;
+        double goldpdhalves, c_term,p_sum;//,d_term,e_term;
         for(int m=0;m<M;m++){
             goldpdhalves = 0.5*(Gamma[m]+D);
             c_term = 0.0;
@@ -182,7 +184,7 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
             CDE_term[m] = c_term-dsmm::logmenodigamma(goldpdhalves);//+d_term+e_term; FIXME
         }
         
-        dsmm::solveforgamma(CDE_term,M,Gamma);
+        dsmm::solveforgamma(CDE_term,M,Gamma,eq_tol);
         
         //Eq. (26)
         //Python code

@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+import wormbrain as wormb
 
 def pairwise_distance(A,B,returnAll=False,squared=False,thresholdDz=0.0):
     '''
@@ -60,8 +61,8 @@ def match(A, B, method='nearest', registration='None', **kwargs):
     #elif registration=='tps':
     #    A, B = wormb.reg.tps(A,B,**kwargs)
     elif registration=="dsmm":
-        A, B, p = wormb.reg.dsmm(A,B,**kwargs) #TODO implement parallelization inside it
-        return p
+        A, B, p, Match = wormb.reg.dsmmc(A,B,**kwargs) #TODO implement parallelization inside it
+        return Match
     
     if method=='nearest':
         Match = _match_nearest(A,B,**kwargs)
@@ -133,7 +134,7 @@ def plot_matches(A, B, Match, mode='3d',plotNow=True,**kwargs):
         return fig, ax
         
         
-def _plot_matches_3d(A, B, Match):
+def _plot_matches_3d(A, B, Match,**kwargs):
     cfn = plt.gcf().number
     if len(plt.gcf().axes)!=0: cfn += 1
     

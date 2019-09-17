@@ -2,7 +2,7 @@ import wormbrain as wormb
 import numpy as np
 
 def dsmmc(Y,X,returnOnlyP=False,beta=2.0,llambda=1.5,neighbor_cutoff=10.0,
-            conv_epsilon=1e-3,eq_tol=1e-2):
+            gamma0=3.,conv_epsilon=1e-3,eq_tol=1e-4):
     
     '''
     # Preprocess ("normalize" in Vemuri's language)
@@ -65,9 +65,10 @@ def dsmmc(Y,X,returnOnlyP=False,beta=2.0,llambda=1.5,neighbor_cutoff=10.0,
     #Additional stuff from new paper
     sumPoverN = np.zeros((M,N)) 
     expAlphaSumPoverN = np.zeros((M,N))
-    alpha=1.
+    alpha=0.2
 
-    wormb.reg._dsmmc_bare(X,Y,M,N,D,beta,llambda,neighbor_cutoff,alpha,conv_epsilon,
+    wormb.reg._dsmmc_bare(X,Y,M,N,D,beta,llambda,neighbor_cutoff,alpha,gamma0,
+           conv_epsilon,eq_tol,
            pwise_dist,pwise_distYY,Gamma,CDE_term,
            w,F_t,wF_t,wF_t_sum,p,u,Match,
            hatP,hatPI_diag,hatPIG,hatPX,hatPIY,
