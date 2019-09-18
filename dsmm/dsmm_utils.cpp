@@ -170,17 +170,17 @@ double dsmm::eqforgamma(double x, double CDE_term) {
 
 double dsmm::eqforgamma_mod(double x, double CDE_term) {
     double z = 0.5*abs(x);
-    //double A = -boost::math::digamma(z) + log(z);
+    double A = -boost::math::digamma(z) + log(z);
     //double A = -digamma(z,5,10) + log(z);
-    double A = logmenodigamma(z,5,10);
+    //double A = logmenodigamma(z,5,10);
     return A+CDE_term+1.;
 }
 
 void dsmm::solveforgamma(double *X, int sizeX, double *out, double eq_tol) {
     double xi;
-    double inizio = 1.0;
+    double inizio = 10.0;
     double fattore = 2.0;
-    bool sale = false; //THIS IS false!!! FIXME TODO
+    bool sale = false; //the function decreases with increasing Gamma
     tolerance tolleranza = eq_tol;
     boost::uintmax_t massimo = 1000;
     

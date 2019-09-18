@@ -108,12 +108,23 @@ def _dsmm_fullpy(Y,X,returnOnlyP=False,beta=2.0,llambda=1.5,neighbor_cutoff=10.0
     tm1 = time.time()
     
     # Preprocess ("normalize" in Vemuri's language)
+    
     X -= np.average(X,axis=0)
     X /= np.max(np.absolute(X),axis=0)
     X += np.min(X,axis=0)
     Y -= np.average(Y,axis=0)
     Y /= np.max(np.absolute(Y),axis=0)
     Y += np.min(Y,axis=0)
+    '''
+    X -= np.average(X,axis=0)
+    DDx = pairwise_distance(X,X)
+    Xmed = np.median(np.sort(DDx,axis=0)[1])
+    X /= Xmed
+    Y -= np.average(Y,axis=0)
+    DDy = pairwise_distance(Y,Y)
+    Ymed = np.median(np.sort(DDy,axis=0)[1])
+    Y /= Ymed
+    '''
     
     N = X.shape[0]
     M = Y.shape[0]
@@ -185,7 +196,7 @@ def _dsmm_fullpy(Y,X,returnOnlyP=False,beta=2.0,llambda=1.5,neighbor_cutoff=10.0
         t2b = time.time()
         #mf.approx.getsumPoverN(pwise_distYY, N, N, neighbor_cutoff, p, sumPoverN) #yay!
         t2c = time.time()
-        
+             
         Result = sproot(_eqforalpha,x0=alpha,args=(p,sumPoverN),method="hybr",tol=eq_tol)
         alpha = Result['x'][0]
         '''Alpha = np.array([alpha])
@@ -220,6 +231,14 @@ def _dsmm_fullpy(Y,X,returnOnlyP=False,beta=2.0,llambda=1.5,neighbor_cutoff=10.0
                 plt.plot(gamma,_eqforgamma(np.array([gamma]),CDE_term[0])[0],'ob')
             plt.axhline(0,c='k')
             plt.show()'''
+        
+        '''AAA = np.linspace(-1,30,100)    
+        for iii in np.arange(M):
+            plt.plot(AAA,_eqforgamma(AAA,CDE_term[iii])[0])
+        plt.axhline(0)
+        plt.axvline(0)
+        plt.ylim(-0.1,0.1)
+        plt.show()'''
         
         Result = sproot(_eqforgamma,x0=Gamma_old,args=(CDE_term),method="hybr",tol=eq_tol,jac=True,options={'col_deriv':1})
         Gamma = Result['x']

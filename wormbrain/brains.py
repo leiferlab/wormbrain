@@ -141,9 +141,12 @@ class Brains:
         diz['nInVolume'] = self.nInVolume.tolist()
         diz['zOfFrame'] = [z.tolist() for z in self.zOfFrame]
         props = {}
-        props['curvature'] = [c.tolist() for c in self.curvature]
-        props['boxIndices'] = [c.tolist() for c in self.boxIndices]
-        props['boxNPlane'] = self.boxNPlane
+        try:
+            props['curvature'] = [c.tolist() for c in self.curvature]
+            props['boxIndices'] = [c.tolist() for c in self.boxIndices]
+            props['boxNPlane'] = self.boxNPlane
+        except:
+            pass
         diz['properties'] = props
         
         if filename=="":

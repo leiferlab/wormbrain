@@ -1,10 +1,11 @@
 import wormbrain as wormb
 import numpy as np
+import matplotlib.pyplot as plt
 
 def dsmmc(Y,X,returnOnlyP=False,beta=2.0,llambda=1.5,neighbor_cutoff=10.0,
             gamma0=3.,conv_epsilon=1e-3,eq_tol=1e-4):
     
-    '''
+    
     # Preprocess ("normalize" in Vemuri's language)
     X -= np.average(X,axis=0)
     X /= np.max(np.absolute(X),axis=0)
@@ -13,6 +14,18 @@ def dsmmc(Y,X,returnOnlyP=False,beta=2.0,llambda=1.5,neighbor_cutoff=10.0,
     Y /= np.max(np.absolute(Y),axis=0)
     #Y += np.min(Y,axis=0)
     '''
+    X -= np.average(X,axis=0)
+    DDx = wormb.match.pairwise_distance(X,X)
+    Xmed = np.median(np.sort(DDx,axis=0)[1])
+    X /= Xmed
+    #X /= np.max(np.absolute(X),axis=0)
+    #X += np.min(X,axis=0)
+    Y -= np.average(Y,axis=0)
+    DDy = wormb.match.pairwise_distance(Y,Y)
+    Ymed = np.median(np.sort(DDy,axis=0)[1])
+    Y /= Ymed
+    #Y /= np.max(np.absolute(Y),axis=0)
+    #Y += np.min(Y,axis=0)'''
 
     N = X.shape[0]
     M = Y.shape[0]
