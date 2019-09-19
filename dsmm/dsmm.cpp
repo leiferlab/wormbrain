@@ -20,7 +20,6 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
     // write docs
     
     //"Normalize" in Vemuri's language
-    /**
     double avg,max;
     for(int d=0;d<D;d++){
         avg = 0.0;
@@ -55,7 +54,7 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
         for(int n=0;n<N;n++){
             X[n*D+d] /= max;
         }
-    }**/
+    }
     
     typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> Matrice;
     typedef Eigen::Map<Matrice> MatrixMap;

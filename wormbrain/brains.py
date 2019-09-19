@@ -6,43 +6,38 @@ import json
 import re
 
 class Brains:
-    '''
-    Container for neuron coordinates. It depends on the arrays with "irregular"
-    strides from the repository github.org/francescorandi/mistofrutta, which
-    are just a shorter notation for specific types of slices of numpy arrays.
+    '''Container for neuron coordinates. It depends on the arrays with 
+    "irregular" strides from the repository 
+    github.org/francescorandi/mistofrutta, which are just a shorter notation 
+    for specific types of slices of numpy arrays.
+    
+    Creation methods, besides the __init__, inlude from_find_neurons() and 
+    from_file(). Can be saved to a json file with to_file().
+    
+    The coordinates of the neurons can be accessed in various ways: With 
+    Cervelli an instance of the class
+    >>> Cervelli[i]
+    will return the i-th point (counting from the very beginning in the whole
+    set of points passed). The coordinates are stored in indexing-order so,
+    for 3D points, this will return z,y,x. z is the frame index inside the
+    volume. For a rescaled version of z, see trueCoords().
+    Upon call, the internal irrarray object which 
+    stores the coordinates is called, giving direct access to all its
+    functionalities. To obtain the coordinatesof neurons contained in volume m, 
+    use
+    >>> Cervelli(vol=m)     
+    (see mistofrutta.struct.irrarray for further documentation).
+    >>> Cervelli.trueCoords(m)
+    will return the "true" coordinates, in which z has the same dimensions as
+    y and x.
+    
+    Upon initialization, if the appropriate dictionary is passed via the
+    properties parameter, the z-coordinates are "stabilized" using the
+    information about the local curvature around that neuron.
     '''
     
-    filename = "neuronCoord.txt"
+    filename = "brains.json"
     
-    '''
-    def __init__(self, coord, volFrame0, zOfFrame=None, properties={}, 
-                 stabilize_z=True, coord_ordering='yx'):
-
-        coordZYX, self.nInVolume, self.nInFrame = self._conv_coord_2d_to_3d(coord, 
-                                        volFrame0, dtype=int)
-        
-        self.coord = irrarray(coordZYX, [self.nInVolume], strideNames=["vol"])
-        self.volFrame0 = volFrame0
-        
-        if zOfFrame != None: self.zOfFrame = zOfFrame
-        
-        if len(properties.keys())!=0:
-            self.curvature = properties['curvature']
-            self.curvature = irrarray(self.curvature, self.nInVolume, 
-                                        strideNames=["vol"])
-            self.boxIndices = properties['boxIndices']
-            self.boxNPlane = properties['boxNPlane']
-        
-            if stabilize_z:
-                self.coord = self._stabilize_z(self.coord, 
-                    self.curvature,
-                    nPlane=self.boxNPlane, boxIndices=self.boxIndices,
-                    method="xyMaxCurvature")
-                    
-                self.coord = np.rint(self.coord).astype(int)
-    '''
-    
-    # New
     def __init__(self, coordZYX, nInVolume, zOfFrame=None, properties={}, 
                  stabilize_z=True):
 
@@ -72,9 +67,26 @@ class Brains:
             
         self.coord = self.coord.astype(int)
     
-    # New
     @classmethod
     def from_find_neurons(cls, coord, volFrame0=None, *args, **kwargs):
+        '''Create a Brains object from the result of the results of 
+        wormneuronsegmentation.findNeurons().
+        
+        Parameters
+        ----------
+        coord: list of numpy array
+            coord[i][j,coord] gives the coordinate (y,x) of point j in frame i.
+        volFrame0: numpy array, optional
+            volFrame0[m] gives the first frame of volume m. If passing results
+            for M neurons, volFrame0 has to contain also the first frame of
+            volume +1 (or the 1+last frame of volume M).
+            If passing the results for a sequence of single frames (and not a 
+            volumetric recording) set to None (or don't pass anything).
+        
+        Returns
+        -------
+        Instance of class.
+        '''
         if volFrame0 is None:
             volFrame0 = np.arange(len(coord)+1,dtype=int)
 
@@ -83,9 +95,20 @@ class Brains:
                                         
         return cls(coordZYX, nInVolume, *args, **kwargs)
     
-    # New
     @classmethod
     def from_file(cls, folder, filename=""):
+        '''Create a Brains object loading the data from a previously created
+        json file.
+        
+        Parameters
+        ----------
+        folder: string
+            Folder containing the file.
+        
+        Returns
+        -------
+        Instance of class.
+        '''
         # for future multiple methods from loading from different formats
         #ext = filename.split(".")[-1]
         
@@ -101,10 +124,13 @@ class Brains:
         nInVolume = np.array(c['nInVolume'])
         zOfFrame = [np.array(z) for z in c['zOfFrame']]
         properties = {}
-        props = c['properties']
-        properties['curvature'] = [np.array(curv) for curv in props['curvature']]
-        properties['boxIndices'] = [np.array(bi) for bi in props['boxIndices']]
-        properties['boxNPlane'] = props['boxNPlane']
+        try:
+            props = c['properties']
+            properties['curvature'] = [np.array(curv) for curv in props['curvature']]
+            properties['boxIndices'] = [np.array(bi) for bi in props['boxIndices']]
+            properties['boxNPlane'] = props['boxNPlane']
+        except:
+            pass
         
         # Don't do any implicit stabilization if loaded from file. 
         stabilize_z = False 
@@ -115,7 +141,6 @@ class Brains:
         '''
         Allow for direct indexing of the class to access the coordinates.
         '''
-        print(i, "I'm in __getitem__")
         return self.coord.__getitem__(i)
         
     def __setitem__(self, i, value):
@@ -161,8 +186,6 @@ class Brains:
         f = open(foldername+filename,'w')
         f.write(o3)
         f.close()
-        
-        #np.savetxt(foldername+self.filename, self.coord)
         
     def trueCoords(self, vol, coord_ordering='zyx'):
         '''

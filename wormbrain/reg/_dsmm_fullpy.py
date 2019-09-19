@@ -100,12 +100,59 @@ def _dsmm_parallel_wrapper(i):
     print("Hi")
     return _dsmm(A, B,returnOnlyP=True)
 
-def _dsmm_fullpy(Y,X,returnOnlyP=False,beta=2.0,llambda=1.5,neighbor_cutoff=10.0,
-            conv_epsilon=1e-3,eq_tol=1e-2,Ashape=(1,1),Bshape=(1,1)):
+def _dsmm_fullpy(Y,X,beta=2.0,llambda=1.5,neighbor_cutoff=10.0,
+            conv_epsilon=1e-3,eq_tol=1e-2,returnAll=False):
+    '''(Version implemented fully in Python. For the most efficient one, see 
+    dsmmc in _dsmm_c_py.py and _dsmm_c.cpp)
+    Registers Y onto X via a nonrigid pointset registration based on a 
+    Student's t-distribution mixture model with Dirichlet-distribution priors
+    via an expectation-maximization algorithm.
+    Ref: doi:10.1371/journal.pone.0091381 and doi:10.1038/s41598-018-26288-6
+    
+    Parameters
+    ----------
+    Y, X: numpy array
+        Sets of points in D-dimensional space (Y gets moved onto X). These 
+        arrays are modified: if you need to keep the original ones, pass copies.
+        Note: Should be contiguous row-major arrays, with indices 
+        [point, coordinate].
+    beta: float, optional
+        Standard deviation of Gaussian smoothing filter. See equations in the 
+        references. Default: 2.0
+    llambda: float, optional
+        Regularization parameter. See equations in the references. Default: 1.5
+    neighbor_cutoff: float, optional
+        Multiple of the average nearest-neighbor distance within which points
+        are considered neighbors. See equations in the references. Default: 10.0
+    gamma0: float, optional
+        Initialization of the gamma_m parameters (degrees of freedom of the
+        Student's t-distribution). See equations in the references. Default: 3.0
+    conv_epsilon: float, optional
+        Relative error on the displacements of the points in Y at which the 
+        algorithm is considered at convergence. Default: 1e-3
+    eq_tol: float, optional
+        Tolerance for convergence of the numerical solution of the equations
+        for gamma_m and \\bar alpha. See equations in the references. 
+        Default: 1e-2
+    returnAll: boolean, optional
+        If True, the function returns Y, X, p, Match. See below. If False, it 
+        only returns Match.
+        
+    Returns
+    -------        
+    Y, X: numpy array
+        Same as input.
+    p: numpy array
+        p[m,n] is the posterior probability for the match of Y[m] to X[n].
+    Match: numpy array
+        X[Match[m]] is the point in X to which Y[m] has been matched. The 
+        built-in criterion is that the maximum posterior probability p[m,:] for 
+        Y[m] has to be greater than 0.5. If a different criterion is needed, set
+        returnAll to True and use the returned p to calculate the matches.
+    '''
     # This is the version running with a single pair of pointsets.
     # This registers Y onto X (Y is what is changed)
     # In wormb.match, I always pass A,B, where B is the refBrain.
-    tm1 = time.time()
     
     # Preprocess ("normalize" in Vemuri's language)
     
@@ -115,16 +162,6 @@ def _dsmm_fullpy(Y,X,returnOnlyP=False,beta=2.0,llambda=1.5,neighbor_cutoff=10.0
     Y -= np.average(Y,axis=0)
     Y /= np.max(np.absolute(Y),axis=0)
     Y += np.min(Y,axis=0)
-    '''
-    X -= np.average(X,axis=0)
-    DDx = pairwise_distance(X,X)
-    Xmed = np.median(np.sort(DDx,axis=0)[1])
-    X /= Xmed
-    Y -= np.average(Y,axis=0)
-    DDy = pairwise_distance(Y,Y)
-    Ymed = np.median(np.sort(DDy,axis=0)[1])
-    Y /= Ymed
-    '''
     
     N = X.shape[0]
     M = Y.shape[0]
@@ -168,48 +205,33 @@ def _dsmm_fullpy(Y,X,returnOnlyP=False,beta=2.0,llambda=1.5,neighbor_cutoff=10.0
     relerr = 1000.
     regerror = np.sum(pairwise_distance(X,Y,squared=True))
     
-    tm2 = time.time()
     i = 0
     ##### array[y,x]
     while relerr > conv_epsilon:
-        t0 = time.time()
         #Step3 (Eq. (5))
         F_t[:] = _studt(sigma2,Gamma,D,pwise_dist)
-        #mf.approx.studt(pwise_dist,M,N,sigma2,Gamma,D,F_t)
 
         #Step3:E-Step
         #Eq. (17)'
         wF_t = w*F_t
         p[:] = wF_t / np.sum(wF_t,axis=0)[None,:]
-        #mf.approx.step1(w,F_t,wF_t,wF_t_sum,p,M,N)
         #p = np.absolute(p)
         
         #Eq. (16) and (21)'
         u[:] = (Gamma[:,None] + D) / (Gamma[:,None] + pwise_dist/sigma2)
-        #mf.approx.step2(u,Gamma,pwise_dist,sigma2,M,N,D)
         #u = np.absolute(u)
 
-        t1 = time.time()
         #Eq. (20)'
         neighborN, neighborWeights = _neighborhood(pwise_distYY,neighbor_cutoff)
         sumPoverN = np.sum(neighborWeights[...,None]*p[None,...],axis=1)/neighborN[:,None] ##############TODO this takes a long time! 2.5 ms! It's because I augment the dimensionality so much.
-        t2b = time.time()
-        #mf.approx.getsumPoverN(pwise_distYY, N, N, neighbor_cutoff, p, sumPoverN) #yay!
-        t2c = time.time()
              
         Result = sproot(_eqforalpha,x0=alpha,args=(p,sumPoverN),method="hybr",tol=eq_tol)
         alpha = Result['x'][0]
-        '''Alpha = np.array([alpha])
-        mf.approx.solve_foralpha(p,M,N,sumPoverN,Alpha)
-        alpha = Alpha[0]'''
         
-        t2 = time.time()
         #Step4:M-Step
         # Eq. (18)'
         expAlphaSumPoverN = np.exp(alpha*sumPoverN)
         w[:] = expAlphaSumPoverN*(1./np.sum(expAlphaSumPoverN,axis=0)[None,:])
-        #mf.approx.step3(sumPoverN,expAlphaSumPoverN,w,alpha,M,N)
-        t3 = time.time()
         
         #Eq. (23)
         Gamma_old = np.copy(Gamma)
@@ -220,79 +242,31 @@ def _dsmm_fullpy(Y,X,returnOnlyP=False,beta=2.0,llambda=1.5,neighbor_cutoff=10.0
         D_term = spdigamma(Gammaoldpdhalves)
         E_term = -np.log(Gammaoldpdhalves)
         CDE_term = C_term + D_term + E_term
-        #mf.approx.step4(Gamma,p,u,CDE_term,M,N,D)
-        #print("CDE_term")
-        #print(CDE_term[0:4])
-        
-        '''if i==10:
-            Gamma=np.linspace(-10,10,100)
-            print(CDE_term)
-            for gamma in Gamma:
-                plt.plot(gamma,_eqforgamma(np.array([gamma]),CDE_term[0])[0],'ob')
-            plt.axhline(0,c='k')
-            plt.show()'''
-        
-        '''AAA = np.linspace(-1,30,100)    
-        for iii in np.arange(M):
-            plt.plot(AAA,_eqforgamma(AAA,CDE_term[iii])[0])
-        plt.axhline(0)
-        plt.axvline(0)
-        plt.ylim(-0.1,0.1)
-        plt.show()'''
         
         Result = sproot(_eqforgamma,x0=Gamma_old,args=(CDE_term),method="hybr",tol=eq_tol,jac=True,options={'col_deriv':1})
         Gamma = Result['x']
-        #mf.approx.solve_forgamma(CDE_term,len(CDE_term),Gamma)
-         
 
-        t4 = time.time()
         #Eq. (26)
         hatP[:] = p*u
-        #hatPI[:] = np.diag(np.dot(hatP,np.ones(N)))
         hatPI_diag[:] = np.sum(hatP,axis=1)
-        #hatPI[:] = np.diag(hatPI_diag)
-        G[:] = np.exp(-0.5/beta2*pwise_distYY) #TODO ????.T
-        t4d = time.time()
-        #hatPIG[:] = np.dot(hatPI,G)
-        #mf.approx.mfdot(hatPI,G,hatPI.shape[0],hatPI.shape[1],G.shape[1],hatPIG,True) #TODO recheck times. TODO the first matrix is diagonal: the dot product is simpler!
-        #mf.approx.mfdot_diag(hatPI_diag,G,G.shape[0],G.shape[1],hatPIG,True)
+        G[:] = np.exp(-0.5/beta2*pwise_distYY) 
         hatPIG[:] = hatPI_diag[:,None]*G
         
-        #mf.approx.mfdot(hatP,X,hatP.shape[0],hatP.shape[1],X.shape[1],hatPX,True)
-        #hatPIY[:] = np.dot(hatPI,Y)
-        #mf.approx.mfdot(hatPI,Y,hatPI.shape[0],hatPI.shape[1],Y.shape[1],hatPIY,True)
         hatPIY = hatPI_diag[:,None]*Y
-        #mf.approx.step5(p,u,hatP,hatPI_diag,hatPIG,hatPIY,hatPX,G,W,GW,X,Y,pwise_dist,pwise_distYY,beta2,llambda,sigma2,M,N,D)
-        #print("W ")
-        #print(W[0])
-        #print("Y ")
-        #print(Y[0])
          
         hatPX[:] = np.dot(hatP,X)
-        t4e = time.time()
         A = np.linalg.inv(hatPIG+llambda*sigma2*Identity)
-        t4f = time.time()
         B = hatPX - hatPIY
         W = np.dot(A,B)
-        #mf.approx.mfdot(A,B,A.shape[0],A.shape[1],B.shape[1],W,True)
         #Step5 moved here to optimize
-        #mf.approx.mfdot(G,W,G.shape[0],G.shape[1],W.shape[1],GW,True)
-        #Y += GW
         Y += np.dot(G,W)
-        t4b = time.time()
         pwise_dist = pairwise_distance(Y,X,squared=True) 
         pwise_distYY = pairwise_distance(Y,Y,squared=True)
-        #TODO mf.approx.pwise_dist2(Y,X,M,N,D,pwise_dist)
-        #TODO mf.approx.pwise_dist2_same(Y,M,D,pwise_distYY)
-        t4c = time.time()
-        t5 = time.time()
         #Back to Step4 
         #Eq. (27)
         AA = np.sum(hatP*pwise_dist)#np.sum((X[None,:]-Y[:,None])**2,axis=-1))
         BB = D*np.sum(hatP) # or just p as in the old paper?
         sigma2 = AA*(1./BB)
-        #print(sigma2)
-        t5b = time.time()
         
         #Step6
         regerror_old = regerror
@@ -300,33 +274,11 @@ def _dsmm_fullpy(Y,X,returnOnlyP=False,beta=2.0,llambda=1.5,neighbor_cutoff=10.0
         relerr = np.absolute((regerror-regerror_old)/regerror_old)
         
         i += 1
-        if i>1: t6bis = t6
-        t6 = time.time()
-
-    print("t-2-t-1",tm2-tm1)   
-    print("t1-t0",t1-t0)
-    print("t2b-t1",t2b-t1)
-    print("t2c-t2b",t2c-t2b)
-    print("t2-t2c",t2-t2c)
-    print("t2-t1",t2-t1)
-    print("t3-t2",t3-t2)
-    print("t4-t3",t4-t3)
-    print("t4c-t4b",t4c-t4b)
-    print("t4d-t4",t4d-t4)
-    print("t4e-t4d",t4e-t4d)
-    print("t4f-t4e",t4f-t4e)
-    print("t5-t4",t5-t4)
-    print("t5b-t5",t5b-t5)
-    print("t6-t5",t6-t5)
-    print("t6-t0",t6-t0)
-    try:
-        print("t0-t6b",t0-t6bis)
-    except:
-        pass
-    print("i",i)
-    print("ratio",(t2-t1+t4-t3)/(t6-t0))
     
-    if returnOnlyP:
-        return p
+    Conf = np.max(p,axis=1)
+    Match = np.where(Conf>0.5,np.argmax(p,axis=1),-10)
+    
+    if returnAll:
+        return Y,X,p,Match
     else:    
-        return Y, X, p
+        return Match

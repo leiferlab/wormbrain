@@ -57,11 +57,11 @@ def match(A, B, method='nearest', registration='None', **kwargs):
     if registration=='centroid':
         A, B = wormb.reg.centroid(A,B,**kwargs)
     elif registration=='displacement':
-        A, B = wormb.reg._displacement(A,B,**kwargs)
+        A, B = wormb.reg.displacement(A,B,**kwargs)
     #elif registration=='tps':
     #    A, B = wormb.reg.tps(A,B,**kwargs)
     elif registration=="dsmm":
-        A, B, p, Match = wormb.reg.dsmmc(A,B,**kwargs) #TODO implement parallelization inside it
+        A, B, p, Match = wormb.reg.dsmmc(A,B,returnAll=False,**kwargs)
         return Match
     
     if method=='nearest':
