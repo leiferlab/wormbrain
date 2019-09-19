@@ -61,7 +61,7 @@ def match(A, B, method='nearest', registration='None', **kwargs):
     #elif registration=='tps':
     #    A, B = wormb.reg.tps(A,B,**kwargs)
     elif registration=="dsmm":
-        A, B, p, Match = wormb.reg.dsmmc(A,B,returnAll=False,**kwargs)
+        A, B, p, Match = wormb.reg.dsmmc(A,B,returnAll=True,**kwargs)
         return Match
     
     if method=='nearest':
