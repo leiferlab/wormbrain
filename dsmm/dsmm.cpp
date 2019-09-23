@@ -298,6 +298,8 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
             //mentre=false;
         }**/
         iter++;
+        //beta2 *= 0.99*0.99;
+        //lambda *= 0.4*0.4;
     }
     //std::cout<<iter<<"\n";
     
@@ -344,7 +346,7 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
         }
     } else {
         for(int m=0;m<M;m++){
-            Match[m] = -10.0;
+            Match[m] = -1;
         }
     }
 }
