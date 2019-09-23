@@ -187,7 +187,7 @@ class Brains:
         f.write(o3)
         f.close()
         
-    def trueCoords(self, vol, coord_ordering='zyx'):
+    def trueCoords(self, vol, coord_ordering='zyx'):#, returnIrrarray=False):
         '''
         Return the coordinates replacing z with its actual values, from 
         zOfFrame.
@@ -196,14 +196,14 @@ class Brains:
         # Get the neurons in the requested volumes
         trueCoords = self.coord(vol=vol, dtype=np.float)
         intCoords = self.coord(vol=vol)
-                
+        
         L = len(vol)
         for l in np.arange(L):
             trueCoords[l][:,0] = self.zOfFrame[vol[l]][intCoords[l][:,0]]
-        
+            
             # Ordering stuff
             if coord_ordering=="xyz": 
-                trueCoords[l] = trueCoords[l][:,::-1]
+                trueCoords[l] = np.copy(trueCoords[l][:,::-1],order="c")
                 
         if len(trueCoords)==1: trueCoords = trueCoords[0]
                 

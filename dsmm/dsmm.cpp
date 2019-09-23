@@ -34,8 +34,10 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
         for(int m=0;m<M;m++){
             if(max<abs(Y[m*D+d])){max=abs(Y[m*D+d]);}
         }
-        for(int m=0;m<M;m++){
-            Y[m*D+d] /= max;
+        if(max!=0.0){
+            for(int m=0;m<M;m++){
+                Y[m*D+d] /= max;
+            }
         }
     }
     for(int d=0;d<D;d++){
@@ -51,8 +53,10 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
         for(int n=0;n<N;n++){
             if(max<abs(X[n*D+d])){max=abs(X[n*D+d]);}
         }
-        for(int n=0;n<N;n++){
-            X[n*D+d] /= max;
+        if(max!=0.0){
+            for(int n=0;n<N;n++){
+                X[n*D+d] /= max;
+            }
         }
     }
     
@@ -79,7 +83,7 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
     dsmm::pwise_dist2(Y,X,M,N,D,pwise_dist);
     dsmm::pwise_dist2_same(Y,M,D,pwise_distYY); 
     
-    double sigma2 = pwise_dist_.sum()/(D*M*N); 
+    double sigma2 = pwise_dist_.sum()/(D*M*N);
     double regerror=pwise_dist_.sum(), regerror_old=pwise_dist_.sum(), relerror=1000.;
     double beta2 = pow(beta,2.0);
     
@@ -278,6 +282,7 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
         regerror_old = regerror;
         regerror = pwise_dist_.sum();
         relerror = abs((regerror-regerror_old)/regerror_old);
+        if(regerror_old==0.0){mentre=false;}
         /**if(false){
             std::cout<<"F_t "<<F_t[0]<<"\n";
             std::cout<<"p "<<p[0]<<"\n";
@@ -307,33 +312,39 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
     // otherwise you also have the distances between points that are far because
     // the correspondence is missing.
     
-    // Find average of minimum distance in pwise_distYY
-    double mindist;
-    double avgmindist=0.0;
-    for(int m=0;m<M;m++){
-        mindist = pwise_distYY[m*M];
-        for(int m2=0;m2<M;m2++){
-            if(mindist>pwise_distYY[m*M+m2] && m2!=m){
-                mindist=pwise_distYY[m*M+m2];
+    if(mentre==true){
+        // Find average of minimum distance in pwise_distYY
+        double mindist;
+        double avgmindist=0.0;
+        for(int m=0;m<M;m++){
+            mindist = pwise_distYY[m*M];
+            for(int m2=0;m2<M;m2++){
+                if(mindist>pwise_distYY[m*M+m2] && m2!=m){
+                    mindist=pwise_distYY[m*M+m2];
+                }
+            }
+            avgmindist += mindist;
+        }
+        avgmindist /= M;
+        
+        double maxp;
+        int match_index;
+        for(int m=0;m<M;m++){
+            match_index = -1;
+            maxp = 0.0;
+            for(int n=0;n<N;n++){
+                if(maxp<p[m*N+n]){
+                    maxp = p[m*N+n];
+                    match_index = n;
+                }
+            }
+            if(pwise_dist[m*N+match_index]<2.*avgmindist && maxp>0.5){
+                Match[m] = match_index;
             }
         }
-        avgmindist += mindist;
-    }
-    avgmindist /= M;
-    
-    double maxp;
-    int match_index;
-    for(int m=0;m<M;m++){
-        match_index = -1;
-        maxp = 0.0;
-        for(int n=0;n<N;n++){
-            if(maxp<p[m*N+n]){
-                maxp = p[m*N+n];
-                match_index = n;
-            }
-        }
-        if(pwise_dist[m*N+match_index]<2.*avgmindist && maxp>0.5){
-            Match[m] = match_index;
+    } else {
+        for(int m=0;m<M;m++){
+            Match[m] = -10.0;
         }
     }
 }

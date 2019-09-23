@@ -100,7 +100,7 @@ def _dsmm_parallel_wrapper(i):
     print("Hi")
     return _dsmm(A, B,returnOnlyP=True)
 
-def _dsmm_fullpy(Y,X,beta=2.0,llambda=1.5,neighbor_cutoff=10.0,
+def _dsmm_fullpy(Y,X,beta=2.0,llambda=1.5,neighbor_cutoff=10.0,gamma0=3.0,
             conv_epsilon=1e-3,eq_tol=1e-2,returnAll=False):
     '''(Version implemented fully in Python. For the most efficient one, see 
     dsmmc in _dsmm_c_py.py and _dsmm_c.cpp)
@@ -172,7 +172,7 @@ def _dsmm_fullpy(Y,X,beta=2.0,llambda=1.5,neighbor_cutoff=10.0,
     #mf.approx.pwise_dist2(Y,X,M,N,D,pwise_dist)
     beta2 = beta**2
     w = np.ones((M,N))*(1./M/N)
-    Gamma = np.ones(M)*3.
+    Gamma = np.ones(M)*gamma0
     Gamma_old = np.copy(Gamma)
     sigma2 = np.sum(pwise_dist)/(D*M*N)
     pwise_distYY = pairwise_distance(Y,Y,squared=True)

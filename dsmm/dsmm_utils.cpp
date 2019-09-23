@@ -1,5 +1,6 @@
 #include "dsmm_utils.hpp"
 #include <cstdlib>
+#include <utility>
 #include <cmath>
 #include <Eigen/Dense>
 #include <boost/math/tools/roots.hpp>
@@ -18,6 +19,10 @@ public:
 private:
 	double _eps;
 };
+
+typedef boost::math::policies::policy<
+      boost::math::policies::overflow_error<boost::math::policies::ignore_error>
+      > my_policy;
 
 void dsmm::pwise_dist2(double *A, double *B, int M, int N, int D, double *out) {
     for(int m=0;m<M;m++){
@@ -117,6 +122,25 @@ double dsmm::digamma(double x, int order, int order2) {
     return y;
 }
 
+double dsmm::trigamma(double x, int order, int order2){
+    double ber[21] = {1.0,0.5,1./6.,0.0,-1./30.,0.0,1./42.,0.0,-1./30.,0.0,5./66.,0.0,-691./2730.,0.,7./6.,0.0,-3617./510.,0.0,43867./798.,0.0,-1746611./330.};
+    double out = 0.0;
+    
+    for(int j=0;j<order2;j++) {
+        out += 1./pow(x+j,2.0);// + 1./pow(xi+1.0,2.0) + 1./pow(xi+2.0,2.) + 1./pow(xi+3.0,2.);
+    }
+    double xporder2 = x+order2;
+    
+    for (int k=0;k<order;k++) {
+        if(ber[k]!=0.0){
+            //out[i] += ber[k]/(double)xporder2; // VERSION 2 5 times faster, but less precision
+            out += ber[k]/pow(xporder2,(double)k+1.); // VERSION 1
+        }
+        //xporder2 *= xporder2; // VERSION 2
+    }
+    return out;
+}    
+
 double dsmm::logmenodigamma(double x, int order, int order2) {
     double coeff[15] = {-0.5,-1./12.,0.0,1./120.,0.0,-1./256.,0.0,1./240.,0.0,-5./660.,0.0,691./32760.,0.0,-1./12.};
     
@@ -168,28 +192,38 @@ double dsmm::eqforgamma(double x, double CDE_term) {
     return A+CDE_term+1.;
 }
 
-double dsmm::eqforgamma_mod(double x, double CDE_term) {
-    double z = 0.5*abs(x);
-    double A = -boost::math::digamma(z) + log(z);
+std::pair<double,double> dsmm::eqforgamma_jac(double x, double CDE_term) {
+    double z = 0.5*x;
+    //double A = -boost::math::digamma(z) + log(z);
     //double A = -digamma(z,5,10) + log(z);
-    //double A = logmenodigamma(z,5,10);
-    return A+CDE_term+1.;
+    double A = logmenodigamma(z,5,10);
+    
+    double jac = -0.5*trigamma(z,5,10) + 1./x;
+    
+    std::pair<double,double> out;
+    out.first = A+CDE_term+1.;
+    out.second = jac;
+    
+    return out;
 }
 
 void dsmm::solveforgamma(double *X, int sizeX, double *out, double eq_tol) {
     double xi;
     double inizio = 10.0;
-    double fattore = 2.0;
-    bool sale = false; //the function decreases with increasing Gamma
-    tolerance tolleranza = eq_tol;
+    //double fattore = 2.0;
+    //bool sale = false; //the function decreases with increasing Gamma
+    //tolerance tolleranza = eq_tol;
     boost::uintmax_t massimo = 1000;
     
     for(int i=0;i<sizeX;i++) {
         xi = X[i];
         //inizio = X[i];
-        std::pair<double, double> result = boost::math::tools::bracket_and_solve_root(std::bind(eqforgamma,std::placeholders::_1,xi), inizio, fattore, sale, tolleranza, massimo); //FIXME TODO
-        //std::pair<double, double> result = boost::math::tools::toms748_solve(std::bind(eqforgamma,std::placeholders::_1,xi),0.0,20.,tolleranza,massimo);
-        out[i] = 0.5*(result.first + result.second);
+        //std::pair<double, double> result = boost::math::tools::bracket_and_solve_root(std::bind(eqforgamma,std::placeholders::_1,xi), inizio, fattore, sale, tolleranza, massimo);
+        //std::pair<double, double> result = boost::math::tools::toms748_solve(std::bind(eqforgamma,std::placeholders::_1,xi),0.,20.,tolleranza,massimo); NOT WORKING (LOOPING INFINITELY)
+        //out[i] = 0.5*(result.first + result.second);
+        
+        double result = boost::math::tools::newton_raphson_iterate(std::bind(eqforgamma_jac,std::placeholders::_1,xi), inizio, 0.0, 30., 4, massimo);
+        out[i] = result;
     }
 }
 

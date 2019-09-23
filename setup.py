@@ -7,12 +7,6 @@ _dsmm_c = Extension('wormbrain.reg._dsmm_c',
                     sources = ['dsmm/dsmm.cpp','dsmm/dsmm_utils.cpp','wormbrain/reg/_dsmm_c.cpp'],
                     include_dirs = [
                         'dsmm',
-                        '/home/francesco/.local/lib/boost_1_71_0',
-                        '/home/francesco/.local/lib/eigen',
-						'../eigen',
-						'../boost',
-						'/projects/LEIFER/lib/include/eigen',
-						'/projects/LEIFER/lib/include/boost',
                         numpy.get_include()
                         ],
                     extra_compile_args=['-ffast-math','-O3'])#
