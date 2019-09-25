@@ -7,39 +7,117 @@
 #include <boost/math/special_functions/digamma.hpp>
 
 void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
-           double beta, double lambda, double neighbor_cutoff,
-           double alpha, double gamma0,
-           double conv_epsilon, double eq_tol,
-           double *pwise_dist, double *pwise_distYY,
-           double *Gamma, double *CDE_term,
-           double *w, double *F_t, double *wF_t, double *wF_t_sum, 
-           double *p, double *u, int *Match,
-           double *hatP, double *hatPI_diag, double *hatPIG, double *hatPX, double *hatPIY,
-           double *G, double *W, double *GW, 
-           double *sumPoverN, double *expAlphaSumPoverN) { //Passing the allocated arrays, Eigen Matrix header added inside.
-    // write docs
-    
-    //"Normalize" in Vemuri's language
-    double avg,max;
-    for(int d=0;d<D;d++){
-        avg = 0.0;
-        max = 0.0;
-        for(int m=0;m<M;m++){
-            avg += Y[m*D+d];
-        }
-        avg /= M;
-        for(int m=0;m<M;m++){
-            Y[m*D+d] -= avg;
-        }
-        for(int m=0;m<M;m++){
-            if(max<abs(Y[m*D+d])){max=abs(Y[m*D+d]);}
-        }
-        if(max!=0.0){
-            for(int m=0;m<M;m++){
-                Y[m*D+d] /= max;
-            }
-        }
-    }
+	double beta, double lambda, double neighbor_cutoff,
+	double alpha, double gamma0,
+	double conv_epsilon, double eq_tol,
+	double *pwise_dist, double *pwise_distYY,
+	double *Gamma, double *CDE_term,
+	double *w, double *F_t, double *wF_t, double *wF_t_sum,
+	double *p, double *u, int *Match,
+	double *hatP, double *hatPI_diag, double *hatPIG, double *hatPX, double *hatPIY,
+	double *G, double *W, double *GW,
+	double *sumPoverN, double *expAlphaSumPoverN) {
+
+	/***Registers Y onto X via a nonrigid pointset registration based on a
+	Student's t-distribution mixture model with Dirichlet-distribution priors
+	via an expectation-maximization algorithm. This is the "naked" C++
+	implementation. See the wrapped versions in Python and LabView for more
+	user-friendly list of arguments that do not require preallocation of
+	arrays.
+
+	Ref:
+	[1] doi:10.1371/journal.pone.0091381
+	[2] doi:10.1038/s41598-018-26288-6
+
+	In the comments, Eq. () refers to Ref. [1], while Eq. ()' to Ref. [2].
+
+	Parameters
+	----------
+	X, Y: array of doubles
+		Sets of points in D-dimensional space (Y gets moved onto X). These
+		arrays are modified inside this function: if you need to keep the
+		original ones, pass copies.
+		Note: Should be contiguous row-major arrays, with indices
+		[point, coordinate].
+	M: integer
+		Number of points in Y.
+	N: integer
+		Number of points in X.
+	D: integer
+		Number of dimensions in which X and Y live.
+	beta: double
+		Standard deviation of Gaussian smoothing filter. See equations in the
+		references. E.g.: 2.0
+	lambda: double
+		Regularization parameter. See equations in the references. E.g.: 1.5
+	neighbor_cutoff: double
+		Multiple of the average nearest-neighbor distance within which points
+		are considered neighbors. See equations in the references. E.g.: 10.0
+	gamma0: double
+		Initialization of the gamma_m parameters (degrees of freedom of the
+		Student's t-distribution). See equations in the references. E.g.: 1.0
+	conv_epsilon: double
+		Relative error on the displacements of the points in Y at which the
+		algorithm is considered at convergence. E.g.: 1e-3
+	eq_tol: double
+		Tolerance for convergence of the numerical solution of the equations
+		for gamma_m and \\bar alpha. See equations in the references.
+		E.g.: 1e-4
+	pwise_dist[M,N] double, pwise_distYY[M,M] double,
+	Gamma[M] double, CDE_term[M] double,
+	w[M,N] double, F_t[M,N] double, wF_t[M,N] double, wF_t_sum[N] double,
+	p[M,N] double, u[M,N] double, Match[M,N] int,
+	hatP[M,N] double, hatPI_diag[M] double, hatPIG[M,M] double,
+	hatPX[M,D] double, hatPIY[M,D] double,
+	W[M,D] double, GW[M,D] double,
+	sumPoverN[M,N] double, expAlphaSumPoverN[M,N] double: arrays of double of
+	specified dimensions and type
+		Preallocated arrays, so that the memory can be reused through
+		executions and their content is available to the outside.
+		See description below for the relevant ones. All can be passed
+		empty/uninitialized, all are populated inside this function.
+		The names reflect the names of the variables in the equations in the
+		references.
+	p: array of doubles
+		p[m,n] is the posterior probability for the match of Y[m] to X[n].
+	Match: array of int
+		X[Match[m]] is the point in X to which Y[m] has been matched. The
+		built-in criterion is that the maximum posterior probability p[m,:] for
+		Y[m] has to be greater than 0.3 and that the distance between the
+		matched points has to be smaller than twice the average distance
+		between all the matched points. If a different criterion is needed,
+		use p to calculate the matches.
+	**/
+
+	// "Normalize" in Vemuri's language
+	// Y -= avg of Ys
+	// Y /= max of Ys (after the subtraction above)
+	double avg, max;
+	for (int d = 0; d < D; d++) {
+		avg = 0.0;
+		max = 0.0;
+		for (int m = 0; m < M; m++) {
+			avg += Y[m*D + d];
+		}
+		avg /= M;
+		for (int m = 0; m < M; m++) {
+			Y[m*D + d] -= avg;
+		}
+		for (int m = 0; m < M; m++) {
+			if (max < abs(Y[m*D + d])) { max = abs(Y[m*D + d]); }
+		}
+		if (max != 0.0) {
+			for (int m = 0; m < M; m++) {
+				Y[m*D + d] /= max;
+			}
+		}
+	}
+
+	// Do the same for X. This time store the parameters for final 
+	// denormalization. Since Y is moved onto X, the parameters used to
+	// normalize X will be used to denormalized both X and Y.
+	double *AvgX = new double[D];
+	double *MaxX = new double[D];
     for(int d=0;d<D;d++){
         avg = 0.0;
         max = 0.0;
@@ -47,35 +125,42 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
             avg += X[n*D+d];
         }
         avg /= N;
+		AvgX[d] = avg;
         for(int n=0;n<N;n++){
             X[n*D+d] -= avg;
         }
         for(int n=0;n<N;n++){
             if(max<abs(X[n*D+d])){max=abs(X[n*D+d]);}
         }
+		
         if(max!=0.0){
             for(int n=0;n<N;n++){
                 X[n*D+d] /= max;
+				MaxX[d] = max;
             }
-        }
+		}
+		else {
+			MaxX[d] = 1.0;
+		}
     }
     
     typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> Matrice;
     typedef Eigen::Map<Matrice> MatrixMap;
     
+	// Attach Eigen::Matrix header to some of the arrays, via Eigen::Map.
     MatrixMap X_(X,N,D), Y_(Y,M,D);
     MatrixMap pwise_dist_(pwise_dist,M,N), pwise_distYY_(pwise_distYY,M,M);
-    //MatrixMap Gamma_(Gamma,M,1);
     MatrixMap w_(w,M,N), F_t_(F_t,M,N), p_(p,M,N), u_(u,M,N);
     MatrixMap hatP_(hatP,M,N), hatPIG_(hatPIG,M,M), hatPX_(hatPX,M,D), hatPIY_(hatPIY,M,D); 
     MatrixMap G_(G,M,M), W_(W,M,D), GW_(GW,M,D);
-    //MatrixMap sumPoverN_(sumPoverN,M,N);
     
+	// Initialize w.
 	double oneovermn = 1. / M / N;
 	for (int mn=0; mn < M*N; mn++) {
 		w[mn] = oneovermn;
 	}
 
+	// Initialize Gamma
 	for (int m = 0; m < M; m++) {
 		Gamma[m] = gamma0;
 	}
@@ -83,15 +168,12 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
     dsmm::pwise_dist2(Y,X,M,N,D,pwise_dist);
     dsmm::pwise_dist2_same(Y,M,D,pwise_distYY); 
     
+	// Initialize sigma, the errors, and beta**2
     double sigma2 = pwise_dist_.sum()/(D*M*N);
     double regerror=pwise_dist_.sum(), regerror_old=pwise_dist_.sum(), relerror=1000.;
     double beta2 = pow(beta,2.0);
-    
-    /**for(int mm=0;mm<M*M;mm++){
-        G[mm] = dsmm::fastexp(-pwise_distYY[mm]*0.5/beta2);
-        //G[mm] = exp(-pwise_distYY[mm]*0.5/beta2);
-    }**/
-    // FIXME If something goes wrong, these are the newly introduced updates.
+
+	// Initialize G
     double gtmp;
     for(int m=0;m<M;m++){
         for(int m2=m;m2<M;m2++){
@@ -131,7 +213,6 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
         for(int m=0;m<M;m++){
             tmpgd = Gamma[m]+D;
             for(int n=0;n<N;n++){
-                //u[m*N+n] = (Gamma[m]+D) / (Gamma[m]+pwise_dist[m*N+n]/sigma2);
                 u[m*N+n] = tmpgd / (Gamma[m]+pwise_dist[m*N+n]/sigma2);
             }
         }
@@ -146,14 +227,8 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
         //Python code
         //expAlphaSumPoverN = np.exp(alpha*sumPoverN)
         //w[:] = expAlphaSumPoverN*(1./np.sum(expAlphaSumPoverN,axis=0)[None,:])
-        /**for(int m=0;m<M;m++){
-            for(int n=0;n<N;n++){
-                expAlphaSumPoverN[m*N+n] = dsmm::fastexp(alpha*sumPoverN[m*N+n]); 
-            }
-        }**/
         for(int mn=0;mn<M*N;mn++){
             expAlphaSumPoverN[mn] = dsmm::fastexp(alpha*sumPoverN[mn]);
-            //expAlphaSumPoverN[mn] = exp(alpha*sumPoverN[mn]);
         }
         
         double somma;
@@ -172,7 +247,7 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
         //E_term = -np.log(Gammaoldpdhalves)
         //CDE_term = C_term + D_term + E_term
         
-        double goldpdhalves, c_term,p_sum;//,d_term,e_term;
+        double goldpdhalves, c_term,p_sum;
         for(int m=0;m<M;m++){
             goldpdhalves = 0.5*(Gamma[m]+D);
             c_term = 0.0;
@@ -182,8 +257,6 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
                 p_sum += p[m*N+n];
             }
             c_term /= p_sum;
-            //d_term = dsmm::digamma(goldpdhalves);
-            //e_term = -log(goldpdhalves);
             
             CDE_term[m] = c_term-dsmm::logmenodigamma(goldpdhalves);//+d_term+e_term; FIXME
         }
@@ -204,17 +277,6 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
                 hatPI_diag[m] += hatP[m*N+n];
             }
         }
-        /***********for(int m=0;m<M;m++){
-            hatPI_diag[m] = 0.0;
-            for(int n=0;n<N;n++){
-                hatPI_diag[m] += hatP[m*N+n];
-            }
-        }
-        for(int m=0;m<M;m++){
-            for(int m2=0;m2<M;m2++){
-                G[m*M+m2] = exp(-0.5/beta2*pwise_distYY[m*M+m2]);
-            }
-        }*************/
         
         //FIXME whole two for loops
         for(int m=0;m<M;m++){
@@ -227,8 +289,6 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
         
         for(int m=0;m<M;m++){
             for(int m2=0;m2<M;m2++){
-                //G[m*M+m2] = dsmm::fastexp(-0.5/beta2*pwise_distYY[m*M+m2]); //FIXME
-                //G[m*M+m2] = exp(-0.5/beta2*pwise_distYY[m*M+m2]);
                 hatPIG[m*M+m2] = hatPI_diag[m]*G[m*M+m2];
                 if(m2==m){ hatPIG[m*M+m2] += lambda*sigma2;}  
             }
@@ -274,61 +334,45 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
         }
         bb *= D;
         sigma2 = aa/bb;
-        //sigma2 = (hatP_.array()*pwise_dist_.array()).sum()/hatP_.sum();
-        //sigma2 /= D; 
-        
-        
+              
         //Relative error to check for convergence
         regerror_old = regerror;
         regerror = pwise_dist_.sum();
         relerror = abs((regerror-regerror_old)/regerror_old);
         if(regerror_old==0.0){mentre=false;}
-        /**if(false){
-            std::cout<<"F_t "<<F_t[0]<<"\n";
-            std::cout<<"p "<<p[0]<<"\n";
-            std::cout<<"u "<<u[0]<<"\n";
-            std::cout<<"sumPoverN "<<sumPoverN[0]<<"\n";
-            std::cout<<"alpha "<<alpha<<"\n";
-            std::cout<<"CDE "<<CDE_term[0]<<"\n";
-            std::cout<<"Gamma "<<Gamma[0]<<"\n";
-            std::cout<<"W "<<W[0]<<"\n";
-            std::cout<<"Y "<<Y[0]<<"\n";
-            
-            std::cout<<"sigma "<<sigma2<<"\n";
-            //mentre=false;
-        }**/
+        
         iter++;
         //beta2 *= 0.99*0.99;
         //lambda *= 0.4*0.4;
     }
-    //std::cout<<iter<<"\n";
     
-    // Find the closest matches (the posteriors sometimes go bad when there
-    // are a lot of outliers).
-    // FIXME This doesn't work really, because sometimes the match extracted via
-    // the posteriors is reasonable but is not the closest match. You
-    // practically need to run the nearest neighbor matching that you have
-    // in Python, so that you take the argmax for the posterior if the
-    // distance to that match is within a threshold from the median/average
-    // first neighbor distance (maybe filtered on the pairs with enough confidence
-    // otherwise you also have the distances between points that are far because
-    // the correspondence is missing.
+    /**
+	Find the matches.
+	The built-in criterion is that the maximum posterior probability p[m,:] for
+	Y[m] has to be greater than 0.3 and that the distance between the
+	matched points has to be smaller than twice the average distance
+	between all the matched points.**/
+	//(maybe filtered on the pairs with enough confidence
+    //otherwise you also have the distances between points that are far because
+    //the correspondence is missing.
     
     if(mentre==true){
-        // Find average of minimum distance in pwise_distYY
+        // Find average of minimum distance between any Y and X.
         double mindist;
         double avgmindist=0.0;
-        for(int m=0;m<M;m++){
-            mindist = pwise_distYY[m*M];
-            for(int m2=0;m2<M;m2++){
-                if(mindist>pwise_distYY[m*M+m2] && m2!=m){
-                    mindist=pwise_distYY[m*M+m2];
+		
+		for(int m=0;m<M;m++){
+            mindist = pwise_dist[m*N];
+            for(int n=0;n<N;n++){
+                if(mindist>pwise_dist[m*N+n]){
+                    mindist=pwise_dist[m*N+n];
                 }
             }
             avgmindist += mindist;
         }
         avgmindist /= M;
         
+		// Find the matches (see above for description of criterion)
         double maxp;
         int match_index;
         for(int m=0;m<M;m++){
@@ -340,13 +384,35 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
                     match_index = n;
                 }
             }
-            if(pwise_dist[m*N+match_index]<2.*avgmindist && maxp>0.5){
+            if(pwise_dist[m*N+match_index]<2.*avgmindist && maxp>(0.3)){
                 Match[m] = match_index;
-            }
+            } else {
+				Match[m] = -1;
+			}
         }
     } else {
         for(int m=0;m<M;m++){
             Match[m] = -1;
         }
     }
+		
+	// "Denormalize" in Vemuri's language. Since Y has been moved onto X,
+	// denormalize both with the parameters originally used to normalize X.
+	for(int n=0;n<N;n++){
+		for(int d=0;d<D;d++) {
+			X[n*D+d] *= MaxX[d];
+			X[n*D+d] += AvgX[d];
+		}
+	}
+
+	for(int m=0;m<M;m++){
+		for(int d=0;d<D;d++) {
+			Y[m*D+d] *= MaxX[d];
+			Y[m*D+d] += AvgX[d];
+		}
+	}
+	
+	delete[] AvgX;
+	delete[] MaxX;
+
 }
