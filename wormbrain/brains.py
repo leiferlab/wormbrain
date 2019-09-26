@@ -63,7 +63,7 @@ class Brains:
                     nPlane=self.boxNPlane, boxIndices=self.boxIndices,
                     method="xyMaxCurvature")
                     
-            self.coord = np.rint(self.coord)
+                self.coord = np.rint(self.coord)
             
         self.coord = self.coord.astype(int)
     
@@ -89,6 +89,12 @@ class Brains:
         '''
         if volFrame0 is None:
             volFrame0 = np.arange(len(coord)+1,dtype=int)
+        try:
+            rectype = kwargs.pop('rectype')
+        except:
+            rectype = "3d"
+        if rectype == "2d":
+            kwargs['stabilize_z'] = False
 
         coordZYX, nInVolume, nInFrame = cls._conv_coord_2d_to_3d(coord, 
                                         volFrame0, dtype=int)
@@ -136,7 +142,27 @@ class Brains:
         stabilize_z = False 
         
         return cls(coordZYX, nInVolume, zOfFrame, properties, stabilize_z)
-
+    
+    def append(self, brains2):
+        '''Append to this object the content of another instance of Brains.
+        It does not perform any z-stabilization. Assumes the curvature in 
+        brains2 was extracted the same way as in this instance.
+        (Modify stuff mimicking __init__()).
+        '''
+        self.nInVolume = np.append(self.nInVolume, brains2.nInVolume)
+        self.coord = np.append(self.coord, brains2.coord, axis=0)
+        self.coord = irrarray(self.coord, [self.nInVolume], strideNames=["vol"])
+        
+        # Concatenate
+        self.zOfFrame = self.zOfFrame + brains2.zOfFrame
+        
+        self.curvature = np.append(self.curvature, brains2.curvature)
+        self.curvature = irrarray(self.curvature, self.nInVolume, 
+                                        strideNames=["vol"])
+        
+        self.coord = self.coord.astype(int)
+        
+    
     def __getitem__(self, i):
         '''
         Allow for direct indexing of the class to access the coordinates.
@@ -369,9 +395,14 @@ class Brains:
                 centralIndices[pl] = boxIndices[pl][sh0//2]
             curv = curvature[:,centralIndices] #look just along z
         
-        coord[:,z_index] = coord[:,z_index].astype(float) + np.sum(z*curv,axis=1)/np.sum(curv,axis=1)
+        coord_3d_out = np.zeros_like(coord,dtype=np.float)
+        if coord_3d_ordering=="zyx":
+            coord_3d_out[:,1:3] = coord[:,1:3]
+        else:
+            coord_3d_out[:,0:2] = coord[:,0:2]
+        coord_3d_out[:,z_index] = coord[:,z_index].astype(np.float) + np.sum(z*curv,axis=1)/np.sum(curv,axis=1)
         
-        return coord
+        return coord_3d_out
     
     def fit_sphere(self):
         curvature = self.curvature

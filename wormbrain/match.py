@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import wormbrain as wormb
 
+filename_matches = "matches.txt"
+
 def pairwise_distance(A,B,returnAll=False,squared=False,thresholdDz=0.0):
     '''
     Calculates the pairwise distance between points belonging to two sets of 
@@ -118,6 +120,28 @@ def _match_nearest(A, B, **kwargs): #TODO implement it on multiple As
                 #Match[pt] = np.where( (not np.isin(MatchAll[1,pt],Match)) and (DD[MatchAll[1,pt],pt] < DDth), MatchAll[1,pt], -10*Match[pt])
                 
     return Match
+    
+def save_matches(MMatch, folder):
+    if folder[-1]!="/": folder+="/"
+    f = open(folder+filename_matches,"w")
+    
+    if type(MMatch)!=list: MMatch = [MMatch]
+    
+    for Match in MMatch:
+        Match.tofile(f,sep=" ")
+        f.write("\n")
+    f.close()
+    
+def load_matches(folder):
+    if folder[-1]!="/": folder+="/"
+    f = open(folder+filename_matches,"r")
+    
+    MMatch = []
+    for line in f.readlines():
+        Match = np.fromstring(line,dtype=int,sep=" ")
+        MMatch.append(Match)
+        
+    return MMatch
     
 
 def plot_matches(A, B, Match, mode='3d',plotNow=True,**kwargs):

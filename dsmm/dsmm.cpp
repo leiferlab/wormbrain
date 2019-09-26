@@ -360,6 +360,17 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
         // Find average of minimum distance between any Y and X.
         double mindist;
         double avgmindist=0.0;
+        
+        /**for(int m=0;m<M;m++){
+            mindist = pwise_dist[m*N];
+            for(int m2=0;m2<M;m2++){
+                if(mindist>pwise_dist[m*N+m2]){
+                    mindist=pwise_dist[m*N+m2];
+                }
+            }
+            avgmindist += mindist;
+        }
+        avgmindist /= M;**/
 		
 		for(int m=0;m<M;m++){
             mindist = pwise_dist[m*N];
@@ -395,22 +406,25 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
             Match[m] = -1;
         }
     }
-		
-	// "Denormalize" in Vemuri's language. Since Y has been moved onto X,
-	// denormalize both with the parameters originally used to normalize X.
-	for(int n=0;n<N;n++){
-		for(int d=0;d<D;d++) {
-			X[n*D+d] *= MaxX[d];
-			X[n*D+d] += AvgX[d];
-		}
-	}
+	
+	bool denormalize = true;
+	if(denormalize) {	
+	    // "Denormalize" in Vemuri's language. Since Y has been moved onto X,
+	    // denormalize both with the parameters originally used to normalize X.
+	    for(int n=0;n<N;n++){
+		    for(int d=0;d<D;d++) {
+			    X[n*D+d] *= MaxX[d];
+			    X[n*D+d] += AvgX[d];
+		    }
+	    }
 
-	for(int m=0;m<M;m++){
-		for(int d=0;d<D;d++) {
-			Y[m*D+d] *= MaxX[d];
-			Y[m*D+d] += AvgX[d];
-		}
-	}
+	    for(int m=0;m<M;m++){
+		    for(int d=0;d<D;d++) {
+			    Y[m*D+d] *= MaxX[d];
+			    Y[m*D+d] += AvgX[d];
+		    }
+	    }
+    }
 	
 	delete[] AvgX;
 	delete[] MaxX;
