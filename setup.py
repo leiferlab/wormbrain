@@ -28,6 +28,14 @@ ext_modules = [
     )
 ]
 
+requirements = [
+    "numpy",
+    "matplotlib",
+    "pyqt5",
+    "scipy",
+]
+
+
 setup(
     name="wormbrain",
     version="0.1",
@@ -35,7 +43,9 @@ setup(
     author="Francesco Randi",
     author_email="francesco.randi@gmail.com",
     packages=["wormbrain", "wormbrain.reg"],
-    cmdclass = {'build_ext': CustomBuildExtCommand},
-    install_requires=["numpy"],
+    cmdclass={"build_ext": CustomBuildExtCommand},
+    install_requires=requirements,
+    extras_require={"dev": ["pytest", "pytest-cov"]},
+    dependency_links=['git+https://github.com/francescorandi/mistofrutta'],
     ext_modules=ext_modules,
 )
