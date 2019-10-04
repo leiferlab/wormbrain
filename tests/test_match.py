@@ -1,4 +1,3 @@
-import pytest
 import numpy as np
 
 from wormbrain.match import pairwise_distance
