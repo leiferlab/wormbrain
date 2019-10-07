@@ -45,7 +45,7 @@ setup(
     packages=["wormbrain", "wormbrain.reg"],
     cmdclass={"build_ext": CustomBuildExtCommand},
     install_requires=requirements,
-    extras_require={"dev": ["pytest", "pytest-cov"]},
+    extras_require={"dev": ["pytest", "pytest-cov", "hypothesis"]},
     dependency_links=['git+https://github.com/francescorandi/mistofrutta'],
     ext_modules=ext_modules,
 )
