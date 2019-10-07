@@ -17,3 +17,4 @@ def test_pairwise_distance():
     assert D.shape == (2, 2)
     assert np.allclose(D,  [[4., 0.], [5.65685425, 4.]])
 
+
