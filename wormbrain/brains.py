@@ -281,7 +281,12 @@ class Brains:
         # Initialize the lists containing the neurons coordinates.
         nTotal = np.sum(nInFrame)
         
-        coord_3d = np.zeros((nTotal,3),dtype=type(coord_2d[0][0]))
+        try:
+            datatype=type(coord_2d[0][0])
+        except:
+            datatype=int
+        
+        coord_3d = np.zeros((nTotal,3),dtype=datatype)
         nInVolume = []
         L = len(volFrame0)-1
         
@@ -333,6 +338,22 @@ class Brains:
             g += q
             
         return coord_3d, np.array(nInVolume), np.array(nInFrame)
+        
+    def getOverlay(self, vol):
+        try:
+            bla = vol[0]
+        except:
+            vol = [vol]
+        
+        nVolume = len(vol)
+        Overlay = []
+        for kappa in np.arange(nVolume):
+            cerv = self(vol=vol[kappa])
+            for mu in np.arange(self.nInVolume[kappa]):
+                Overlay.append(cerv[np.where(cerv[:,0]==mu)[0],1:][:,::-1])
+                
+        return Overlay
+        
         
     @staticmethod
     def _stabilize_z(coord, curvature, nPlane=7, boxIndices=
