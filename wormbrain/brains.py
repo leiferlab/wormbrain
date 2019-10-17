@@ -62,6 +62,8 @@ class Brains:
                     self.curvature,
                     nPlane=self.boxNPlane, boxIndices=self.boxIndices,
                     method="xyMaxCurvature")
+                self.coord = self._stabilize_x(self.coord, self.curvature, nPixelsMax=5)
+                self.coord = self._stabilize_y(self.coord, self.curvature)
                     
                 self.coord = np.rint(self.coord)
             
@@ -425,6 +427,60 @@ class Brains:
         
         return coord_3d_out
     
+    @staticmethod    
+    def _stabilize_x(coord, curvature, nPixelsMax=5, boxIndices=
+        [np.array([10,23,36]), np.array([2,7,11,15,29,24,28,33,37,41,46]), 
+        np.array([0,1,3,5,6,8,12,16,18,19,21,25,29,31,32,34,38,42,44,45,47,49,50]),
+        np.array([4,9,13,17,22,26,30,35,39,43,48]), np.array([14,27,40])], 
+        coord_3d_ordering="zyx", method="curvatureAverage"):
+        
+        # Determine the index of the x coordinate in the input and output arrays
+        x_indices = {"zyx":2,"xyz":0}
+        x_index = x_indices[coord_3d_ordering]
+        
+        # Build z range around 0 for specified nPlanes
+        x = np.arange(-(nPixelsMax//2),nPixelsMax//2+1,dtype=np.float)
+        
+        curv = np.zeros((coord.shape[0],nPixelsMax))
+        if method=="curvatureAverage":
+            for pl in np.arange(nPixelsMax):
+                c = np.average(curvature[:,boxIndices[pl]],axis=1)
+                curv[:,pl] = c
+        
+        coord_3d_out = np.zeros_like(coord,dtype=np.float)
+        if coord_3d_ordering=="zyx":
+            coord_3d_out[:,0:2] = coord[:,0:2]
+        else:
+            coord_3d_out[:,1:3] = coord[:,1:3]
+        coord_3d_out[:,x_index] = coord[:,x_index].astype(np.float) + np.sum(x*curv,axis=1)/np.sum(curv,axis=1)
+        
+        return coord_3d_out
+    
+    @staticmethod    
+    def _stabilize_y(coord, curvature, nPixelsMax=5, boxIndices=
+        [np.array([6,19,32]), np.array([1,7,8,9,29,21,22,33,34,35,45]),
+        np.array([0,2,3,4,10,11,12,13,14,23,24,25,26,27,36,37,38,39,40,46,47,48,50]),
+        np.array([5,15,16,17,28,29,30,41,42,43,49]),np.array([18,31,44])],
+        coord_3d_ordering="zyx", method="curvatureAverage"):
+        
+        y_index = 1
+        
+        # Build z range around 0 for specified nPlanes
+        y = np.arange(-(nPixelsMax//2),nPixelsMax//2+1,dtype=np.float)
+        
+        curv = np.zeros((coord.shape[0],nPixelsMax))
+        if method=="curvatureAverage":
+            for pl in np.arange(nPixelsMax):
+                c = np.average(curvature[:,boxIndices[pl]],axis=1)
+                curv[:,pl] = c
+        
+        coord_3d_out = np.zeros_like(coord,dtype=np.float)
+        coord_3d_out[:,0] = coord[:,0]
+        coord_3d_out[:,2] = coord[:,2]
+        coord_3d_out[:,y_index] = coord[:,y_index].astype(np.float) + np.sum(y*curv,axis=1)/np.sum(curv,axis=1)
+        
+        return coord_3d_out
+        
     def fit_sphere(self):
         curvature = self.curvature
         boxIndices = self.boxIndices
