@@ -157,11 +157,11 @@ def _dsmm_fullpy(Y,X,beta=2.0,llambda=1.5,neighbor_cutoff=10.0,gamma0=3.0,
     # Preprocess ("normalize" in Vemuri's language)
     
     X -= np.average(X,axis=0)
-    X /= np.max(np.absolute(X),axis=0)
-    X += np.min(X,axis=0)
+    maxX = np.max(np.absolute(X),axis=0)
+    if np.all(maxX>0): X /= maxX
     Y -= np.average(Y,axis=0)
-    Y /= np.max(np.absolute(Y),axis=0)
-    Y += np.min(Y,axis=0)
+    maxY = np.max(np.absolute(Y),axis=0)
+    if np.all(maxY>0): Y /= maxY
     
     N = X.shape[0]
     M = Y.shape[0]
@@ -276,7 +276,7 @@ def _dsmm_fullpy(Y,X,beta=2.0,llambda=1.5,neighbor_cutoff=10.0,gamma0=3.0,
         i += 1
     
     Conf = np.max(p,axis=1)
-    Match = np.where(Conf>0.5,np.argmax(p,axis=1),-10)
+    Match = np.where(Conf>0.5,np.argmax(p,axis=1),-1)
     
     if returnAll:
         return Y,X,p,Match
