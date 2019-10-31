@@ -126,7 +126,7 @@ static PyObject *_dsmmc_bare(PyObject *self, PyObject *args) {
     double *wF_t_sum = (double*)PyArray_DATA(wF_t_sum_a);
     double *p = (double*)PyArray_DATA(p_a);
     double *u = (double*)PyArray_DATA(u_a);
-    int *Match = (int*)PyArray_DATA(Match_a);
+    int32_t *Match = (int32_t*)PyArray_DATA(Match_a);
     double *hatP = (double*)PyArray_DATA(hatP_a);
     double *hatPI_diag = (double*)PyArray_DATA(hatPI_diag_a);
     double *hatPIG = (double*)PyArray_DATA(hatPIG_a);

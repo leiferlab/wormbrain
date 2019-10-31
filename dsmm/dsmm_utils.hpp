@@ -16,6 +16,7 @@ double eqforgamma(double x, double CDE_term);
 std::pair<double,double> eqforgamma_jac(double x, double CDE_term);
 void solveforgamma(double *X, int sizeX, double *out, double eq_tol) ;
 double eqforalpha(double alpha, double *p, int M, int N, double *sumPoverN);
+double eqforalpha_2(double alpha, double *p, int M, int N, double *sumPoverN);
 void solveforalpha(double *p, int M, int N, double *sumPoverN, double &alpha, double eq_tol, double alpha0);
 void sumPoverN(double *pwise_dist, int M, int N, double neighbor_cutoff, double *p, double *sumPoverN);
 

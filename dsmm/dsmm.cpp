@@ -177,7 +177,8 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
     double gtmp;
     for(int m=0;m<M;m++){
         for(int m2=m;m2<M;m2++){
-            gtmp = dsmm::fastexp(-pwise_distYY[m*M+m2]*0.5/beta2);
+            //gtmp = dsmm::fastexp(-pwise_distYY[m*M+m2]*0.5/beta2);
+            gtmp = exp(-pwise_distYY[m*M+m2]*0.5/beta2);
             G[m*M+m2] = gtmp;
             G[m2*M+m] = gtmp;
         }
@@ -228,7 +229,8 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
         //expAlphaSumPoverN = np.exp(alpha*sumPoverN)
         //w[:] = expAlphaSumPoverN*(1./np.sum(expAlphaSumPoverN,axis=0)[None,:])
         for(int mn=0;mn<M*N;mn++){
-            expAlphaSumPoverN[mn] = dsmm::fastexp(alpha*sumPoverN[mn]);
+            //expAlphaSumPoverN[mn] = dsmm::fastexp(alpha*sumPoverN[mn]);
+            expAlphaSumPoverN[mn] = exp(alpha*sumPoverN[mn]);
         }
         
         double somma;
@@ -258,7 +260,8 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
             }
             c_term /= p_sum;
             
-            CDE_term[m] = c_term-dsmm::logmenodigamma(goldpdhalves);//+d_term+e_term; FIXME
+            CDE_term[m] = c_term-log(goldpdhalves)+boost::math::digamma(goldpdhalves);
+            //dsmm::logmenodigamma(goldpdhalves);//+d_term+e_term; FIXME    //FIXME fast
         }
         
         dsmm::solveforgamma(CDE_term,M,Gamma,eq_tol);
@@ -281,7 +284,8 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
         //FIXME whole two for loops
         for(int m=0;m<M;m++){
             for(int m2=m;m2<M;m2++){
-                gtmp = dsmm::fastexp(-pwise_distYY[m*M+m2]*0.5/beta2);
+                //gtmp = dsmm::fastexp(-pwise_distYY[m*M+m2]*0.5/beta2);
+                gtmp = exp(-pwise_distYY[m*M+m2]*0.5/beta2);
                 G[m*M+m2] = gtmp;
                 G[m2*M+m] = gtmp;
             }
@@ -294,15 +298,13 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
             }
         }
         
-        
-        
         for(int m=0;m<M;m++){
             for(int d=0;d<D;d++){hatPIY[m*D+d] = hatPI_diag[m]*Y[m*D+d];}
         }
         
         //Python code
         //hatPX[:] = np.dot(hatP,X)
-        hatPX_.noalias() = hatP_*X_; 
+        hatPX_.noalias() = hatP_*X_;
         
         //Python code
         //#hatPIG+lambda*sigma2*Identity done above
@@ -342,6 +344,8 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
         if(regerror_old==0.0){mentre=false;}
         
         iter++;
+        if(iter>20){beta2 *= 0.99*0.99;}
+        if(iter>100){break;}
         //beta2 *= 0.99*0.99;
         //lambda *= 0.4*0.4;
     }

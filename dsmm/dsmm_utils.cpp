@@ -44,7 +44,7 @@ void dsmm::pwise_dist2_same(double *A, int M, int D, double *out) {
             for(int d=0;d<D;d++){
                 dist = pow(A[i*D+d]-A[j*D+d],2);
                 out[i*M+j] += dist;
-                out[j*M+i] += dist;
+                if(i!=j){out[j*M+i] += dist;}
             }
         }
     }
@@ -172,7 +172,8 @@ void dsmm::studt(double *pwise_dist, int M, int N, double sigma2, double *Gamma,
     sigma = sqrt(sigma2);
     for(int m=0;m<M;m++){
         a = tgamma(0.5*(Gamma[m]+D));
-        b = sigma * pow(Gamma[m]+g05,0.5*D) * tgamma(0.5*Gamma[m]);
+        //b = sigma * pow(Gamma[m]+g05,0.5*D) * tgamma(0.5*Gamma[m]);
+        b = sqrt(2.)*sigma * pow(Gamma[m]+g05,0.5*D) * tgamma(0.5*Gamma[m]);
         d = 1.0/(sigma2*Gamma[m]);
         e = 0.5*(D+Gamma[m]);
         f = a/b;
@@ -194,9 +195,9 @@ double dsmm::eqforgamma(double x, double CDE_term) {
 
 std::pair<double,double> dsmm::eqforgamma_jac(double x, double CDE_term) {
     double z = 0.5*x;
-    //double A = -boost::math::digamma(z) + log(z);
+    double A = -boost::math::digamma(z) + log(z);
     //double A = -digamma(z,5,10) + log(z);
-    double A = logmenodigamma(z,5,10);
+    //double A = logmenodigamma(z,5,10);
     
     double jac = -0.5*trigamma(z,5,10) + 1./x;
     
@@ -210,19 +211,32 @@ std::pair<double,double> dsmm::eqforgamma_jac(double x, double CDE_term) {
 void dsmm::solveforgamma(double *X, int sizeX, double *out, double eq_tol) {
     double xi;
     double inizio = 10.0;
-    //double fattore = 2.0;
-    //bool sale = false; //the function decreases with increasing Gamma
-    //tolerance tolleranza = eq_tol;
+    double fattore = 2.0;
+    bool sale = false; //the function decreases with increasing Gamma
+    tolerance tolleranza = eq_tol;
     boost::uintmax_t massimo = 1000;
+    double result, d;
     
     for(int i=0;i<sizeX;i++) {
         xi = X[i];
-        //inizio = X[i];
+        //inizio = out[i];
         //std::pair<double, double> result = boost::math::tools::bracket_and_solve_root(std::bind(eqforgamma,std::placeholders::_1,xi), inizio, fattore, sale, tolleranza, massimo);
         //std::pair<double, double> result = boost::math::tools::toms748_solve(std::bind(eqforgamma,std::placeholders::_1,xi),0.,20.,tolleranza,massimo); NOT WORKING (LOOPING INFINITELY)
         //out[i] = 0.5*(result.first + result.second);
         
-        double result = boost::math::tools::newton_raphson_iterate(std::bind(eqforgamma_jac,std::placeholders::_1,xi), inizio, 0.0, 30., 4, massimo);
+        result = boost::math::tools::newton_raphson_iterate(
+                    std::bind(eqforgamma_jac,std::placeholders::_1,xi), 
+                    inizio, 0.0, 50., 4, massimo);
+        
+        /**result = out[i];
+        for(int q=0;q<1000;q++){
+            d = 2.*exp(boost::math::digamma(result*0.5)-1.-xi)-result;
+            d *= -10.;
+            if(xi<-2.){d /= (float) q;}
+            if(abs(d)<eq_tol){break;}
+            result = std::max(0.1,result+d);
+            result = std::min(50.,result);
+        }**/
         out[i] = result;
     }
 }
@@ -243,8 +257,8 @@ double dsmm::eqforalpha(double alpha, double *p, int M, int N, double *sumPoverN
         b = 0.0;
         c = 0.0;
         for(int n=0;n<N;n++){
-            a = dsmm::fastexp(alpha*sumPoverN[m*N+n],3);
-            //a = exp(alpha*sumPoverN[m*N+n]);
+            //a = dsmm::fastexp(alpha*sumPoverN[m*N+n],3);
+            a = exp(alpha*sumPoverN[m*N+n]);
             b += sumPoverN[m*N+n] * a;
             c += a;
         }
@@ -257,13 +271,46 @@ double dsmm::eqforalpha(double alpha, double *p, int M, int N, double *sumPoverN
     return y;
 }
 
+double dsmm::eqforalpha_2(double alpha, double *p, int M, int N, double *sumPoverN){
+    //Eq. (20)', switching indices for x and y to match their first paper. 
+    //Added an alpha to the first term inside the \biggl ( in the final line!!
+    //Is it reasonable to use an approximate form for the exponential?
+    //print(alpha*np.max(sumPoverN)) #around 0.2 max
+    //print(alpha*np.min(sumPoverN)) # 0 (always positive, right?)
+    double y = 0.0;
+    
+    double a;
+    double b;
+    double c;
+    double d = 0.0;
+    for(int m=0;m<M;m++){
+        b = 0.0;
+        c = 0.0;
+        for(int n=0;n<N;n++){
+            //a = dsmm::fastexp(alpha*sumPoverN[m*N+n],3);
+            a = exp(alpha*sumPoverN[m*N+n]);
+            b += alpha * sumPoverN[m*N+n] * a; // HERE FIXME TODO ADDED ALPHA
+            c += a;
+        }
+        d = -b/c;
+        for(int n=0;n<N;n++){
+            y += p[m*N+n]*(sumPoverN[m*N+n]+d); // HERE FIXME TODO REMOVED ALPHA
+        }
+    }
+    
+    return y;
+}
+
 void dsmm::solveforalpha(double *p, int M, int N, double *sumPoverN, double &alpha, double eq_tol, double alpha0) {
-    double inizio = 0.2;
+    double inizio = alpha0; // 0.8 FIXME TODO
     double fattore = 2.0;
-    bool sale = true;
+    bool sale = false;//true; //FIXME TODO
     tolerance tolleranza = eq_tol;
     boost::uintmax_t massimo = 1000;
-    std::pair<double, double> result = boost::math::tools::bracket_and_solve_root(std::bind(dsmm::eqforalpha,std::placeholders::_1,p,M,N,sumPoverN), inizio, fattore, sale, tolleranza, massimo);
+    std::pair<double, double> result = 
+        boost::math::tools::bracket_and_solve_root(
+        std::bind(dsmm::eqforalpha_2,std::placeholders::_1,p,M,N,sumPoverN), 
+        inizio, fattore, sale, tolleranza, massimo);
     alpha = 0.5*(result.first + result.second);
 }
 
@@ -280,7 +327,7 @@ void dsmm::sumPoverN(double *pwise_dist, int M, int N, double neighbor_cutoff, d
         avgd += min;
     }
 
-    avgd /= N;
+    avgd /= (double) N;
     avgd *= neighbor_cutoff;
     
     int mN;
@@ -289,13 +336,14 @@ void dsmm::sumPoverN(double *pwise_dist, int M, int N, double neighbor_cutoff, d
         mN = m*N;
         for(int n=0;n<N;n++){
             neighborN = 0;
+            sumPoverN[mN+n] = 0.0;
             for(int np=0;np<N;np++){
                 if(pwise_dist[n*N+np]<avgd){
                     sumPoverN[mN+n] += p[mN+np];
                     neighborN++;
                 }
             }
-            if(neighborN!=0){sumPoverN[mN+n] /= neighborN;}
+            if(neighborN!=0){sumPoverN[mN+n] /= (double) neighborN;}
         }
     }
 }

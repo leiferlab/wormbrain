@@ -80,7 +80,7 @@ def dsmmc(Y,X,beta=2.0,llambda=1.5,neighbor_cutoff=10.0,
     #Additional stuff from new paper
     sumPoverN = np.zeros((M,N)) 
     expAlphaSumPoverN = np.zeros((M,N))
-    alpha=0.2
+    alpha=1.
 
     wormb.reg._dsmmc_bare(X,Y,M,N,D,beta,llambda,neighbor_cutoff,alpha,gamma0,
            conv_epsilon,eq_tol,
