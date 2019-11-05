@@ -403,10 +403,11 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
         }
         
         // Look for double matches
-        int *counts = new int[N];
+        int32_t *counts = new int32_t[N];
         for(int n=0;n<N;n++){counts[n]=0;}        
-        for(int m=0;m<M;m++){counts[Match[m]] += 1;}
+        for(int m=0;m<M;m++){if(Match[m]>=0){counts[Match[m]] += 1;}}
         
+        // Select one out of those double matches.
         int surviving = 0;
         for(int n=0;n<N;n++){
             if(counts[n]>1){
@@ -423,6 +424,7 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
                 Match[surviving] = n;
             }
         }
+        delete[] counts;
     
     // If loop was not terminated correctly        
     } else {
@@ -437,20 +439,19 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
 	    // denormalize both with the parameters originally used to normalize X.
 	    for(int n=0;n<N;n++){
 		    for(int d=0;d<D;d++) {
-			    X[n*D+d] *= maxX;//MaxX[d];
+			    X[n*D+d] *= maxX;
 			    X[n*D+d] += AvgX[d];
 		    }
 	    }
 
 	    for(int m=0;m<M;m++){
 		    for(int d=0;d<D;d++) {
-			    Y[m*D+d] *= maxX;//MaxX[d];
+			    Y[m*D+d] *= maxX;
 			    Y[m*D+d] += AvgX[d];
 		    }
 	    }
     }
 	
 	delete[] AvgX;
-	//delete[] MaxX;
 
 }
