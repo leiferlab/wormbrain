@@ -129,27 +129,36 @@ def _match_nearest(A, B, **kwargs): #TODO implement it on multiple As
 
     return Match
 
-def save_matches(MMatch, folder):
+def save_matches(MMatch, reference_index, folder):
     if folder[-1]!="/": folder+="/"
-    f = open(folder+filename_matches,"w")
+    '''f = open(folder+filename_matches,"w")
+    f.write("#Reference index: "+str(reference_index)+"\n")
 
     if type(MMatch)!=list: MMatch = [MMatch]
 
     for Match in MMatch:
         Match.tofile(f,sep=" ")
         f.write("\n")
-    f.close()
+    f.close()'''
+    headerInfo = "Reference brain: "+str(reference_index)
+    np.savetxt(folder+filename_matches,MMatch,header=headerInfo)
 
 def load_matches(folder):
     if folder[-1]!="/": folder+="/"
     f = open(folder+filename_matches,"r")
+    l = f.readline()
+    if(l[0]=="#"):
+        l = l.split(":")
+        reference_index = int(l[1])
+    f.close()
 
-    MMatch = []
+    '''MMatch = []
     for line in f.readlines():
         Match = np.fromstring(line,dtype=int,sep=" ")
-        MMatch.append(Match)
+        MMatch.append(Match)'''
+    MMatch = np.loadtxt(folder+filename_matches)
 
-    return MMatch
+    return MMatch, reference_index
 
 
 def plot_matches(A, B, Match, mode='3d',plotNow=True,**kwargs):
