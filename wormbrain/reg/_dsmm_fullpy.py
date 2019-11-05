@@ -4,11 +4,12 @@ from scipy.special import digamma as spdigamma
 from scipy.special import polygamma as sppolygamma
 from scipy.special import bernoulli as spbernoulli
 from scipy.optimize import root as sproot
+from scipy.optimize import root_scalar as sproot_scalar
 from wormbrain.match import pairwise_distance
 import mistofrutta as mf
-import multiprocessing as mp
-import time
-import matplotlib.pyplot as plt
+#import multiprocessing as mp
+#import time
+#import matplotlib.pyplot as plt
 
 def _neighborhood(pwise_dist,cutoff=2.): 
     D = pwise_dist
@@ -45,13 +46,13 @@ def _eqforalpha(alpha,p,sumPoverN):
     A_term = np.empty_like(sumPoverN)
     #mf.approx.exp(alpha*sumPoverN,np.prod(sumPoverN.shape),A_term,0)
     A_term = np.exp(alpha*sumPoverN) # TODO approximate this exponential
-    B_term = np.sum(sumPoverN * A_term,axis=1) #There's an alpha here or not???
+    B_term = np.sum(alpha* sumPoverN * A_term,axis=1) #There's an alpha here or not???
     C_term = np.sum(A_term,axis=1)
     D_term = -B_term/C_term
     
-    return np.sum(p*(alpha*sumPoverN+D_term[:,None]))
+    return np.sum(p*(1.*sumPoverN+D_term[:,None]))#alpha
 
-var_dict = {}
+'''var_dict = {}
 
 def init_worker(A_rawarr, B_rawarr, kwargs):
     for key in kwargs:
@@ -98,7 +99,7 @@ def _dsmm_parallel_wrapper(i):
     #print(i)
     
     print("Hi")
-    return _dsmm(A, B,returnOnlyP=True)
+    return _dsmm(A, B,returnOnlyP=True)'''
 
 def _dsmm_fullpy(Y,X,beta=2.0,llambda=1.5,neighbor_cutoff=10.0,gamma0=3.0,
             conv_epsilon=1e-3,eq_tol=1e-2,returnAll=False):
@@ -224,9 +225,11 @@ def _dsmm_fullpy(Y,X,beta=2.0,llambda=1.5,neighbor_cutoff=10.0,gamma0=3.0,
         #Eq. (20)'
         neighborN, neighborWeights = _neighborhood(pwise_distYY,neighbor_cutoff)
         sumPoverN = np.sum(neighborWeights[...,None]*p[None,...],axis=1)/neighborN[:,None] ##############TODO this takes a long time! 2.5 ms! It's because I augment the dimensionality so much.
-             
+        
         Result = sproot(_eqforalpha,x0=alpha,args=(p,sumPoverN),method="hybr",tol=eq_tol)
         alpha = Result['x'][0]
+        #Result = sproot_scalar(_eqforalpha,x0=alpha,args=(p,sumPoverN),method="brentq",bracket=[0.05,10.],rtol=eq_tol)
+        #alpha = Result.root
         
         #Step4:M-Step
         # Eq. (18)'
@@ -244,6 +247,13 @@ def _dsmm_fullpy(Y,X,beta=2.0,llambda=1.5,neighbor_cutoff=10.0,gamma0=3.0,
         CDE_term = C_term + D_term + E_term
         
         Result = sproot(_eqforgamma,x0=Gamma_old,args=(CDE_term),method="hybr",tol=eq_tol,jac=True,options={'col_deriv':1})
+        '''for mm in np.arange(len(Gamma)):
+            for jj in np.arange(100):
+                d = (2.*np.exp(spdigamma(Gamma[mm]*0.5)-1.-CDE_term[mm])-Gamma[mm])
+                d *= -10.
+                if(CDE_term[mm]<-2.): d /= float(jj)
+                if(np.abs(d)<0.0001): break
+                Gamma[mm] = max(0.1,Gamma[mm]+d)'''
         Gamma = Result['x']
 
         #Eq. (26)

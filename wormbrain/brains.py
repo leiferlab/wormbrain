@@ -61,7 +61,7 @@ class Brains:
                 self.coord = self._stabilize_z(self.coord, 
                     self.curvature,
                     nPlane=self.boxNPlane, boxIndices=self.boxIndices,
-                    method="xyMaxCurvature")
+                    method="xyAvgCurvature")
                 self.coord = self._stabilize_x(self.coord, self.curvature, nPixelsMax=5)
                 self.coord = self._stabilize_y(self.coord, self.curvature)
                     
@@ -410,6 +410,10 @@ class Brains:
         if method=="xyMaxCurvature":
             for pl in np.arange(nPlane):
                 c = np.max(curvature[:,boxIndices[pl]],axis=1)
+                curv[:,pl] = c
+        elif method=="xyAvgCurvature":
+            for pl in np.arange(nPlane):
+                c = np.average(curvature[:,boxIndices[pl]],axis=1)
                 curv[:,pl] = c
         else:
             centralIndices = np.zeros(nPlane)
