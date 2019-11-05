@@ -91,11 +91,11 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
 
 	// "Normalize" in Vemuri's language
 	// Y -= avg of Ys
-	// Y /= max of Ys (after the subtraction above)
+	// Y /= max of Ys (after the subtraction above) [max of all dimensions!]
 	double avg, max;
+	max=0.0;
 	for(int d=0;d<D;d++) {
 		avg=0.0;
-		max=0.0;
 		for (int m=0;m<M;m++) {
 			avg+=Y[m*D+d];
 		}
@@ -106,21 +106,21 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
 		for(int m=0;m<M;m++) {
 			if (max<abs(Y[m*D+d])) {max = abs(Y[m*D+d]);}
 		}
-		if(max!=0.0){
-			for(int m=0;m<M;m++) {
-				Y[m*D+d] /= max; 
-			}
-		}
+	}
+	if(max!=0.0){
+		for(int m=0;m<M;m++) { for(int d=0;d<D;d++) {
+			Y[m*D+d] /= max; 
+		}}
 	}
 
 	// Do the same for X. This time store the parameters for final 
 	// denormalization. Since Y is moved onto X, the parameters used to
 	// normalize X will be used to denormalized both X and Y.
 	double *AvgX = new double[D];
-	double *MaxX = new double[D];
+	double maxX = 0.0;
+    max = 0.0;
     for(int d=0;d<D;d++){
         avg = 0.0;
-        max = 0.0;
         for(int n=0;n<N;n++){
             avg += X[n*D+d];
         }
@@ -132,17 +132,17 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
         for(int n=0;n<N;n++){
             if(max<abs(X[n*D+d])){max=abs(X[n*D+d]);}
         }
-		
-        if(max!=0.0){
-            for(int n=0;n<N;n++){
-                X[n*D+d] /= max;
-				MaxX[d] = max;
-            }
-		}
-		else {
-			MaxX[d] = 1.0;
-		}
     }
+		
+    if(max!=0.0){
+        for(int n=0;n<N;n++){ for(int d=0;d<D;d++){
+            X[n*D+d] /= max;
+			maxX = max;
+        }}
+	}
+	else {
+		maxX = 1.0;
+	}
     
     typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> Matrice;
     typedef Eigen::Map<Matrice> MatrixMap;
@@ -437,20 +437,20 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
 	    // denormalize both with the parameters originally used to normalize X.
 	    for(int n=0;n<N;n++){
 		    for(int d=0;d<D;d++) {
-			    X[n*D+d] *= MaxX[d];
+			    X[n*D+d] *= maxX;//MaxX[d];
 			    X[n*D+d] += AvgX[d];
 		    }
 	    }
 
 	    for(int m=0;m<M;m++){
 		    for(int d=0;d<D;d++) {
-			    Y[m*D+d] *= MaxX[d];
+			    Y[m*D+d] *= maxX;//MaxX[d];
 			    Y[m*D+d] += AvgX[d];
 		    }
 	    }
     }
 	
 	delete[] AvgX;
-	delete[] MaxX;
+	//delete[] MaxX;
 
 }
