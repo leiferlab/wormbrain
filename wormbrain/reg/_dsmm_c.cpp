@@ -1,4 +1,4 @@
-//#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+#define NPY_NO_DEPRECATED_API NPY_1_9_API_VERSION
 #include <Python.h>
 #include <numpy/arrayobject.h>
 #include "dsmm.hpp" //This is inside dsmm/ in the root of the repository
@@ -53,29 +53,29 @@ static PyObject *_dsmmc_bare(PyObject *self, PyObject *args) {
         &G_o, &W_o, &GW_o,
         &sumPoverN_o, &expAlphaSumPoverN_o)) return NULL;
     
-    PyObject *X_a = PyArray_FROM_OTF(X_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *Y_a = PyArray_FROM_OTF(Y_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *pwise_dist_a = PyArray_FROM_OTF(pwise_dist_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *pwise_distYY_a = PyArray_FROM_OTF(pwise_distYY_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *Gamma_a = PyArray_FROM_OTF(Gamma_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *CDE_term_a = PyArray_FROM_OTF(CDE_term_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *w_a = PyArray_FROM_OTF(w_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *F_t_a = PyArray_FROM_OTF(F_t_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *wF_t_a = PyArray_FROM_OTF(wF_t_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *wF_t_sum_a = PyArray_FROM_OTF(wF_t_sum_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *p_a = PyArray_FROM_OTF(p_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *u_a = PyArray_FROM_OTF(u_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *Match_a = PyArray_FROM_OTF(Match_o, NPY_INT32, NPY_IN_ARRAY);
-    PyObject *hatP_a = PyArray_FROM_OTF(hatP_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *hatPI_diag_a = PyArray_FROM_OTF(hatPI_diag_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *hatPIG_a = PyArray_FROM_OTF(hatPIG_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *hatPX_a = PyArray_FROM_OTF(hatPX_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *hatPIY_a = PyArray_FROM_OTF(hatPIY_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *G_a = PyArray_FROM_OTF(G_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *W_a = PyArray_FROM_OTF(W_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *GW_a = PyArray_FROM_OTF(GW_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *sumPoverN_a = PyArray_FROM_OTF(sumPoverN_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *expAlphaSumPoverN_a = PyArray_FROM_OTF(expAlphaSumPoverN_o, NPY_FLOAT64, NPY_IN_ARRAY);
+    PyArrayObject *X_a = (PyArrayObject*) PyArray_FROM_OT(X_o, NPY_FLOAT64);
+    PyArrayObject *Y_a = (PyArrayObject*) PyArray_FROM_OT(Y_o, NPY_FLOAT64);
+    PyArrayObject *pwise_dist_a = (PyArrayObject*) PyArray_FROM_OT(pwise_dist_o, NPY_FLOAT64);
+    PyArrayObject *pwise_distYY_a = (PyArrayObject*) PyArray_FROM_OT(pwise_distYY_o, NPY_FLOAT64);
+    PyArrayObject *Gamma_a = (PyArrayObject*) PyArray_FROM_OT(Gamma_o, NPY_FLOAT64);
+    PyArrayObject *CDE_term_a = (PyArrayObject*) PyArray_FROM_OT(CDE_term_o, NPY_FLOAT64);
+    PyArrayObject *w_a = (PyArrayObject*) PyArray_FROM_OT(w_o, NPY_FLOAT64);
+    PyArrayObject *F_t_a = (PyArrayObject*) PyArray_FROM_OT(F_t_o, NPY_FLOAT64);
+    PyArrayObject *wF_t_a = (PyArrayObject*) PyArray_FROM_OT(wF_t_o, NPY_FLOAT64);
+    PyArrayObject *wF_t_sum_a = (PyArrayObject*) PyArray_FROM_OT(wF_t_sum_o, NPY_FLOAT64);
+    PyArrayObject *p_a = (PyArrayObject*) PyArray_FROM_OT(p_o, NPY_FLOAT64);
+    PyArrayObject *u_a = (PyArrayObject*) PyArray_FROM_OT(u_o, NPY_FLOAT64);
+    PyArrayObject *Match_a = (PyArrayObject*) PyArray_FROM_OT(Match_o, NPY_INT32);
+    PyArrayObject *hatP_a = (PyArrayObject*) PyArray_FROM_OT(hatP_o, NPY_FLOAT64);
+    PyArrayObject *hatPI_diag_a = (PyArrayObject*) PyArray_FROM_OT(hatPI_diag_o, NPY_FLOAT64);
+    PyArrayObject *hatPIG_a = (PyArrayObject*) PyArray_FROM_OT(hatPIG_o, NPY_FLOAT64);
+    PyArrayObject *hatPX_a = (PyArrayObject*) PyArray_FROM_OT(hatPX_o, NPY_FLOAT64);
+    PyArrayObject *hatPIY_a = (PyArrayObject*) PyArray_FROM_OT(hatPIY_o, NPY_FLOAT64);
+    PyArrayObject *G_a = (PyArrayObject*) PyArray_FROM_OT(G_o, NPY_FLOAT64);
+    PyArrayObject *W_a = (PyArrayObject*) PyArray_FROM_OT(W_o, NPY_FLOAT64);
+    PyArrayObject *GW_a = (PyArrayObject*) PyArray_FROM_OT(GW_o, NPY_FLOAT64);
+    PyArrayObject *sumPoverN_a = (PyArrayObject*) PyArray_FROM_OT(sumPoverN_o, NPY_FLOAT64);
+    PyArrayObject *expAlphaSumPoverN_a = (PyArrayObject*) PyArray_FROM_OT(expAlphaSumPoverN_o, NPY_FLOAT64);
         
     // Check that the above conversion worked, otherwise decrease the reference
     // count and return NULL.                                 
@@ -148,12 +148,16 @@ static PyObject *_dsmmc_bare(PyObject *self, PyObject *args) {
     //////////////////////////////////
     //////////////////////////////////
     
+    Py_BEGIN_ALLOW_THREADS
+    
     dsmm::_dsmm(X,Y,M,N,D,beta,lambda,neighbor_cutoff,alpha,gamma0,
            conv_epsilon,eq_tol,
            pwise_dist,pwise_distYY,Gamma,CDE_term,
            w,F_t,wF_t,wF_t_sum,p,u,Match,
            hatP,hatPI_diag,hatPIG,hatPX,hatPIY,
            G,W,GW,sumPoverN,expAlphaSumPoverN);
+           
+    Py_END_ALLOW_THREADS
     
     //////////////////////////////////
     //////////////////////////////////

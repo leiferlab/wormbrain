@@ -1,4 +1,5 @@
 #include "dsmm_utils.hpp"
+#include "presolvedgamma.cpp"
 #include <cstdlib>
 #include <utility>
 #include <cmath>
@@ -7,6 +8,7 @@
 #include <boost/math/special_functions/digamma.hpp>
 
 using namespace dsmm;
+
 
 class tolerance {
 public:
@@ -211,11 +213,11 @@ std::pair<double,double> dsmm::eqforgamma_jac(double x, double CDE_term) {
 void dsmm::solveforgamma(double *X, int sizeX, double *out, double eq_tol) {
     double xi;
     double inizio = 10.0;
-    double fattore = 2.0;
-    bool sale = false; //the function decreases with increasing Gamma
-    tolerance tolleranza = eq_tol;
+    //double fattore = 2.0;
+    //bool sale = false; //the function decreases with increasing Gamma
+    //tolerance tolleranza = eq_tol;
     boost::uintmax_t massimo = 1000;
-    double result, d;
+    double result;
     
     for(int i=0;i<sizeX;i++) {
         xi = X[i];
@@ -241,6 +243,28 @@ void dsmm::solveforgamma(double *X, int sizeX, double *out, double eq_tol) {
     }
 }
 
+void dsmm::solveforgamma_2(double *X, int sizeX, double *out, double eq_tol) {
+    int qs;
+    double xi,result;
+    double inizio = 10.0;
+    boost::uintmax_t massimo = 1000;
+    for(int i=0;i<sizeX;i++) {
+        xi = X[i];
+        if(xi>cde_solved[0] && xi<cde_solved[997]){
+            for(int q=0;q<998;q++){
+                if(xi>cde_solved[q]){qs=q;break;}
+            }
+            //inizio = gamma_solved[qs] + (xi-cde_solved[qs])*(gamma_solved[qs+1]-gamma_solved[qs])/(cde_solved[qs+1]-cde_solved[qs]);
+            inizio = (gamma_solved[qs]+gamma_solved[qs+1])*0.5;
+        }
+        result = boost::math::tools::newton_raphson_iterate(
+                std::bind(eqforgamma_jac,std::placeholders::_1,xi), 
+                inizio, gamma_solved[qs], gamma_solved[qs+1], 4, massimo);
+        out[i] = result;
+        
+    }
+}
+
 double dsmm::eqforalpha(double alpha, double *p, int M, int N, double *sumPoverN){
     //Eq. (20)', switching indices for x and y to match their first paper. 
     //Added an alpha to the first term inside the \biggl ( in the final line!!
@@ -257,8 +281,8 @@ double dsmm::eqforalpha(double alpha, double *p, int M, int N, double *sumPoverN
         b = 0.0;
         c = 0.0;
         for(int n=0;n<N;n++){
-            //a = dsmm::fastexp(alpha*sumPoverN[m*N+n],3);
-            a = exp(alpha*sumPoverN[m*N+n]);
+            a = dsmm::fastexp(alpha*sumPoverN[m*N+n],3); //FIXME fast
+            //a = exp(alpha*sumPoverN[m*N+n]);
             b += sumPoverN[m*N+n] * a;
             c += a;
         }
@@ -287,8 +311,8 @@ double dsmm::eqforalpha_2(double alpha, double *p, int M, int N, double *sumPove
         b = 0.0;
         c = 0.0;
         for(int n=0;n<N;n++){
-            //a = dsmm::fastexp(alpha*sumPoverN[m*N+n],3);
-            a = exp(alpha*sumPoverN[m*N+n]);
+            a = dsmm::fastexp(alpha*sumPoverN[m*N+n],3); //FIXME fast
+            //a = exp(alpha*sumPoverN[m*N+n]);
             b += alpha * sumPoverN[m*N+n] * a; // HERE FIXME TODO ADDED ALPHA
             c += a;
         }
@@ -302,15 +326,26 @@ double dsmm::eqforalpha_2(double alpha, double *p, int M, int N, double *sumPove
 }
 
 void dsmm::solveforalpha(double *p, int M, int N, double *sumPoverN, double &alpha, double eq_tol, double alpha0) {
-    double inizio = alpha0; // 0.8 FIXME TODO
+    //using namespace boost::math::policies;
+    //typedef policy<evaluation_error<ignore_error>> my_policy;
+
+    double inizio = 0.8; // alpha0; FIXME TODO
     double fattore = 2.0;
     bool sale = false;//true; //FIXME TODO
     tolerance tolleranza = eq_tol;
     boost::uintmax_t massimo = 1000;
-    std::pair<double, double> result = 
-        boost::math::tools::bracket_and_solve_root(
+    std::pair<double, double> result;
+    result.first = alpha0;
+    result.second = alpha0;
+    try{
+    result = boost::math::tools::bracket_and_solve_root(
         std::bind(dsmm::eqforalpha_2,std::placeholders::_1,p,M,N,sumPoverN), 
-        inizio, fattore, sale, tolleranza, massimo);
+        inizio, fattore, sale, tolleranza, massimo); //, my_policy()
+    } catch (...) {
+    result = boost::math::tools::bracket_and_solve_root(
+        std::bind(dsmm::eqforalpha_2,std::placeholders::_1,p,M,N,sumPoverN), 
+        inizio, fattore, !sale, tolleranza, massimo);
+    }
     alpha = 0.5*(result.first + result.second);
 }
 
@@ -347,3 +382,5 @@ void dsmm::sumPoverN(double *pwise_dist, int M, int N, double neighbor_cutoff, d
         }
     }
 }
+
+

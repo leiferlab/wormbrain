@@ -52,7 +52,7 @@ def _eqforalpha(alpha,p,sumPoverN):
     
     return np.sum(p*(1.*sumPoverN+D_term[:,None]))#alpha
 
-var_dict = {}
+'''var_dict = {}
 
 def init_worker(A_rawarr, B_rawarr, kwargs):
     for key in kwargs:
@@ -99,7 +99,7 @@ def _dsmm_parallel_wrapper(i):
     #print(i)
     
     print("Hi")
-    return _dsmm(A, B,returnOnlyP=True)
+    return _dsmm(A, B,returnOnlyP=True)'''
 
 def _dsmm_fullpy(Y,X,beta=2.0,llambda=1.5,neighbor_cutoff=10.0,gamma0=3.0,
             conv_epsilon=1e-3,eq_tol=1e-2,returnAll=False):

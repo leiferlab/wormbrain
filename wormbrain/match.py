@@ -69,9 +69,9 @@ def match(A, B, method='nearest', registration='None', **kwargs):
             fullpy = False
             
         if fullpy:
-            B, A, p, Match = wormb.reg._dsmm_fullpy(B,A,returnAll=True,conv_epsilon=1e-4,**kwargs)
+            B, A, p, Match = wormb.reg._dsmm_fullpy(B,A,returnAll=True,**kwargs)
         else:
-            B, A, p, Match = wormb.reg.dsmmc(B,A,returnAll=True,conv_epsilon=1e-4,**kwargs)
+            B, A, p, Match = wormb.reg.dsmmc(B,A,returnAll=True,**kwargs)
         return Match
 
     if method=='nearest':

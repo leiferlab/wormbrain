@@ -1,6 +1,7 @@
 #include <utility>
 namespace dsmm{
 
+
 void pwise_dist2(double *A, double *B, int M, int N, int D, double *out);
 void pwise_dist2_same(double *A, int M, int D, double *out);
 void dot(double *A_arr, double *B_arr, int M, int N, int P, double *out_arr);
@@ -15,6 +16,7 @@ double fastlog(double x);
 double eqforgamma(double x, double CDE_term);
 std::pair<double,double> eqforgamma_jac(double x, double CDE_term);
 void solveforgamma(double *X, int sizeX, double *out, double eq_tol) ;
+void solveforgamma_2(double *X, int sizeX, double *out, double eq_tol);
 double eqforalpha(double alpha, double *p, int M, int N, double *sumPoverN);
 double eqforalpha_2(double alpha, double *p, int M, int N, double *sumPoverN);
 void solveforalpha(double *p, int M, int N, double *sumPoverN, double &alpha, double eq_tol, double alpha0);

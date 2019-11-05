@@ -50,7 +50,6 @@ def dsmmc(Y,X,beta=2.0,llambda=1.5,neighbor_cutoff=10.0,
         Y[m] has to be greater than 0.5. If a different criterion is needed, set
         returnAll to True and use the returned p to calculate the matches.
     '''
-    
     N = X.shape[0]
     M = Y.shape[0]
     D = X.shape[1]
