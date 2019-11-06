@@ -1,7 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+import json
 import wormbrain as wormb
+import pkg_resources
 
 filename_matches = "matches.txt"
 
@@ -129,36 +131,30 @@ def _match_nearest(A, B, **kwargs): #TODO implement it on multiple As
 
     return Match
 
-def save_matches(MMatch, reference_index, folder):
+def save_matches(MMatch, parameters, folder, filename=""):
     if folder[-1]!="/": folder+="/"
-    '''f = open(folder+filename_matches,"w")
-    f.write("#Reference index: "+str(reference_index)+"\n")
+    if filename=="": filename = filename_matches
+    
+    parameters['version'] = pkg_resources.get_distribution("wormbrain").version
 
-    if type(MMatch)!=list: MMatch = [MMatch]
+    headerInfo = json.dumps(parameters)
+    np.savetxt(folder+filename,MMatch,header=headerInfo)
 
-    for Match in MMatch:
-        Match.tofile(f,sep=" ")
-        f.write("\n")
-    f.close()'''
-    headerInfo = "Reference brain: "+str(reference_index)
-    np.savetxt(folder+filename_matches,MMatch,header=headerInfo)
-
-def load_matches(folder):
+def load_matches(folder, filename=""):
     if folder[-1]!="/": folder+="/"
-    f = open(folder+filename_matches,"r")
+    if filename=="": filename = filename_matches
+    
+    f = open(folder+filename,"r")
     l = f.readline()
-    if(l[0]=="#"):
-        l = l.split(":")
-        reference_index = int(l[1])
     f.close()
+    try:
+        parameters = json.loads(l[2:])
+    except:
+        parameters = {}
 
-    '''MMatch = []
-    for line in f.readlines():
-        Match = np.fromstring(line,dtype=int,sep=" ")
-        MMatch.append(Match)'''
     MMatch = np.loadtxt(folder+filename_matches)
 
-    return MMatch, reference_index
+    return MMatch, parameters
 
 
 def plot_matches(A, B, Match, mode='3d',plotNow=True,**kwargs):

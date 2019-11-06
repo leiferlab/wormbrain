@@ -4,6 +4,7 @@ import mistofrutta.struct.irrarray as irrarray
 from copy import deepcopy as deepcopy
 import json
 import re
+import pkg_resources
 
 class Brains:
     '''Container for neuron coordinates. It depends on the arrays with 
@@ -50,12 +51,19 @@ class Brains:
         if zOfFrame == None: zOfFrame = np.zeros((len(self.nInVolume),1))
         self.zOfFrame = zOfFrame
         
+        self.version = pkg_resources.get_distribution("wormbrain").version
+        
         if len(properties.keys())!=0:
             self.curvature = properties['curvature']
             self.curvature = irrarray(self.curvature, self.nInVolume, 
                                         strideNames=["vol"])
             self.boxIndices = properties['boxIndices']
             self.boxNPlane = properties['boxNPlane']
+            self.segmParam = properties['segmParam']
+            try:
+                self.version = properties['version']
+            except:
+                pass
         
             if stabilize_z:
                 self.coord = self._stabilize_z(self.coord, 
@@ -139,6 +147,16 @@ class Brains:
             properties['boxNPlane'] = props['boxNPlane']
         except:
             pass
+            
+        try:
+            properties['segmParam'] = props['segmParam']
+        except:
+            pass
+            
+        try:
+            properties['version'] = props['version']
+        except:
+            pass
         
         # Don't do any implicit stabilization if loaded from file. 
         stabilize_z = False 
@@ -198,8 +216,11 @@ class Brains:
             props['curvature'] = [c.tolist() for c in self.curvature]
             props['boxIndices'] = [c.tolist() for c in self.boxIndices]
             props['boxNPlane'] = self.boxNPlane
+            props['segmParam'] = self.segmParam
+            props['version'] = self.version
         except:
             pass
+            
         diz['properties'] = props
         
         if filename=="":
