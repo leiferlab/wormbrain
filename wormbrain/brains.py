@@ -40,7 +40,7 @@ class Brains:
     filename = "brains.json"
     
     def __init__(self, coordZYX, nInVolume, zOfFrame=None, properties={}, 
-                 stabilize_z=True):
+                 stabilize_z=True,stabilize_xy=True):
 
         #coordZYX, self.nInVolume, self.nInFrame = self._conv_coord_2d_to_3d(coord, 
         #                                volFrame0, dtype=int)
@@ -70,6 +70,7 @@ class Brains:
                     self.curvature,
                     nPlane=self.boxNPlane, boxIndices=self.boxIndices,
                     method="xyAvgCurvature")
+            if stabilize_xy:
                 self.coord = self._stabilize_x(self.coord, self.curvature, nPixelsMax=5)
                 self.coord = self._stabilize_y(self.coord, self.curvature)
                     
