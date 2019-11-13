@@ -58,6 +58,11 @@ class Brains:
             self.curvature = irrarray(self.curvature, self.nInVolume, 
                                         strideNames=["vol"])
             self.boxIndices = properties['boxIndices']
+            try:
+                self.boxIndicesX = properties['boxIndicesX']
+                self.boxIndicesY = properties['boxIndicesY']
+            except:
+                pass
             self.boxNPlane = properties['boxNPlane']
             self.segmParam = properties['segmParam']
             try:
@@ -71,8 +76,10 @@ class Brains:
                     nPlane=self.boxNPlane, boxIndices=self.boxIndices,
                     method="xyAvgCurvature")
             if stabilize_xy:
-                self.coord = self._stabilize_x(self.coord, self.curvature, nPixelsMax=5)
-                self.coord = self._stabilize_y(self.coord, self.curvature)
+                self.coord = self._stabilize_x(self.coord, self.curvature, 
+                                    nPixelsMax=5, boxIndices=self.boxIndicesX)
+                self.coord = self._stabilize_y(self.coord, self.curvature,
+                                    boxIndices=self.boxIndicesY)
                     
                 self.coord = np.rint(self.coord)
             
@@ -148,6 +155,11 @@ class Brains:
             properties['boxNPlane'] = props['boxNPlane']
         except:
             pass
+        try:
+            properties['boxIndicesX'] = [np.array(bi) for bi in props['boxIndicesX']]
+            properties['boxIndicesY'] = [np.array(bi) for bi in props['boxIndicesY']]
+        except:
+            pass
             
         try:
             properties['segmParam'] = props['segmParam']
@@ -160,9 +172,10 @@ class Brains:
             pass
         
         # Don't do any implicit stabilization if loaded from file. 
-        stabilize_z = False 
+        stabilize_z = False
+        stabilize_xy = False 
         
-        return cls(coordZYX, nInVolume, zOfFrame, properties, stabilize_z)
+        return cls(coordZYX, nInVolume, zOfFrame, properties, stabilize_z, stabilize_xy)
     
     def append(self, brains2):
         '''Append to this object the content of another instance of Brains.
@@ -216,6 +229,8 @@ class Brains:
         try:
             props['curvature'] = [c.tolist() for c in self.curvature]
             props['boxIndices'] = [c.tolist() for c in self.boxIndices]
+            props['boxIndicesX'] = [c.tolist() for c in self.boxIndicesX]
+            props['boxIndicesY'] = [c.tolist() for c in self.boxIndicesY]
             props['boxNPlane'] = self.boxNPlane
             props['segmParam'] = self.segmParam
             props['version'] = self.version
