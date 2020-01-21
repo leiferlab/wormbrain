@@ -58,13 +58,16 @@ class Brains:
             self.curvature = irrarray(self.curvature, self.nInVolume, 
                                         strideNames=["vol"])
             self.boxIndices = properties['boxIndices']
+            
             try:
                 self.boxIndicesX = properties['boxIndicesX']
                 self.boxIndicesY = properties['boxIndicesY']
             except:
                 pass
+                
             self.boxNPlane = properties['boxNPlane']
             self.segmParam = properties['segmParam']
+            
             try:
                 self.version = properties['version']
             except:
@@ -155,6 +158,7 @@ class Brains:
             properties['boxNPlane'] = props['boxNPlane']
         except:
             pass
+            
         try:
             properties['boxIndicesX'] = [np.array(bi) for bi in props['boxIndicesX']]
             properties['boxIndicesY'] = [np.array(bi) for bi in props['boxIndicesY']]
@@ -193,7 +197,7 @@ class Brains:
         self.curvature = np.append(self.curvature, brains2.curvature)
         self.curvature = irrarray(self.curvature, self.nInVolume, 
                                         strideNames=["vol"])
-        
+                                        
         self.coord = self.coord.astype(int)
         
     
@@ -446,11 +450,19 @@ class Brains:
         curv = np.zeros((coord.shape[0],nPlane))
         if method=="xyMaxCurvature":
             for pl in np.arange(nPlane):
-                c = np.max(curvature[:,boxIndices[pl]],axis=1)
+                # The curvature has to be flipped in sign (i.e. peak = max of
+                # flipped curvature) and the resulting negative values clipped
+                # to 0, so that only the central region of the neuron matters.
+                flipped_curv = -1.0*curvature[:,boxIndices[pl]]
+                np.clip(flipped_curv,0,None,flipped_curv)
+                c = np.max(flipped_curv,axis=1)
                 curv[:,pl] = c
         elif method=="xyAvgCurvature":
             for pl in np.arange(nPlane):
-                c = np.average(curvature[:,boxIndices[pl]],axis=1)
+                # Flip and clip curvature (see above).
+                flipped_curv = -1.0*curvature[:,boxIndices[pl]]
+                np.clip(flipped_curv,0,None,flipped_curv)
+                c = np.average(flipped_curv,axis=1)
                 curv[:,pl] = c
         else:
             centralIndices = np.zeros(nPlane)
@@ -458,6 +470,8 @@ class Brains:
                 sh0 = boxIndices[pl].shape[0]
                 centralIndices[pl] = boxIndices[pl][sh0//2]
             curv = curvature[:,centralIndices] #look just along z
+            curv *= -1.0
+            np.clip(curv,0,None,curv)
         
         coord_3d_out = np.zeros_like(coord,dtype=np.float)
         if coord_3d_ordering=="zyx":
@@ -485,7 +499,12 @@ class Brains:
         curv = np.zeros((coord.shape[0],nPixelsMax))
         if method=="curvatureAverage":
             for pl in np.arange(nPixelsMax):
-                c = np.average(curvature[:,boxIndices[pl]],axis=1)
+                # The curvature has to be flipped in sign (i.e. peak = max of
+                # flipped curvature) and the resulting negative values clipped
+                # to 0, so that only the central region of the neuron matters.
+                flipped_curv = -1.0*curvature[:,boxIndices[pl]]
+                np.clip(flipped_curv,0,None,flipped_curv)
+                c = np.average(flipped_curv,axis=1)
                 curv[:,pl] = c
         
         coord_3d_out = np.zeros_like(coord,dtype=np.float)
@@ -512,7 +531,12 @@ class Brains:
         curv = np.zeros((coord.shape[0],nPixelsMax))
         if method=="curvatureAverage":
             for pl in np.arange(nPixelsMax):
-                c = np.average(curvature[:,boxIndices[pl]],axis=1)
+                # The curvature has to be flipped in sign (i.e. peak = max of
+                # flipped curvature) and the resulting negative values clipped
+                # to 0, so that only the central region of the neuron matters.
+                flipped_curv = -1.0*curvature[:,boxIndices[pl]]
+                np.clip(flipped_curv,0,None,flipped_curv)
+                c = np.average(flipped_curv,axis=1)
                 curv[:,pl] = c
         
         coord_3d_out = np.zeros_like(coord,dtype=np.float)
@@ -531,7 +555,12 @@ class Brains:
         # in each plane.
         curv = np.zeros((self.coord.shape[0],boxNPlane))
         for pl in np.arange(boxNPlane):
-            c = np.max(curvature[:,boxIndices[pl]],axis=1)
+            # The curvature has to be flipped in sign (i.e. peak = max of
+            # flipped curvature) and the resulting negative values clipped
+            # to 0, so that only the central region of the neuron matters.
+            flipped_curv = -1.0*curvature[:,boxIndices[pl]]
+            np.clip(flipped_curv,0,None,flipped_curv)
+            c = np.max(flipped_curv,axis=1)
             curv[:,pl] = c
         
         # Use the value in plane nPlane//2+1 and nPlane//2+2 to "fit" the radius
