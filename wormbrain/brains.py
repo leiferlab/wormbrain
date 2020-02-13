@@ -5,6 +5,7 @@ from copy import deepcopy as deepcopy
 import json
 import re
 import pkg_resources
+import wormbrain as wormb
 
 class Brains:
     '''Container for neuron coordinates. It depends on the arrays with 
@@ -382,7 +383,7 @@ class Brains:
             
         return coord_3d, np.array(nInVolume), np.array(nInFrame)
         
-    def getOverlay(self, vol):
+    def getOverlay(self, vol, folder, returnLabels=False):
         try:
             bla = vol[0]
         except:
@@ -390,12 +391,31 @@ class Brains:
         
         nVolume = len(vol)
         Overlay = []
+        OverlayLabels = []
+        
+        MMatch, info = wormb.match.load_matches(folder)
+        
+        # create an "inverse" matching object where the index is current vol and the value is ref vol
+        MMatch_inv = []; 
+        for kappa in np.arange(nVolume):
+            temp = [None]*self.nInVolume[vol[kappa]];
+            for ref, cur in enumerate(MMatch[vol[kappa]],0):
+                if cur >= 0:
+                    temp[int(cur)] = ref;
+            MMatch_inv.append(temp);
+        
         for kappa in np.arange(nVolume):
             cerv = self(vol=vol[kappa])
-            for mu in np.arange(self.nInVolume[kappa]):
+            numFrames = len(self.zOfFrame[vol[kappa]]);
+            match = np.asarray(MMatch_inv[kappa])
+            for mu in np.arange(numFrames):
                 Overlay.append(cerv[np.where(cerv[:,0]==mu)[0],1:][:,::-1])
-                
-        return Overlay
+                OverlayLabels.append(match[cerv[:,0]==mu]);
+        
+        if returnLabels:        
+            return Overlay, OverlayLabels
+        else:
+            return Overlay
         
         
     @staticmethod
@@ -619,6 +639,9 @@ class Brains:
         
 
     def _plot_2d(self, indices, **kwargs):
+        # _plot_2d: plots each of the neurons at there location for the volumes specified by indices (list)
+        # Cervelli: brain object that you want to plot (this will become self in the actual class)
+        # indices: list object with the volumes that you want to plot
         cfn = plt.gcf().number
         if len(plt.gcf().axes)!=0: cfn += 1
         
@@ -627,22 +650,9 @@ class Brains:
         
         fig = plt.figure(cfn)
         ax = fig.add_subplot(111)
-        p = 0 # x in plot
-        q = 1 # y in plot
-        r = 2
-
-        ax.plot(A.T[p],A.T[q],'og')#,markersize=3)
-        ax.plot(B.T[p],B.T[q],'or',markersize=2)
-
-        I = len(Match)
-        for i in np.arange(I):
-            j = Match[i]
-            if j>0:
-                ax.plot((A[j,p],B[i,p]),(A[j,q],B[i,q]),'k-')
-            else:
-                j = -j//10
-                ax.plot(B[i,p],B[i,q],'*b')
-                if showAll:
-                    ax.plot((A[j,p],B[i,p]),(A[j,q],B[i,q]),'--',c='orange')
+        
+        for index in indices:
+            brain = self.trueCoords(index)
+            ax.scatter(brain.T[2],brain.T[1],marker='o')
                 
         return fig, ax
