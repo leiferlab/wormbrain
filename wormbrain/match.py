@@ -155,6 +155,20 @@ def load_matches(folder, filename=""):
     MMatch = np.loadtxt(folder+filename_matches)
 
     return MMatch, parameters
+    
+def load_match_parameters(folder, filename=""):
+    if folder[-1]!="/": folder+="/"
+    if filename=="": filename = filename_matches
+    
+    f = open(folder+filename,"r")
+    l = f.readline()
+    f.close()
+    try:
+        parameters = json.loads(l[2:])
+    except:
+        parameters = {}
+
+    return parameters
 
 
 def plot_matches(A, B, Match, mode='3d',plotNow=True,**kwargs):
