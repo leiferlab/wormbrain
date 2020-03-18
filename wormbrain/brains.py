@@ -39,6 +39,7 @@ class Brains:
     '''
     
     filename = "brains.json"
+    coord_filename = "transformed_neurons.txt"
     
     def __init__(self, coordZYX, nInVolume, zOfFrame=None, properties={}, 
                  stabilize_z=True,stabilize_xy=True):
@@ -53,6 +54,8 @@ class Brains:
         self.zOfFrame = zOfFrame
         
         self.version = pkg_resources.get_distribution("wormbrain").version
+        self.info = {}
+        self.info['version'] = self.version
         
         if len(properties.keys())!=0:
             self.curvature = properties['curvature']
@@ -68,6 +71,7 @@ class Brains:
                 
             self.boxNPlane = properties['boxNPlane']
             self.segmParam = properties['segmParam']
+            self.info['segm_param'] = self.segmParam
             
             try:
                 self.version = properties['version']
@@ -181,6 +185,24 @@ class Brains:
         stabilize_xy = False 
         
         return cls(coordZYX, nInVolume, zOfFrame, properties, stabilize_z, stabilize_xy)
+        
+    @classmethod
+    def from_coord_file(cls, folder, filename=""):
+        if folder[-1]!="/": folder += "/"
+        if filename == "": filename = cls.coord_filename
+        
+        f = open(folder+filename)
+        s = f.readline()
+        f.close()
+        
+        s = s.split(";")
+        n_volume = int(s[0].split("=")[1])
+        n_neurons = int(s[1].split("=")[1])
+        nInVolume = np.ones(n_volume)*n_neurons
+        
+        coordZYX = np.loadtxt(folder+filename)
+        
+        return cls(coordZYX, nInVolume, stabilize_z=False, stabilize_xy=False)
     
     def append(self, brains2):
         '''Append to this object the content of another instance of Brains.

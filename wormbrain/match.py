@@ -79,6 +79,32 @@ def match(A, B, method='nearest', registration='None', **kwargs):
     if method=='nearest':
         Match = _match_nearest(A,B,**kwargs)
     return Match
+    
+def invert_matches(matches, N):
+    '''Transforms the matches obtained matching points in B to points in A to
+    the matches of points in A to points in B.
+    
+    Parameters
+    ----------
+    matches: numpy array of int
+        The matches to be inverted. Obtained, e.g., with match(A,B,...).
+        Contains the matches of points in B to points in A.
+    N: int
+        Number of elements in A.
+        
+    Returns
+    -------
+    inverted matches: numpy array of int
+        The inverted matches, i.e. of points of A to points of B.
+    '''
+    
+    inverted_matches = -1*np.ones(N, dtype=np.int)
+    for i in np.arange(N):
+        a = np.where(matches==i)[0]
+        if len(a) >0:
+            inverted_matches[i] = a[0]
+    
+    return inverted_matches
 
 
 
