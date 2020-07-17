@@ -17,6 +17,16 @@ def pairwise_distance(A,B,returnAll=False,squared=False,thresholdDz=0.0):
     A, B: np.array
         Sets of points between witch to calculate the distance. Indexes are
         [point_index, coordinate].
+    returnAll: bool (optional)
+        If True, the function returns both the distance and the vector 
+        difference between the points in A and B. Default: False
+    squared: bool (optional)
+        If True, the square of the distances are returned, instead of the 
+        distances. Default: False.
+    thresholdDz: float (optional)
+        If different from 0.0, the function sets to 0 all the z components
+        of the vectorial difference between A and B that are smaller than this
+        value.
 
     Returns
     -------
@@ -46,9 +56,16 @@ def match(A, B, method='nearest', registration='None', **kwargs):
 
     Parameters
     ----------
-    A, B: np.array
+    A, B: numpy array
         Sets of points to match. The function will calculate matches B->A.
         Indexes are [point_index, coordinate].
+    method: string (optional)
+        Method to match the neurons, after the registration between the two
+        point sets. Default: "nearest".
+    registration: string (optional)
+        Method to register the two point sets. Default: "None".
+    **kwargs:
+        Other parameters to be passed to the registration function.
 
     Returns
     -------
@@ -109,6 +126,20 @@ def invert_matches(matches, N):
 
 
 def _match_nearest(A, B, **kwargs): #TODO implement it on multiple As
+    '''Matches the neurons in A to the neurons in B based on a nearest-neighbor
+    criterion.
+    
+    Parameters
+    ----------
+    A, B: numpy array
+        The two point sets
+        
+    Returns
+    -------
+    Match: numpy array
+        The array containing the matches.
+    '''
+    
     # Calculate pairwise distance between every pair of points in (B, A).T
     # Pass thresholdDz if it is in kwargs
     if "thresholdDz" in kwargs.keys():
@@ -158,6 +189,24 @@ def _match_nearest(A, B, **kwargs): #TODO implement it on multiple As
     return Match
 
 def save_matches(MMatch, parameters, folder, filename=""):
+    '''Saves the matches to file, using the numpy savetxt function with the
+    addition of a header containing json-serialized information about the 
+    matching. The function will add the current version of the wormbrain module
+    in the header.
+    
+    Parameters
+    ----------
+    MMatch: numpy array
+        Array containing the matches
+    parameters: dictionary
+        Dictionary to be json-serialized and stored in the header.
+    folder: string
+        Destination folder.
+    filename: string (optional)
+        Destination filename. Default: "", that is translated in the default
+        filename for the module.
+    '''
+    
     if folder[-1]!="/": folder+="/"
     if filename=="": filename = filename_matches
     
@@ -167,6 +216,25 @@ def save_matches(MMatch, parameters, folder, filename=""):
     np.savetxt(folder+filename,MMatch,header=headerInfo)
 
 def load_matches(folder, filename=""):
+    '''Loads the matches from file.
+    
+    Parameters
+    ----------
+    folder: string
+        Folder containing the file.
+    filename: string (optional)
+        Name of the file. Default: "", that is translated to the default 
+        filename for the module.
+    
+    Returns
+    -------
+    MMatch: numpy array
+        Array containing the matches.
+    parameters: dictionary
+        Dictionary contained in the header, with the information about the 
+        matching
+    '''
+    
     if folder[-1]!="/": folder+="/"
     if filename=="": filename = filename_matches
     
@@ -183,6 +251,23 @@ def load_matches(folder, filename=""):
     return MMatch, parameters
     
 def load_match_parameters(folder, filename=""):
+    '''Loads the matching parameters from file, only using its header. This
+    function does not load the matches themselves. Use load_matches() for that.
+    
+    Parameters
+    ----------
+    folder: string
+        Folder containing the file.
+    filename: string (optional)
+        Name of the file. Default: "", that is translated to the default 
+        filename for the module.
+    
+    Returns
+    -------
+    parameters: dictionary
+        Dictionary contained in the header, with the information about the 
+        matching
+    '''
     if folder[-1]!="/": folder+="/"
     if filename=="": filename = filename_matches
     
@@ -198,7 +283,33 @@ def load_match_parameters(folder, filename=""):
 
 
 def plot_matches(A, B, Match, mode='3d',plotNow=True,**kwargs):
-
+    '''Plots the two point sets with lines representing the matches, in 2D or 
+    3D. The function redirects the call to _plot_matches_3d() or _2d(). If 
+    matplotlib has already a figure, the function uses the one after the one
+    currently in use.
+    
+    Parameters
+    ----------
+    A, B: numpy arrays
+        The two point sets.
+    Match: numpy array
+        The array containing the matches.
+    mode: string (optional)
+        Possible values: "3d" or "2d". Default: "3d".
+    plotNow: boolean (optional)
+        If True, the plot is displayed immediately. If False, figure and axis
+        will be returned, to be displayed later in the script. Default: True.
+    **kwargs: 
+        Any other parameter to be passed to _plot_matches_3d or _2d.
+        
+    Returns
+    -------
+    fig: matplotlib figure 
+        Returned if plotNow is False.
+    ax: matplotlib axis
+        Returned if plotNow is False.
+    
+    '''
     if mode=='3d':
         fig, ax = _plot_matches_3d(A, B, Match, **kwargs)
     if mode=='2d':
@@ -212,6 +323,22 @@ def plot_matches(A, B, Match, mode='3d',plotNow=True,**kwargs):
 
 
 def _plot_matches_3d(A, B, Match,**kwargs):
+    '''Plot matches in a 3D plot. If matplotlib has already a figure, the 
+    function uses the one after the one currently in use.
+    
+    Parameters
+    ----------
+    A, B: numpy arrays
+        The arrays containing the point sets.
+    Match: numpy array
+        The matches.
+    
+    Returns
+    -------
+    fig: matplotlib figure 
+    ax: matplotlib axis
+    '''
+    
     cfn = plt.gcf().number
     if len(plt.gcf().axes)!=0: cfn += 1
 
@@ -238,6 +365,22 @@ def _plot_matches_3d(A, B, Match,**kwargs):
 
 
 def _plot_matches_2d(A, B, Match, **kwargs):
+    '''Plot matches in a 2D plot. If matplotlib has already a figure, the 
+    function uses the one after the one currently in use.
+    
+    Parameters
+    ----------
+    A, B: numpy arrays
+        The arrays containing the point sets.
+    Match: numpy array
+        The matches.
+    
+    Returns
+    -------
+    fig: matplotlib figure 
+    ax: matplotlib axis
+    '''
+    
     cfn = plt.gcf().number
     if len(plt.gcf().axes)!=0: cfn += 1
 

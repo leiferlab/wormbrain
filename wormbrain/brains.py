@@ -18,7 +18,9 @@ class Brains:
     
     The coordinates of the neurons can be accessed in various ways: With 
     Cervelli an instance of the class
+    
     >>> Cervelli[i]
+    
     will return the i-th point (counting from the very beginning in the whole
     set of points passed). The coordinates are stored in indexing-order so,
     for 3D points, this will return z,y,x. z is the frame index inside the
@@ -27,9 +29,13 @@ class Brains:
     stores the coordinates is called, giving direct access to all its
     functionalities. To obtain the coordinatesof neurons contained in volume m, 
     use
+    
     >>> Cervelli(vol=m)     
+    
     (see mistofrutta.struct.irrarray for further documentation).
+    
     >>> Cervelli.trueCoords(m)
+    
     will return the "true" coordinates, in which z has the same dimensions as
     y and x.
     
@@ -41,9 +47,56 @@ class Brains:
     filename = "brains.json"
     coord_filename = "transformed_neurons.txt"
     
+    nInVolume = 0
+    coord = None
+    zOfFrame = None
+    
+    version = None
+    info = {}
+    
+    curvature = None
+    boxIndices = None
+    boxIndicesX = None
+    boxIndicesY = None
+    boxNPlane = 0
+    
+    segmParam = {}
+    info = {}
+    
+    
     def __init__(self, coordZYX, nInVolume, zOfFrame=None, properties={}, 
                  stabilize_z=True,stabilize_xy=True):
-
+        '''The constructor transforms the coordinates array into an irrarray
+        and, if requested to, "stabilizes" the coordinates based on the 
+        local curvature around the neurons.
+        
+        Parameters
+        ----------
+        coordZYX: numpy array
+            Array containing the coordinates of the neurons, in zyx order.
+            coordZYX[i] are the coordinates of the i-th neuron in the whole
+            serialized sequence of brains.
+        nInVolume: numpy array
+            nInVolume[j] is the number of neurons in neuron j. Used to split 
+            the neurons into their respective volumes.
+        zOfFrame: list of numpy arrays (optional)
+            zOfFrame[j][l] is the "real" z coordinate of frame l in volume j.
+            It is most useful if z has the same scale as x and y. Not required
+            for 2D recordings in which each volume is composed of a single
+            frame. Default: None.
+        properties: dictionary (optional)
+            Dictionary that can have the keys 'curvature', 'boxIndices', 
+            'boxIndicesX', 'boxIndicesY', 'boxNPlane', 'segmParam', 'version'.
+            NeuronProperties from wormneuronsegmentation.findNeurons() can be
+            passed as properties. Default: {}.
+        stabilize_z: bool (optional)
+            If True, the z position is stabilized based on the local curvature
+            around the neurons. Default: True.
+        stabilize_xy: bool (optional)
+            If True, the xy position is stabilized based on the local curvature
+            around the neurons. Default: True.
+        '''
+        
         #coordZYX, self.nInVolume, self.nInFrame = self._conv_coord_2d_to_3d(coord, 
         #                                volFrame0, dtype=int)
         self.nInVolume = nInVolume
@@ -136,6 +189,9 @@ class Brains:
         ----------
         folder: string
             Folder containing the file.
+        filename: string (optional)
+            Name of the file containing the signal. Default: "", which is
+            translated into the default filename for the class.
         
         Returns
         -------
@@ -156,6 +212,10 @@ class Brains:
         nInVolume = np.array(c['nInVolume'])
         zOfFrame = [np.array(z) for z in c['zOfFrame']]
         properties = {}
+        
+        # To be compatible with older versions of the file, there is this
+        # sequence of try/except. At some point, this can be removed and all
+        # the properties be loaded.
         try:
             props = c['properties']
             properties['curvature'] = [np.array(curv) for curv in props['curvature']]
@@ -188,6 +248,19 @@ class Brains:
         
     @classmethod
     def from_coord_file(cls, folder, filename=""):
+        '''Create a Brains object from a file containing the coordinates of the
+        neurons only.
+        
+        Parameters
+        ----------
+        folder: string
+            Folder containing the file.
+        filename: string (optional)
+            Name of the file containing the coordinates of the neurons. 
+            Default: "", which is translated to the default filename for the 
+            class.
+        
+        '''
         if folder[-1]!="/": folder += "/"
         if filename == "": filename = cls.coord_filename
         
@@ -209,6 +282,12 @@ class Brains:
         It does not perform any z-stabilization. Assumes the curvature in 
         brains2 was extracted the same way as in this instance.
         (Modify stuff mimicking __init__()).
+        
+        Parameters
+        ----------
+        brains2: Brains object
+            Brains object to be appended to this.
+        
         '''
         self.nInVolume = np.append(self.nInVolume, brains2.nInVolume)
         self.coord = np.append(self.coord, brains2.coord, axis=0)
@@ -243,9 +322,22 @@ class Brains:
         return self.coord.__call__(*args, **kwargs)
     
     def copy(self):
+        '''Deepcopy of this object.'''
         return deepcopy(self)
     
     def to_file(self, foldername, filename=""):
+        '''Save this instance of the object to file. A Brains object saved 
+        this way can be recreated in memory with the class method from_file().
+        
+        Parameters
+        ----------
+        foldername: string
+            Destination folder.
+        filename: string (optional)
+            Name of destination file. Default: "", which is translated to the 
+            default filename for the class.
+        
+        '''
         if foldername[-1]!="/": foldername += "/"
         
         diz = {}
@@ -280,10 +372,24 @@ class Brains:
         f.close()
         
     def trueCoords(self, vol, coord_ordering='zyx'):#, returnIrrarray=False):
+        '''Returns the coordinates of the neurons contained in the specified
+        volumes replacing z with its actual values, from zOfFrame.
+        
+        Parameters
+        ----------
+        vol: int or list of int
+            Indices of the volume(s) requested.
+        coord_ordering: string (optional)
+            Ordering of the coordinates to be returned. Allowed values:
+            'zyx' for indexing order, and 'xyz' for plotting order. 
+            Default: 'zyx'.
+            
+        Returns
+        -------
+        trueCoords: numpy array
+            Coordinates of the neurons.
         '''
-        Return the coordinates replacing z with its actual values, from 
-        zOfFrame.
-        '''
+        
         if type(vol)!=list: vol = [vol]
         # Get the neurons in the requested volumes
         trueCoords = self.coord(vol=vol, dtype=np.float)
@@ -304,10 +410,9 @@ class Brains:
     @staticmethod
     def _conv_coord_2d_to_3d(coord_2d, volFrame0, zOfFrame=[], dz=1, 
             dtype=np.float, coord_2d_ordering='yx', coord_3d_ordering='zyx'):
-        '''
-        Converts coordinates from a list of np.array([[y,x],]) for one frame to
-        a list of np.array([[z,y,x],]) for each volume, with the corresponding
-        number of neurons in each volume.
+        '''Converts coordinates from a list of np.array([[y,x],]) for one frame 
+        to a list of np.array([[z,y,x],]) for each volume, with the 
+        corresponding number of neurons in each volume.
         
         Parameters
         ----------
@@ -405,7 +510,35 @@ class Brains:
             
         return coord_3d, np.array(nInVolume), np.array(nInFrame)
         
-    def getOverlay(self, vol, folder, returnLabels=False):
+    def getOverlay(self, vol, folder="", returnLabels=False):
+        '''Returns the list of numpy arrays to be used as Overlay in 
+        mistofrutta.plt.hyperstack, together with the OverlayLabels. The labels
+        are not the indices of the neurons in their volume, but are the indices
+        of the matched neurons in the reference brain/volume. If the labels are
+        requested this function, therefore, assumes that a match file exists 
+        that can be loaded via wormbrain.match.load_matches().
+        
+        Parameters
+        ----------
+        vol: int or list of int
+            Indices of the volume(s) requested.
+        folder: string (optional)
+            Folder containing the match file to be loaded with 
+            wormbrain match.load_matches(). Required if returnLabels is True.
+        returnLabels: bool (optional)
+            If True, the labels are returned. Default: False
+            
+        Returns
+        -------
+        Overlay: list of numpy arrays
+            Overlay[frame_index][i] are the y,x coordinates of neuron i in
+            a given frame.
+        OverlayLabels: list of integers
+            OverlayLabels[frame_index][i] is the index of the neuron
+            in the reference brain corresponding to the neuron i in the 
+            specified frame. Returned if returnLabels is True.
+        
+        '''
         try:
             bla = vol[0]
         except:
@@ -413,29 +546,47 @@ class Brains:
         
         nVolume = len(vol)
         Overlay = []
-        OverlayLabels = []
+        OverlayLabels = []     
         
-        MMatch, info = wormb.match.load_matches(folder)
+        # It was like this, with the loading of the file before this for.
+        #for kappa in np.arange(nVolume):
+        #    cerv = self(vol=vol[kappa])
+        #    numFrames = len(self.zOfFrame[vol[kappa]]);
+        #    match = np.asarray(MMatch_inv[kappa])
+        #    for mu in np.arange(numFrames):
+        #        Overlay.append(cerv[np.where(cerv[:,0]==mu)[0],1:][:,::-1])
+        #        OverlayLabels.append(match[cerv[:,0]==mu]);
+        #if returnLabels:        
+        #    return Overlay, OverlayLabels
+        #else:
+        #    return Overlay
         
-        # create an "inverse" matching object where the index is current vol and the value is ref vol
-        MMatch_inv = []; 
         for kappa in np.arange(nVolume):
-            temp = [None]*self.nInVolume[vol[kappa]];
-            for ref, cur in enumerate(MMatch[vol[kappa]],0):
-                if cur >= 0:
-                    temp[int(cur)] = ref;
-            MMatch_inv.append(temp);
+                cerv = self(vol=vol[kappa])
+                numFrames = len(self.zOfFrame[vol[kappa]]);
+                for mu in np.arange(numFrames):
+                    Overlay.append(cerv[np.where(cerv[:,0]==mu)[0],1:][:,::-1])
         
-        for kappa in np.arange(nVolume):
-            cerv = self(vol=vol[kappa])
-            numFrames = len(self.zOfFrame[vol[kappa]]);
-            match = np.asarray(MMatch_inv[kappa])
-            for mu in np.arange(numFrames):
-                Overlay.append(cerv[np.where(cerv[:,0]==mu)[0],1:][:,::-1])
-                OverlayLabels.append(match[cerv[:,0]==mu]);
+        if returnLabels:
+            MMatch, info = wormb.match.load_matches(folder)
         
-        if returnLabels:        
-            return Overlay, OverlayLabels
+            # create an "inverse" matching object where the index is current vol and the value is ref vol
+            MMatch_inv = []; 
+            for kappa in np.arange(nVolume):
+                temp = [None]*self.nInVolume[vol[kappa]];
+                for ref, cur in enumerate(MMatch[vol[kappa]],0):
+                    if cur >= 0:
+                        temp[int(cur)] = ref;
+                MMatch_inv.append(temp);
+                
+            for kappa in np.arange(nVolume):
+                cerv = self(vol=vol[kappa])
+                numFrames = len(self.zOfFrame[vol[kappa]]);
+                match = np.asarray(MMatch_inv[kappa])
+                for mu in np.arange(numFrames):
+                    OverlayLabels.append(match[cerv[:,0]==mu]);
+            
+            return Overlay, OverlayLabels            
         else:
             return Overlay
         
@@ -445,10 +596,9 @@ class Brains:
         [np.arange(1),np.arange(1,6),np.arange(6,19),np.arange(19,32),
         np.arange(32,45),np.arange(45,50),np.arange(50,51)], 
         coord_3d_ordering="zyx", method=""):
-        '''
-        Stabilizes the z position of the neuron using the local curvature around
-        that point. This helps in obtaining less fluctuating results when the
-        neurons were found in 2D with brute-force check along z, i.e. with 
+        '''Stabilizes the z position of the neuron using the local curvature 
+        around that point. This helps in obtaining less fluctuating results when
+        the neurons were found in 2D with brute-force check along z, i.e. with 
         smoothing in xy but not in z, as it is done in the neuronsegmentation 
         module. The z position of each neuron is shifted by the average of 
         position in the box around the neuron weighted by the curvature.
@@ -530,6 +680,7 @@ class Brains:
         np.array([0,1,3,5,6,8,12,16,18,19,21,25,29,31,32,34,38,42,44,45,47,49,50]),
         np.array([4,9,13,17,22,26,30,35,39,43,48]), np.array([14,27,40])], 
         coord_3d_ordering="zyx", method="curvatureAverage"):
+        '''Stabilization of the x coordinate, equivalent to _stabilize_z.'''
         
         # Determine the index of the x coordinate in the input and output arrays
         x_indices = {"zyx":2,"xyz":0}
@@ -564,6 +715,7 @@ class Brains:
         np.array([0,2,3,4,10,11,12,13,14,23,24,25,26,27,36,37,38,39,40,46,47,48,50]),
         np.array([5,15,16,17,28,29,30,41,42,43,49]),np.array([18,31,44])],
         coord_3d_ordering="zyx", method="curvatureAverage"):
+        '''Stabilization of the y coordinate, equivalent to _stabilize_z.'''
         
         y_index = 1
         
@@ -589,6 +741,15 @@ class Brains:
         return coord_3d_out
         
     def fit_sphere(self):
+        '''Fit each neuron as a sphere to stabilize its z position, which is
+        undersampled with respect to the x and y due to rougher scanning along
+        z with respect to the pixels. Currently not used.
+        
+        Returns
+        -------
+        yOverR: irrarray
+            Inverse of the radius of each neuron. (?)
+        '''
         curvature = self.curvature
         boxIndices = self.boxIndices
         boxNPlane = self.boxNPlane
@@ -626,6 +787,28 @@ class Brains:
         return np.sqrt(y0sq + ((y0sq-y[:,1]**2-dx**2)/(2.0*dx))**2)
         
     def plot(self, indices,mode='3d',plotNow=True,**kwargs):
+        '''Plots the neurons in the specified volumes. Based on the selected
+        mode, the function redirects the call to _plot_3d and _plot_2d.
+        
+        Parameters
+        ----------
+        indices: list (or numpy array)
+            Indices of the volumes to plot
+        mode: string (optional)
+            Plot mode: 3d or 2d. Default: '3d'.
+        plotNow: bool
+            If True, the function plots immediately. If False, the function
+            returns matplotlib figures and axes to be plotted at a later point
+            in the script. Default: True.
+        **kwargs: other
+            Other parameters to be passed to _plot_3d or _plot_2d.
+            
+        Returns
+        -------
+        fig: matplotlib figure (if plotNow is False)
+        ax: matplotlib axis (if plotNow is False)
+        
+        '''
         try:
             len(indices)
         except:
@@ -644,6 +827,20 @@ class Brains:
             
             
     def _plot_3d(self, indices, **kwargs):
+        '''Produces a 3D plot of the requested volumes. To be used via the 
+        plot() method.
+        
+        Parameters
+        ----------
+        indices: list of integers
+            Indices of the requested volumes.
+            
+        Returns
+        -------
+        fig: matplotlib figure
+        ax: matplotlib axis
+        
+        '''
         cfn = plt.gcf().number
         if len(plt.gcf().axes)!=0: cfn += 1
         
@@ -661,6 +858,20 @@ class Brains:
         
 
     def _plot_2d(self, indices, **kwargs):
+        '''Produces a 2D plot of the requested volumes. To be used via the 
+        plot() method.
+        
+        Parameters
+        ----------
+        indices: list of integers
+            Indices of the requested volumes.
+            
+        Returns
+        -------
+        fig: matplotlib figure
+        ax: matplotlib axis
+        
+        '''
         # _plot_2d: plots each of the neurons at there location for the volumes specified by indices (list)
         # Cervelli: brain object that you want to plot (this will become self in the actual class)
         # indices: list object with the volumes that you want to plot

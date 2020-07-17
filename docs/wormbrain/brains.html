@@ -1,0 +1,2617 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.3" />
+<title>wormbrain.brains API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js" integrity="sha256-eOgo0OtLL4cdq7RdwRUiGKLX9XsIJ7nGhWEKbohmVAQ=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>wormbrain.brains</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import numpy as np
+import matplotlib.pyplot as plt
+import mistofrutta.struct.irrarray as irrarray
+from copy import deepcopy as deepcopy
+import json
+import re
+import pkg_resources
+import wormbrain as wormb
+
+class Brains:
+    &#39;&#39;&#39;Container for neuron coordinates. It depends on the arrays with 
+    &#34;irregular&#34; strides from the repository 
+    github.org/francescorandi/mistofrutta, which are just a shorter notation 
+    for specific types of slices of numpy arrays.
+    
+    Creation methods, besides the __init__, inlude from_find_neurons() and 
+    from_file(). Can be saved to a json file with to_file().
+    
+    The coordinates of the neurons can be accessed in various ways: With 
+    Cervelli an instance of the class
+    
+    &gt;&gt;&gt; Cervelli[i]
+    
+    will return the i-th point (counting from the very beginning in the whole
+    set of points passed). The coordinates are stored in indexing-order so,
+    for 3D points, this will return z,y,x. z is the frame index inside the
+    volume. For a rescaled version of z, see trueCoords().
+    Upon call, the internal irrarray object which 
+    stores the coordinates is called, giving direct access to all its
+    functionalities. To obtain the coordinatesof neurons contained in volume m, 
+    use
+    
+    &gt;&gt;&gt; Cervelli(vol=m)     
+    
+    (see mistofrutta.struct.irrarray for further documentation).
+    
+    &gt;&gt;&gt; Cervelli.trueCoords(m)
+    
+    will return the &#34;true&#34; coordinates, in which z has the same dimensions as
+    y and x.
+    
+    Upon initialization, if the appropriate dictionary is passed via the
+    properties parameter, the z-coordinates are &#34;stabilized&#34; using the
+    information about the local curvature around that neuron.
+    &#39;&#39;&#39;
+    
+    filename = &#34;brains.json&#34;
+    coord_filename = &#34;transformed_neurons.txt&#34;
+    
+    nInVolume = 0
+    coord = None
+    zOfFrame = None
+    
+    version = None
+    info = {}
+    
+    curvature = None
+    boxIndices = None
+    boxIndicesX = None
+    boxIndicesY = None
+    boxNPlane = 0
+    
+    segmParam = {}
+    info = {}
+    
+    
+    def __init__(self, coordZYX, nInVolume, zOfFrame=None, properties={}, 
+                 stabilize_z=True,stabilize_xy=True):
+        &#39;&#39;&#39;The constructor transforms the coordinates array into an irrarray
+        and, if requested to, &#34;stabilizes&#34; the coordinates based on the 
+        local curvature around the neurons.
+        
+        Parameters
+        ----------
+        coordZYX: numpy array
+            Array containing the coordinates of the neurons, in zyx order.
+            coordZYX[i] are the coordinates of the i-th neuron in the whole
+            serialized sequence of brains.
+        nInVolume: numpy array
+            nInVolume[j] is the number of neurons in neuron j. Used to split 
+            the neurons into their respective volumes.
+        zOfFrame: list of numpy arrays (optional)
+            zOfFrame[j][l] is the &#34;real&#34; z coordinate of frame l in volume j.
+            It is most useful if z has the same scale as x and y. Not required
+            for 2D recordings in which each volume is composed of a single
+            frame. Default: None.
+        properties: dictionary (optional)
+            Dictionary that can have the keys &#39;curvature&#39;, &#39;boxIndices&#39;, 
+            &#39;boxIndicesX&#39;, &#39;boxIndicesY&#39;, &#39;boxNPlane&#39;, &#39;segmParam&#39;, &#39;version&#39;.
+            NeuronProperties from wormneuronsegmentation.findNeurons() can be
+            passed as properties. Default: {}.
+        stabilize_z: bool (optional)
+            If True, the z position is stabilized based on the local curvature
+            around the neurons. Default: True.
+        stabilize_xy: bool (optional)
+            If True, the xy position is stabilized based on the local curvature
+            around the neurons. Default: True.
+        &#39;&#39;&#39;
+        
+        #coordZYX, self.nInVolume, self.nInFrame = self._conv_coord_2d_to_3d(coord, 
+        #                                volFrame0, dtype=int)
+        self.nInVolume = nInVolume
+        self.coord = irrarray(coordZYX, [self.nInVolume], strideNames=[&#34;vol&#34;])
+        #self.volFrame0 = volFrame0
+        
+        if zOfFrame == None: zOfFrame = np.zeros((len(self.nInVolume),1))
+        self.zOfFrame = zOfFrame
+        
+        self.version = pkg_resources.get_distribution(&#34;wormbrain&#34;).version
+        self.info = {}
+        self.info[&#39;version&#39;] = self.version
+        
+        if len(properties.keys())!=0:
+            self.curvature = properties[&#39;curvature&#39;]
+            self.curvature = irrarray(self.curvature, self.nInVolume, 
+                                        strideNames=[&#34;vol&#34;])
+            self.boxIndices = properties[&#39;boxIndices&#39;]
+            
+            try:
+                self.boxIndicesX = properties[&#39;boxIndicesX&#39;]
+                self.boxIndicesY = properties[&#39;boxIndicesY&#39;]
+            except:
+                pass
+                
+            self.boxNPlane = properties[&#39;boxNPlane&#39;]
+            self.segmParam = properties[&#39;segmParam&#39;]
+            self.info[&#39;segm_param&#39;] = self.segmParam
+            
+            try:
+                self.version = properties[&#39;version&#39;]
+            except:
+                pass
+        
+            if stabilize_z:
+                self.coord = self._stabilize_z(self.coord, 
+                    self.curvature,
+                    nPlane=self.boxNPlane, boxIndices=self.boxIndices,
+                    method=&#34;xyAvgCurvature&#34;)
+            if stabilize_xy:
+                self.coord = self._stabilize_x(self.coord, self.curvature, 
+                                    nPixelsMax=5, boxIndices=self.boxIndicesX)
+                self.coord = self._stabilize_y(self.coord, self.curvature,
+                                    boxIndices=self.boxIndicesY)
+                    
+                self.coord = np.rint(self.coord)
+            
+        self.coord = self.coord.astype(int)
+    
+    @classmethod
+    def from_find_neurons(cls, coord, volFrame0=None, *args, **kwargs):
+        &#39;&#39;&#39;Create a Brains object from the result of the results of 
+        wormneuronsegmentation.findNeurons().
+        
+        Parameters
+        ----------
+        coord: list of numpy array
+            coord[i][j,coord] gives the coordinate (y,x) of point j in frame i.
+        volFrame0: numpy array, optional
+            volFrame0[m] gives the first frame of volume m. If passing results
+            for M neurons, volFrame0 has to contain also the first frame of
+            volume +1 (or the 1+last frame of volume M).
+            If passing the results for a sequence of single frames (and not a 
+            volumetric recording) set to None (or don&#39;t pass anything).
+        
+        Returns
+        -------
+        Instance of class.
+        &#39;&#39;&#39;
+        if volFrame0 is None:
+            volFrame0 = np.arange(len(coord)+1,dtype=int)
+        try:
+            rectype = kwargs.pop(&#39;rectype&#39;)
+        except:
+            rectype = &#34;3d&#34;
+        if rectype == &#34;2d&#34;:
+            kwargs[&#39;stabilize_z&#39;] = False
+
+        coordZYX, nInVolume, nInFrame = cls._conv_coord_2d_to_3d(coord, 
+                                        volFrame0, dtype=int)
+                                        
+        return cls(coordZYX, nInVolume, *args, **kwargs)
+    
+    @classmethod
+    def from_file(cls, folder, filename=&#34;&#34;):
+        &#39;&#39;&#39;Create a Brains object loading the data from a previously created
+        json file.
+        
+        Parameters
+        ----------
+        folder: string
+            Folder containing the file.
+        filename: string (optional)
+            Name of the file containing the signal. Default: &#34;&#34;, which is
+            translated into the default filename for the class.
+        
+        Returns
+        -------
+        Instance of class.
+        &#39;&#39;&#39;
+        # for future multiple methods from loading from different formats
+        #ext = filename.split(&#34;.&#34;)[-1]
+        
+        if folder[-1]!=&#34;/&#34;: folder += &#34;/&#34;
+        
+        if filename==&#34;&#34;:
+            filename = cls.filename
+        f = open(folder+filename)
+        c = json.load(f)
+        f.close()
+        
+        coordZYX = np.array(c[&#39;coordZYX&#39;])
+        nInVolume = np.array(c[&#39;nInVolume&#39;])
+        zOfFrame = [np.array(z) for z in c[&#39;zOfFrame&#39;]]
+        properties = {}
+        
+        # To be compatible with older versions of the file, there is this
+        # sequence of try/except. At some point, this can be removed and all
+        # the properties be loaded.
+        try:
+            props = c[&#39;properties&#39;]
+            properties[&#39;curvature&#39;] = [np.array(curv) for curv in props[&#39;curvature&#39;]]
+            properties[&#39;boxIndices&#39;] = [np.array(bi) for bi in props[&#39;boxIndices&#39;]]
+            properties[&#39;boxNPlane&#39;] = props[&#39;boxNPlane&#39;]
+        except:
+            pass
+            
+        try:
+            properties[&#39;boxIndicesX&#39;] = [np.array(bi) for bi in props[&#39;boxIndicesX&#39;]]
+            properties[&#39;boxIndicesY&#39;] = [np.array(bi) for bi in props[&#39;boxIndicesY&#39;]]
+        except:
+            pass
+            
+        try:
+            properties[&#39;segmParam&#39;] = props[&#39;segmParam&#39;]
+        except:
+            pass
+            
+        try:
+            properties[&#39;version&#39;] = props[&#39;version&#39;]
+        except:
+            pass
+        
+        # Don&#39;t do any implicit stabilization if loaded from file. 
+        stabilize_z = False
+        stabilize_xy = False 
+        
+        return cls(coordZYX, nInVolume, zOfFrame, properties, stabilize_z, stabilize_xy)
+        
+    @classmethod
+    def from_coord_file(cls, folder, filename=&#34;&#34;):
+        &#39;&#39;&#39;Create a Brains object from a file containing the coordinates of the
+        neurons only.
+        
+        Parameters
+        ----------
+        folder: string
+            Folder containing the file.
+        filename: string (optional)
+            Name of the file containing the coordinates of the neurons. 
+            Default: &#34;&#34;, which is translated to the default filename for the 
+            class.
+        
+        &#39;&#39;&#39;
+        if folder[-1]!=&#34;/&#34;: folder += &#34;/&#34;
+        if filename == &#34;&#34;: filename = cls.coord_filename
+        
+        f = open(folder+filename)
+        s = f.readline()
+        f.close()
+        
+        s = s.split(&#34;;&#34;)
+        n_volume = int(s[0].split(&#34;=&#34;)[1])
+        n_neurons = int(s[1].split(&#34;=&#34;)[1])
+        nInVolume = np.ones(n_volume)*n_neurons
+        
+        coordZYX = np.loadtxt(folder+filename)
+        
+        return cls(coordZYX, nInVolume, stabilize_z=False, stabilize_xy=False)
+    
+    def append(self, brains2):
+        &#39;&#39;&#39;Append to this object the content of another instance of Brains.
+        It does not perform any z-stabilization. Assumes the curvature in 
+        brains2 was extracted the same way as in this instance.
+        (Modify stuff mimicking __init__()).
+        
+        Parameters
+        ----------
+        brains2: Brains object
+            Brains object to be appended to this.
+        
+        &#39;&#39;&#39;
+        self.nInVolume = np.append(self.nInVolume, brains2.nInVolume)
+        self.coord = np.append(self.coord, brains2.coord, axis=0)
+        self.coord = irrarray(self.coord, [self.nInVolume], strideNames=[&#34;vol&#34;])
+        
+        # Concatenate
+        self.zOfFrame = self.zOfFrame + brains2.zOfFrame
+        
+        self.curvature = np.append(self.curvature, brains2.curvature)
+        self.curvature = irrarray(self.curvature, self.nInVolume, 
+                                        strideNames=[&#34;vol&#34;])
+                                        
+        self.coord = self.coord.astype(int)
+        
+    
+    def __getitem__(self, i):
+        &#39;&#39;&#39;
+        Allow for direct indexing of the class to access the coordinates.
+        &#39;&#39;&#39;
+        return self.coord.__getitem__(i)
+        
+    def __setitem__(self, i, value):
+        &#39;&#39;&#39;
+        Allow for direct indexing of the class to write in the coordinates.
+        &#39;&#39;&#39;
+        self.coord.__setitem__(i,value)
+        
+    def __call__(self, *args, **kwargs):
+        &#39;&#39;&#39;
+        Upon call, use the __call__ method of the coordinates irrarray.
+        &#39;&#39;&#39;
+        return self.coord.__call__(*args, **kwargs)
+    
+    def copy(self):
+        &#39;&#39;&#39;Deepcopy of this object.&#39;&#39;&#39;
+        return deepcopy(self)
+    
+    def to_file(self, foldername, filename=&#34;&#34;):
+        &#39;&#39;&#39;Save this instance of the object to file. A Brains object saved 
+        this way can be recreated in memory with the class method from_file().
+        
+        Parameters
+        ----------
+        foldername: string
+            Destination folder.
+        filename: string (optional)
+            Name of destination file. Default: &#34;&#34;, which is translated to the 
+            default filename for the class.
+        
+        &#39;&#39;&#39;
+        if foldername[-1]!=&#34;/&#34;: foldername += &#34;/&#34;
+        
+        diz = {}
+        diz[&#39;coordZYX&#39;] = [c.tolist() for c in self.coord]
+        diz[&#39;nInVolume&#39;] = self.nInVolume.tolist()
+        diz[&#39;zOfFrame&#39;] = [z.tolist() for z in self.zOfFrame]
+        props = {}
+        try:
+            props[&#39;curvature&#39;] = [c.tolist() for c in self.curvature]
+            props[&#39;boxIndices&#39;] = [c.tolist() for c in self.boxIndices]
+            props[&#39;boxIndicesX&#39;] = [c.tolist() for c in self.boxIndicesX]
+            props[&#39;boxIndicesY&#39;] = [c.tolist() for c in self.boxIndicesY]
+            props[&#39;boxNPlane&#39;] = self.boxNPlane
+            props[&#39;segmParam&#39;] = self.segmParam
+            props[&#39;version&#39;] = self.version
+        except:
+            pass
+            
+        diz[&#39;properties&#39;] = props
+        
+        if filename==&#34;&#34;:
+            filename = self.filename
+        
+        output = json.dumps(diz, indent=4)
+        # Prettify the json serialization 
+        o1 = re.sub(r&#39;\[\s+(\d)&#39;, r&#39;[\1&#39;, output)
+        o2 = re.sub(r&#39;(\d),\s+(\d)&#39;, r&#39;\1, \2&#39;, o1)
+        o3 = re.sub(r&#39;(\d)\s+\]&#39;,r&#39;\1]&#39;,o2)
+        
+        f = open(foldername+filename,&#39;w&#39;)
+        f.write(o3)
+        f.close()
+        
+    def trueCoords(self, vol, coord_ordering=&#39;zyx&#39;):#, returnIrrarray=False):
+        &#39;&#39;&#39;Returns the coordinates of the neurons contained in the specified
+        volumes replacing z with its actual values, from zOfFrame.
+        
+        Parameters
+        ----------
+        vol: int or list of int
+            Indices of the volume(s) requested.
+        coord_ordering: string (optional)
+            Ordering of the coordinates to be returned. Allowed values:
+            &#39;zyx&#39; for indexing order, and &#39;xyz&#39; for plotting order. 
+            Default: &#39;zyx&#39;.
+            
+        Returns
+        -------
+        trueCoords: numpy array
+            Coordinates of the neurons.
+        &#39;&#39;&#39;
+        
+        if type(vol)!=list: vol = [vol]
+        # Get the neurons in the requested volumes
+        trueCoords = self.coord(vol=vol, dtype=np.float)
+        intCoords = self.coord(vol=vol)
+        
+        L = len(vol)
+        for l in np.arange(L):
+            trueCoords[l][:,0] = self.zOfFrame[vol[l]][intCoords[l][:,0]]
+            
+            # Ordering stuff
+            if coord_ordering==&#34;xyz&#34;: 
+                trueCoords[l] = np.copy(trueCoords[l][:,::-1],order=&#34;c&#34;)
+                
+        if len(trueCoords)==1: trueCoords = trueCoords[0]
+                
+        return trueCoords
+        
+    @staticmethod
+    def _conv_coord_2d_to_3d(coord_2d, volFrame0, zOfFrame=[], dz=1, 
+            dtype=np.float, coord_2d_ordering=&#39;yx&#39;, coord_3d_ordering=&#39;zyx&#39;):
+        &#39;&#39;&#39;Converts coordinates from a list of np.array([[y,x],]) for one frame 
+        to a list of np.array([[z,y,x],]) for each volume, with the 
+        corresponding number of neurons in each volume.
+        
+        Parameters
+        ----------
+        coord_2d: list of numpy arrays
+            coord_2d[i][j,n] gives the coordinate n of neuron j in frame i
+        nInFrame: numpy array
+            nInFrame[i] gives the number of neurons in frame i
+        volFrame0: numpy array
+            volFrame0[l] gives the first frame of volume l. As last element, it
+            must contain also the last+1 frame of the last volume.
+        zOfFrame: numpy array
+            zOfFrame[i] gives the z coordinate of frame i
+        dz: scalar
+            step to build the z coordinates without passing zOfFrame
+        dtype: data type
+            This function will produce an output array of this type. Therefore,
+            an integer type and a float dz will produce floored z coordinates. And zOfFrame too.
+        coord_2d_ordering: string
+            Specifies the ordering of the coordinates inside the input array.
+            Default is &#39;yx&#39; (indexing order).
+        coord_3d_ordering: string
+            Specifies the ordering of the coordinates inside the returned array.
+            Default is &#39;zyx&#39;, for indexing. For plotting, use &#39;xyz&#39;.
+            
+        Returns
+        -------
+        coord_3d: numpy array
+            coord_3d[j, n] gives the coordinate n of neuron j.
+        nInVolume: numpy array
+            nInVolume[l] gives the number of neurons in volume l.
+        &#39;&#39;&#39;
+
+        # Make sure nInFrame is an integer and can be used as an index.
+        #nInFrame = nInFrame.astype(int, copy=False)
+        nInFrame = np.array([c.shape[0] for c in coord_2d])
+        
+        # Initialize the lists containing the neurons coordinates.
+        nTotal = np.sum(nInFrame)
+        
+        try:
+            datatype=type(coord_2d[0][0])
+        except:
+            datatype=int
+        
+        coord_3d = np.zeros((nTotal,3),dtype=datatype)
+        nInVolume = []
+        L = len(volFrame0)-1
+        
+        #For each volume
+        g = 0
+        for l in np.arange(L):
+            # First and last+1 frames of current volume
+            firstframe = volFrame0[l]
+            lastframeplus1 = volFrame0[l+1]
+            
+            # Add an entry to the array listing the number of neurons in each
+            # volume.
+            nInVolume.append(np.sum(nInFrame[firstframe:lastframeplus1]))
+            
+            # Initialize an array to be populated with the coordinates of the 
+            # neurons in the current volume. 
+            NeuronInVolume = np.zeros((nInVolume[-1],3),dtype=dtype)
+            
+            q = 0
+            # For each frame in the volume
+            for i in np.arange(firstframe, lastframeplus1):
+                # If no zOfFrame was passed, used dz to build it. If zOfFrame is
+                # present, copy the value for this frame in an array the size
+                # of the number of neurons in this frame.
+                if len(zOfFrame)==0:
+                    Z = np.ones(nInFrame[i],dtype=dtype)*(i-firstframe)*dz
+                else:
+                    Z = np.ones(nInFrame[i])*zOfFrame[l][i-firstframe]
+   
+                # Depending on the specified ordering, extract X and Y from 
+                # coord_2d
+                if coord_2d_ordering==&#39;xy&#39;:
+                    X,Y = coord_2d[i].T
+                else:
+                    Y,X = coord_2d[i].T
+                    
+                # Depending on the specified ordering, combine the X, Y, and Z
+                # coordinates.
+                if coord_3d_ordering==&#39;xyz&#39;:
+                    tmp = np.array([X,Y,Z]).T
+                elif coord_3d_ordering==&#39;zyx&#39;:
+                    tmp = np.array([Z,Y,X]).T
+                NeuronInVolume[q:q+nInFrame[i]] = tmp
+                 
+                q += nInFrame[i]
+                 
+            #coord_3d.append(NeuronInVolume)
+            coord_3d[g:g+q] = NeuronInVolume
+            g += q
+            
+        return coord_3d, np.array(nInVolume), np.array(nInFrame)
+        
+    def getOverlay(self, vol, folder=&#34;&#34;, returnLabels=False):
+        &#39;&#39;&#39;Returns the list of numpy arrays to be used as Overlay in 
+        mistofrutta.plt.hyperstack, together with the OverlayLabels. The labels
+        are not the indices of the neurons in their volume, but are the indices
+        of the matched neurons in the reference brain/volume. If the labels are
+        requested this function, therefore, assumes that a match file exists 
+        that can be loaded via wormbrain.match.load_matches().
+        
+        Parameters
+        ----------
+        vol: int or list of int
+            Indices of the volume(s) requested.
+        folder: string (optional)
+            Folder containing the match file to be loaded with 
+            wormbrain match.load_matches(). Required if returnLabels is True.
+        returnLabels: bool (optional)
+            If True, the labels are returned. Default: False
+            
+        Returns
+        -------
+        Overlay: list of numpy arrays
+            Overlay[frame_index][i] are the y,x coordinates of neuron i in
+            a given frame.
+        OverlayLabels: list of integers
+            OverlayLabels[frame_index][i] is the index of the neuron
+            in the reference brain corresponding to the neuron i in the 
+            specified frame. Returned if returnLabels is True.
+        
+        &#39;&#39;&#39;
+        try:
+            bla = vol[0]
+        except:
+            vol = [vol]
+        
+        nVolume = len(vol)
+        Overlay = []
+        OverlayLabels = []     
+        
+        # It was like this, with the loading of the file before this for.
+        #for kappa in np.arange(nVolume):
+        #    cerv = self(vol=vol[kappa])
+        #    numFrames = len(self.zOfFrame[vol[kappa]]);
+        #    match = np.asarray(MMatch_inv[kappa])
+        #    for mu in np.arange(numFrames):
+        #        Overlay.append(cerv[np.where(cerv[:,0]==mu)[0],1:][:,::-1])
+        #        OverlayLabels.append(match[cerv[:,0]==mu]);
+        #if returnLabels:        
+        #    return Overlay, OverlayLabels
+        #else:
+        #    return Overlay
+        
+        for kappa in np.arange(nVolume):
+                cerv = self(vol=vol[kappa])
+                numFrames = len(self.zOfFrame[vol[kappa]]);
+                for mu in np.arange(numFrames):
+                    Overlay.append(cerv[np.where(cerv[:,0]==mu)[0],1:][:,::-1])
+        
+        if returnLabels:
+            MMatch, info = wormb.match.load_matches(folder)
+        
+            # create an &#34;inverse&#34; matching object where the index is current vol and the value is ref vol
+            MMatch_inv = []; 
+            for kappa in np.arange(nVolume):
+                temp = [None]*self.nInVolume[vol[kappa]];
+                for ref, cur in enumerate(MMatch[vol[kappa]],0):
+                    if cur &gt;= 0:
+                        temp[int(cur)] = ref;
+                MMatch_inv.append(temp);
+                
+            for kappa in np.arange(nVolume):
+                cerv = self(vol=vol[kappa])
+                numFrames = len(self.zOfFrame[vol[kappa]]);
+                match = np.asarray(MMatch_inv[kappa])
+                for mu in np.arange(numFrames):
+                    OverlayLabels.append(match[cerv[:,0]==mu]);
+            
+            return Overlay, OverlayLabels            
+        else:
+            return Overlay
+        
+        
+    @staticmethod
+    def _stabilize_z(coord, curvature, nPlane=7, boxIndices=
+        [np.arange(1),np.arange(1,6),np.arange(6,19),np.arange(19,32),
+        np.arange(32,45),np.arange(45,50),np.arange(50,51)], 
+        coord_3d_ordering=&#34;zyx&#34;, method=&#34;&#34;):
+        &#39;&#39;&#39;Stabilizes the z position of the neuron using the local curvature 
+        around that point. This helps in obtaining less fluctuating results when
+        the neurons were found in 2D with brute-force check along z, i.e. with 
+        smoothing in xy but not in z, as it is done in the neuronsegmentation 
+        module. The z position of each neuron is shifted by the average of 
+        position in the box around the neuron weighted by the curvature.
+        
+        Parameters
+        ----------
+        coord: numpy array
+            coord_3d[j, n] gives the coordinate n of neuron j (counting from 
+            neuron 0 in volume 0).
+            The z coordinate must be the index of the corresponding frame, and
+            not the actual coordinate.
+        curvature: numpy arrays
+            curvatureVSplit[j, m] gives the curvature at point m in the box
+            (described by nPlane and boxIndices) around neuron j.
+        nPlane: integer scalar
+            number of planes spanned by the box around each neuron
+        boxIndices: list of numpy arrays
+            boxIndices[pl] gives the indices of each curvatureVSplit[l][j] that
+            reside in plane pl.
+        coord_3d_ordering: string
+            Specifies the ordering of the coordinates inside the coordinate array.
+            Default is &#39;zyx&#39;, (indexing ordering). The output array has the same
+            odering as the input array.
+        method: string (optional)
+            If &#34;xyMaxCurvature&#34;, the weighting is performed with the maximum
+            curvature in each plane. Otherwise, only with the curvatures directly
+            above and below the neuron position.
+            
+        Returns
+        -------
+        coord_3d_out: numpy array
+            coord_3d_out[j, n] gives the coordinate n of the stabilized neuron j 
+        &#39;&#39;&#39;
+        # Determine the index of the z coordinate in the input and output arrays
+        z_indices = {&#34;zyx&#34;:0,&#34;xyz&#34;:2}
+        z_index = z_indices[coord_3d_ordering]
+        
+        # Build z range around 0 for specified nPlanes
+        z = np.arange(-(nPlane//2),nPlane//2+1,dtype=np.float)
+        
+        curv = np.zeros((coord.shape[0],nPlane))
+        if method==&#34;xyMaxCurvature&#34;:
+            for pl in np.arange(nPlane):
+                # The curvature has to be flipped in sign (i.e. peak = max of
+                # flipped curvature) and the resulting negative values clipped
+                # to 0, so that only the central region of the neuron matters.
+                flipped_curv = -1.0*curvature[:,boxIndices[pl]]
+                np.clip(flipped_curv,0,None,flipped_curv)
+                c = np.max(flipped_curv,axis=1)
+                curv[:,pl] = c
+        elif method==&#34;xyAvgCurvature&#34;:
+            for pl in np.arange(nPlane):
+                # Flip and clip curvature (see above).
+                flipped_curv = -1.0*curvature[:,boxIndices[pl]]
+                np.clip(flipped_curv,0,None,flipped_curv)
+                c = np.average(flipped_curv,axis=1)
+                curv[:,pl] = c
+        else:
+            centralIndices = np.zeros(nPlane)
+            for pl in np.arange(nPlane):
+                sh0 = boxIndices[pl].shape[0]
+                centralIndices[pl] = boxIndices[pl][sh0//2]
+            curv = curvature[:,centralIndices] #look just along z
+            curv *= -1.0
+            np.clip(curv,0,None,curv)
+        
+        coord_3d_out = np.zeros_like(coord,dtype=np.float)
+        if coord_3d_ordering==&#34;zyx&#34;:
+            coord_3d_out[:,1:3] = coord[:,1:3]
+        else:
+            coord_3d_out[:,0:2] = coord[:,0:2]
+        coord_3d_out[:,z_index] = coord[:,z_index].astype(np.float) + np.sum(z*curv,axis=1)/np.sum(curv,axis=1)
+        
+        return coord_3d_out
+    
+    @staticmethod    
+    def _stabilize_x(coord, curvature, nPixelsMax=5, boxIndices=
+        [np.array([10,23,36]), np.array([2,7,11,15,29,24,28,33,37,41,46]), 
+        np.array([0,1,3,5,6,8,12,16,18,19,21,25,29,31,32,34,38,42,44,45,47,49,50]),
+        np.array([4,9,13,17,22,26,30,35,39,43,48]), np.array([14,27,40])], 
+        coord_3d_ordering=&#34;zyx&#34;, method=&#34;curvatureAverage&#34;):
+        &#39;&#39;&#39;Stabilization of the x coordinate, equivalent to _stabilize_z.&#39;&#39;&#39;
+        
+        # Determine the index of the x coordinate in the input and output arrays
+        x_indices = {&#34;zyx&#34;:2,&#34;xyz&#34;:0}
+        x_index = x_indices[coord_3d_ordering]
+        
+        # Build z range around 0 for specified nPlanes
+        x = np.arange(-(nPixelsMax//2),nPixelsMax//2+1,dtype=np.float)
+        
+        curv = np.zeros((coord.shape[0],nPixelsMax))
+        if method==&#34;curvatureAverage&#34;:
+            for pl in np.arange(nPixelsMax):
+                # The curvature has to be flipped in sign (i.e. peak = max of
+                # flipped curvature) and the resulting negative values clipped
+                # to 0, so that only the central region of the neuron matters.
+                flipped_curv = -1.0*curvature[:,boxIndices[pl]]
+                np.clip(flipped_curv,0,None,flipped_curv)
+                c = np.average(flipped_curv,axis=1)
+                curv[:,pl] = c
+        
+        coord_3d_out = np.zeros_like(coord,dtype=np.float)
+        if coord_3d_ordering==&#34;zyx&#34;:
+            coord_3d_out[:,0:2] = coord[:,0:2]
+        else:
+            coord_3d_out[:,1:3] = coord[:,1:3]
+        coord_3d_out[:,x_index] = coord[:,x_index].astype(np.float) + np.sum(x*curv,axis=1)/np.sum(curv,axis=1)
+        
+        return coord_3d_out
+    
+    @staticmethod    
+    def _stabilize_y(coord, curvature, nPixelsMax=5, boxIndices=
+        [np.array([6,19,32]), np.array([1,7,8,9,29,21,22,33,34,35,45]),
+        np.array([0,2,3,4,10,11,12,13,14,23,24,25,26,27,36,37,38,39,40,46,47,48,50]),
+        np.array([5,15,16,17,28,29,30,41,42,43,49]),np.array([18,31,44])],
+        coord_3d_ordering=&#34;zyx&#34;, method=&#34;curvatureAverage&#34;):
+        &#39;&#39;&#39;Stabilization of the y coordinate, equivalent to _stabilize_z.&#39;&#39;&#39;
+        
+        y_index = 1
+        
+        # Build z range around 0 for specified nPlanes
+        y = np.arange(-(nPixelsMax//2),nPixelsMax//2+1,dtype=np.float)
+        
+        curv = np.zeros((coord.shape[0],nPixelsMax))
+        if method==&#34;curvatureAverage&#34;:
+            for pl in np.arange(nPixelsMax):
+                # The curvature has to be flipped in sign (i.e. peak = max of
+                # flipped curvature) and the resulting negative values clipped
+                # to 0, so that only the central region of the neuron matters.
+                flipped_curv = -1.0*curvature[:,boxIndices[pl]]
+                np.clip(flipped_curv,0,None,flipped_curv)
+                c = np.average(flipped_curv,axis=1)
+                curv[:,pl] = c
+        
+        coord_3d_out = np.zeros_like(coord,dtype=np.float)
+        coord_3d_out[:,0] = coord[:,0]
+        coord_3d_out[:,2] = coord[:,2]
+        coord_3d_out[:,y_index] = coord[:,y_index].astype(np.float) + np.sum(y*curv,axis=1)/np.sum(curv,axis=1)
+        
+        return coord_3d_out
+        
+    def fit_sphere(self):
+        &#39;&#39;&#39;Fit each neuron as a sphere to stabilize its z position, which is
+        undersampled with respect to the x and y due to rougher scanning along
+        z with respect to the pixels. Currently not used.
+        
+        Returns
+        -------
+        yOverR: irrarray
+            Inverse of the radius of each neuron. (?)
+        &#39;&#39;&#39;
+        curvature = self.curvature
+        boxIndices = self.boxIndices
+        boxNPlane = self.boxNPlane
+        
+        # Calculate weights(z) [i.e. curvature] taking the maximum curvature 
+        # in each plane.
+        curv = np.zeros((self.coord.shape[0],boxNPlane))
+        for pl in np.arange(boxNPlane):
+            # The curvature has to be flipped in sign (i.e. peak = max of
+            # flipped curvature) and the resulting negative values clipped
+            # to 0, so that only the central region of the neuron matters.
+            flipped_curv = -1.0*curvature[:,boxIndices[pl]]
+            np.clip(flipped_curv,0,None,flipped_curv)
+            c = np.max(flipped_curv,axis=1)
+            curv[:,pl] = c
+        
+        # Use the value in plane nPlane//2+1 and nPlane//2+2 to &#34;fit&#34; the radius
+        # of the sphere for each neuron
+        R = self._sphere_radius(curv[:,boxNPlane//2+1:boxNPlane//2+2+1]/curv[:,boxNPlane//2+1,None])
+        
+        # Calculate the ratio between the curvature in the central plane and
+        # the radius. This is the number by which you need to multiply the
+        # signal to get the peak signal out.
+        
+        # This has become just the radius because I fitted the values after
+        # normalizing them
+        #yOverR = curv[:,boxNPlane//2+1]/R
+        yOverR = 1./R
+        
+        return irrarray(yOverR, self.nInVolume, strideNames=[&#34;vol&#34;])
+        
+    @staticmethod
+    def _sphere_radius(y, dx=1.0):
+        y0sq = y[:,0]**2
+        return np.sqrt(y0sq + ((y0sq-y[:,1]**2-dx**2)/(2.0*dx))**2)
+        
+    def plot(self, indices,mode=&#39;3d&#39;,plotNow=True,**kwargs):
+        &#39;&#39;&#39;Plots the neurons in the specified volumes. Based on the selected
+        mode, the function redirects the call to _plot_3d and _plot_2d.
+        
+        Parameters
+        ----------
+        indices: list (or numpy array)
+            Indices of the volumes to plot
+        mode: string (optional)
+            Plot mode: 3d or 2d. Default: &#39;3d&#39;.
+        plotNow: bool
+            If True, the function plots immediately. If False, the function
+            returns matplotlib figures and axes to be plotted at a later point
+            in the script. Default: True.
+        **kwargs: other
+            Other parameters to be passed to _plot_3d or _plot_2d.
+            
+        Returns
+        -------
+        fig: matplotlib figure (if plotNow is False)
+        ax: matplotlib axis (if plotNow is False)
+        
+        &#39;&#39;&#39;
+        try:
+            len(indices)
+        except:
+            indices = np.array([indices])
+        
+        if mode==&#39;3d&#39;:
+            fig, ax = self._plot_3d(indices, **kwargs)
+        if mode==&#39;2d&#39;:
+            fig, ax = self._plot_2d(indices, **kwargs)
+            
+        if plotNow==True:
+            plt.show()
+            return
+        else:
+            return fig, ax
+            
+            
+    def _plot_3d(self, indices, **kwargs):
+        &#39;&#39;&#39;Produces a 3D plot of the requested volumes. To be used via the 
+        plot() method.
+        
+        Parameters
+        ----------
+        indices: list of integers
+            Indices of the requested volumes.
+            
+        Returns
+        -------
+        fig: matplotlib figure
+        ax: matplotlib axis
+        
+        &#39;&#39;&#39;
+        cfn = plt.gcf().number
+        if len(plt.gcf().axes)!=0: cfn += 1
+        
+        showAll=True
+        if &#39;showAll&#39; in kwargs: showAll=kwargs[&#39;showAll&#39;]
+        
+        fig = plt.figure(cfn)
+        ax = fig.add_subplot(111,projection=&#39;3d&#39;)
+        
+        for index in indices:
+            brain = self.trueCoords(index)
+            ax.scatter(brain.T[2],brain.T[1],brain.T[0],&#39;o&#39;)
+                
+        return fig, ax
+        
+
+    def _plot_2d(self, indices, **kwargs):
+        &#39;&#39;&#39;Produces a 2D plot of the requested volumes. To be used via the 
+        plot() method.
+        
+        Parameters
+        ----------
+        indices: list of integers
+            Indices of the requested volumes.
+            
+        Returns
+        -------
+        fig: matplotlib figure
+        ax: matplotlib axis
+        
+        &#39;&#39;&#39;
+        # _plot_2d: plots each of the neurons at there location for the volumes specified by indices (list)
+        # Cervelli: brain object that you want to plot (this will become self in the actual class)
+        # indices: list object with the volumes that you want to plot
+        cfn = plt.gcf().number
+        if len(plt.gcf().axes)!=0: cfn += 1
+        
+        showAll=True
+        if &#39;showAll&#39; in kwargs: showAll=kwargs[&#39;showAll&#39;]
+        
+        fig = plt.figure(cfn)
+        ax = fig.add_subplot(111)
+        
+        for index in indices:
+            brain = self.trueCoords(index)
+            ax.scatter(brain.T[2],brain.T[1],marker=&#39;o&#39;)
+                
+        return fig, ax</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="wormbrain.brains.Brains"><code class="flex name class">
+<span>class <span class="ident">Brains</span></span>
+<span>(</span><span>coordZYX, nInVolume, zOfFrame=None, properties={}, stabilize_z=True, stabilize_xy=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Container for neuron coordinates. It depends on the arrays with
+"irregular" strides from the repository
+github.org/francescorandi/mistofrutta, which are just a shorter notation
+for specific types of slices of numpy arrays.</p>
+<p>Creation methods, besides the <strong>init</strong>, inlude from_find_neurons() and
+from_file(). Can be saved to a json file with to_file().</p>
+<p>The coordinates of the neurons can be accessed in various ways: With
+Cervelli an instance of the class</p>
+<pre><code class="python">&gt;&gt;&gt; Cervelli[i]
+</code></pre>
+<p>will return the i-th point (counting from the very beginning in the whole
+set of points passed). The coordinates are stored in indexing-order so,
+for 3D points, this will return z,y,x. z is the frame index inside the
+volume. For a rescaled version of z, see trueCoords().
+Upon call, the internal irrarray object which
+stores the coordinates is called, giving direct access to all its
+functionalities. To obtain the coordinatesof neurons contained in volume m,
+use</p>
+<pre><code class="python">&gt;&gt;&gt; Cervelli(vol=m)     
+</code></pre>
+<p>(see mistofrutta.struct.irrarray for further documentation).</p>
+<pre><code class="python">&gt;&gt;&gt; Cervelli.trueCoords(m)
+</code></pre>
+<p>will return the "true" coordinates, in which z has the same dimensions as
+y and x.</p>
+<p>Upon initialization, if the appropriate dictionary is passed via the
+properties parameter, the z-coordinates are "stabilized" using the
+information about the local curvature around that neuron.</p>
+<p>The constructor transforms the coordinates array into an irrarray
+and, if requested to, "stabilizes" the coordinates based on the
+local curvature around the neurons.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>coordZYX</code></strong> :&ensp;<code>numpy array</code></dt>
+<dd>Array containing the coordinates of the neurons, in zyx order.
+coordZYX[i] are the coordinates of the i-th neuron in the whole
+serialized sequence of brains.</dd>
+<dt><strong><code>nInVolume</code></strong> :&ensp;<code>numpy array</code></dt>
+<dd>nInVolume[j] is the number of neurons in neuron j. Used to split
+the neurons into their respective volumes.</dd>
+<dt><strong><code>zOfFrame</code></strong> :&ensp;<code>list</code> of <code>numpy arrays (optional)</code></dt>
+<dd>zOfFrame[j][l] is the "real" z coordinate of frame l in volume j.
+It is most useful if z has the same scale as x and y. Not required
+for 2D recordings in which each volume is composed of a single
+frame. Default: None.</dd>
+<dt><strong><code>properties</code></strong> :&ensp;<code>dictionary (optional)</code></dt>
+<dd>Dictionary that can have the keys 'curvature', 'boxIndices',
+'boxIndicesX', 'boxIndicesY', 'boxNPlane', 'segmParam', 'version'.
+NeuronProperties from wormneuronsegmentation.findNeurons() can be
+passed as properties. Default: {}.</dd>
+<dt><strong><code>stabilize_z</code></strong> :&ensp;<code>bool (optional)</code></dt>
+<dd>If True, the z position is stabilized based on the local curvature
+around the neurons. Default: True.</dd>
+<dt><strong><code>stabilize_xy</code></strong> :&ensp;<code>bool (optional)</code></dt>
+<dd>If True, the xy position is stabilized based on the local curvature
+around the neurons. Default: True.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Brains:
+    &#39;&#39;&#39;Container for neuron coordinates. It depends on the arrays with 
+    &#34;irregular&#34; strides from the repository 
+    github.org/francescorandi/mistofrutta, which are just a shorter notation 
+    for specific types of slices of numpy arrays.
+    
+    Creation methods, besides the __init__, inlude from_find_neurons() and 
+    from_file(). Can be saved to a json file with to_file().
+    
+    The coordinates of the neurons can be accessed in various ways: With 
+    Cervelli an instance of the class
+    
+    &gt;&gt;&gt; Cervelli[i]
+    
+    will return the i-th point (counting from the very beginning in the whole
+    set of points passed). The coordinates are stored in indexing-order so,
+    for 3D points, this will return z,y,x. z is the frame index inside the
+    volume. For a rescaled version of z, see trueCoords().
+    Upon call, the internal irrarray object which 
+    stores the coordinates is called, giving direct access to all its
+    functionalities. To obtain the coordinatesof neurons contained in volume m, 
+    use
+    
+    &gt;&gt;&gt; Cervelli(vol=m)     
+    
+    (see mistofrutta.struct.irrarray for further documentation).
+    
+    &gt;&gt;&gt; Cervelli.trueCoords(m)
+    
+    will return the &#34;true&#34; coordinates, in which z has the same dimensions as
+    y and x.
+    
+    Upon initialization, if the appropriate dictionary is passed via the
+    properties parameter, the z-coordinates are &#34;stabilized&#34; using the
+    information about the local curvature around that neuron.
+    &#39;&#39;&#39;
+    
+    filename = &#34;brains.json&#34;
+    coord_filename = &#34;transformed_neurons.txt&#34;
+    
+    nInVolume = 0
+    coord = None
+    zOfFrame = None
+    
+    version = None
+    info = {}
+    
+    curvature = None
+    boxIndices = None
+    boxIndicesX = None
+    boxIndicesY = None
+    boxNPlane = 0
+    
+    segmParam = {}
+    info = {}
+    
+    
+    def __init__(self, coordZYX, nInVolume, zOfFrame=None, properties={}, 
+                 stabilize_z=True,stabilize_xy=True):
+        &#39;&#39;&#39;The constructor transforms the coordinates array into an irrarray
+        and, if requested to, &#34;stabilizes&#34; the coordinates based on the 
+        local curvature around the neurons.
+        
+        Parameters
+        ----------
+        coordZYX: numpy array
+            Array containing the coordinates of the neurons, in zyx order.
+            coordZYX[i] are the coordinates of the i-th neuron in the whole
+            serialized sequence of brains.
+        nInVolume: numpy array
+            nInVolume[j] is the number of neurons in neuron j. Used to split 
+            the neurons into their respective volumes.
+        zOfFrame: list of numpy arrays (optional)
+            zOfFrame[j][l] is the &#34;real&#34; z coordinate of frame l in volume j.
+            It is most useful if z has the same scale as x and y. Not required
+            for 2D recordings in which each volume is composed of a single
+            frame. Default: None.
+        properties: dictionary (optional)
+            Dictionary that can have the keys &#39;curvature&#39;, &#39;boxIndices&#39;, 
+            &#39;boxIndicesX&#39;, &#39;boxIndicesY&#39;, &#39;boxNPlane&#39;, &#39;segmParam&#39;, &#39;version&#39;.
+            NeuronProperties from wormneuronsegmentation.findNeurons() can be
+            passed as properties. Default: {}.
+        stabilize_z: bool (optional)
+            If True, the z position is stabilized based on the local curvature
+            around the neurons. Default: True.
+        stabilize_xy: bool (optional)
+            If True, the xy position is stabilized based on the local curvature
+            around the neurons. Default: True.
+        &#39;&#39;&#39;
+        
+        #coordZYX, self.nInVolume, self.nInFrame = self._conv_coord_2d_to_3d(coord, 
+        #                                volFrame0, dtype=int)
+        self.nInVolume = nInVolume
+        self.coord = irrarray(coordZYX, [self.nInVolume], strideNames=[&#34;vol&#34;])
+        #self.volFrame0 = volFrame0
+        
+        if zOfFrame == None: zOfFrame = np.zeros((len(self.nInVolume),1))
+        self.zOfFrame = zOfFrame
+        
+        self.version = pkg_resources.get_distribution(&#34;wormbrain&#34;).version
+        self.info = {}
+        self.info[&#39;version&#39;] = self.version
+        
+        if len(properties.keys())!=0:
+            self.curvature = properties[&#39;curvature&#39;]
+            self.curvature = irrarray(self.curvature, self.nInVolume, 
+                                        strideNames=[&#34;vol&#34;])
+            self.boxIndices = properties[&#39;boxIndices&#39;]
+            
+            try:
+                self.boxIndicesX = properties[&#39;boxIndicesX&#39;]
+                self.boxIndicesY = properties[&#39;boxIndicesY&#39;]
+            except:
+                pass
+                
+            self.boxNPlane = properties[&#39;boxNPlane&#39;]
+            self.segmParam = properties[&#39;segmParam&#39;]
+            self.info[&#39;segm_param&#39;] = self.segmParam
+            
+            try:
+                self.version = properties[&#39;version&#39;]
+            except:
+                pass
+        
+            if stabilize_z:
+                self.coord = self._stabilize_z(self.coord, 
+                    self.curvature,
+                    nPlane=self.boxNPlane, boxIndices=self.boxIndices,
+                    method=&#34;xyAvgCurvature&#34;)
+            if stabilize_xy:
+                self.coord = self._stabilize_x(self.coord, self.curvature, 
+                                    nPixelsMax=5, boxIndices=self.boxIndicesX)
+                self.coord = self._stabilize_y(self.coord, self.curvature,
+                                    boxIndices=self.boxIndicesY)
+                    
+                self.coord = np.rint(self.coord)
+            
+        self.coord = self.coord.astype(int)
+    
+    @classmethod
+    def from_find_neurons(cls, coord, volFrame0=None, *args, **kwargs):
+        &#39;&#39;&#39;Create a Brains object from the result of the results of 
+        wormneuronsegmentation.findNeurons().
+        
+        Parameters
+        ----------
+        coord: list of numpy array
+            coord[i][j,coord] gives the coordinate (y,x) of point j in frame i.
+        volFrame0: numpy array, optional
+            volFrame0[m] gives the first frame of volume m. If passing results
+            for M neurons, volFrame0 has to contain also the first frame of
+            volume +1 (or the 1+last frame of volume M).
+            If passing the results for a sequence of single frames (and not a 
+            volumetric recording) set to None (or don&#39;t pass anything).
+        
+        Returns
+        -------
+        Instance of class.
+        &#39;&#39;&#39;
+        if volFrame0 is None:
+            volFrame0 = np.arange(len(coord)+1,dtype=int)
+        try:
+            rectype = kwargs.pop(&#39;rectype&#39;)
+        except:
+            rectype = &#34;3d&#34;
+        if rectype == &#34;2d&#34;:
+            kwargs[&#39;stabilize_z&#39;] = False
+
+        coordZYX, nInVolume, nInFrame = cls._conv_coord_2d_to_3d(coord, 
+                                        volFrame0, dtype=int)
+                                        
+        return cls(coordZYX, nInVolume, *args, **kwargs)
+    
+    @classmethod
+    def from_file(cls, folder, filename=&#34;&#34;):
+        &#39;&#39;&#39;Create a Brains object loading the data from a previously created
+        json file.
+        
+        Parameters
+        ----------
+        folder: string
+            Folder containing the file.
+        filename: string (optional)
+            Name of the file containing the signal. Default: &#34;&#34;, which is
+            translated into the default filename for the class.
+        
+        Returns
+        -------
+        Instance of class.
+        &#39;&#39;&#39;
+        # for future multiple methods from loading from different formats
+        #ext = filename.split(&#34;.&#34;)[-1]
+        
+        if folder[-1]!=&#34;/&#34;: folder += &#34;/&#34;
+        
+        if filename==&#34;&#34;:
+            filename = cls.filename
+        f = open(folder+filename)
+        c = json.load(f)
+        f.close()
+        
+        coordZYX = np.array(c[&#39;coordZYX&#39;])
+        nInVolume = np.array(c[&#39;nInVolume&#39;])
+        zOfFrame = [np.array(z) for z in c[&#39;zOfFrame&#39;]]
+        properties = {}
+        
+        # To be compatible with older versions of the file, there is this
+        # sequence of try/except. At some point, this can be removed and all
+        # the properties be loaded.
+        try:
+            props = c[&#39;properties&#39;]
+            properties[&#39;curvature&#39;] = [np.array(curv) for curv in props[&#39;curvature&#39;]]
+            properties[&#39;boxIndices&#39;] = [np.array(bi) for bi in props[&#39;boxIndices&#39;]]
+            properties[&#39;boxNPlane&#39;] = props[&#39;boxNPlane&#39;]
+        except:
+            pass
+            
+        try:
+            properties[&#39;boxIndicesX&#39;] = [np.array(bi) for bi in props[&#39;boxIndicesX&#39;]]
+            properties[&#39;boxIndicesY&#39;] = [np.array(bi) for bi in props[&#39;boxIndicesY&#39;]]
+        except:
+            pass
+            
+        try:
+            properties[&#39;segmParam&#39;] = props[&#39;segmParam&#39;]
+        except:
+            pass
+            
+        try:
+            properties[&#39;version&#39;] = props[&#39;version&#39;]
+        except:
+            pass
+        
+        # Don&#39;t do any implicit stabilization if loaded from file. 
+        stabilize_z = False
+        stabilize_xy = False 
+        
+        return cls(coordZYX, nInVolume, zOfFrame, properties, stabilize_z, stabilize_xy)
+        
+    @classmethod
+    def from_coord_file(cls, folder, filename=&#34;&#34;):
+        &#39;&#39;&#39;Create a Brains object from a file containing the coordinates of the
+        neurons only.
+        
+        Parameters
+        ----------
+        folder: string
+            Folder containing the file.
+        filename: string (optional)
+            Name of the file containing the coordinates of the neurons. 
+            Default: &#34;&#34;, which is translated to the default filename for the 
+            class.
+        
+        &#39;&#39;&#39;
+        if folder[-1]!=&#34;/&#34;: folder += &#34;/&#34;
+        if filename == &#34;&#34;: filename = cls.coord_filename
+        
+        f = open(folder+filename)
+        s = f.readline()
+        f.close()
+        
+        s = s.split(&#34;;&#34;)
+        n_volume = int(s[0].split(&#34;=&#34;)[1])
+        n_neurons = int(s[1].split(&#34;=&#34;)[1])
+        nInVolume = np.ones(n_volume)*n_neurons
+        
+        coordZYX = np.loadtxt(folder+filename)
+        
+        return cls(coordZYX, nInVolume, stabilize_z=False, stabilize_xy=False)
+    
+    def append(self, brains2):
+        &#39;&#39;&#39;Append to this object the content of another instance of Brains.
+        It does not perform any z-stabilization. Assumes the curvature in 
+        brains2 was extracted the same way as in this instance.
+        (Modify stuff mimicking __init__()).
+        
+        Parameters
+        ----------
+        brains2: Brains object
+            Brains object to be appended to this.
+        
+        &#39;&#39;&#39;
+        self.nInVolume = np.append(self.nInVolume, brains2.nInVolume)
+        self.coord = np.append(self.coord, brains2.coord, axis=0)
+        self.coord = irrarray(self.coord, [self.nInVolume], strideNames=[&#34;vol&#34;])
+        
+        # Concatenate
+        self.zOfFrame = self.zOfFrame + brains2.zOfFrame
+        
+        self.curvature = np.append(self.curvature, brains2.curvature)
+        self.curvature = irrarray(self.curvature, self.nInVolume, 
+                                        strideNames=[&#34;vol&#34;])
+                                        
+        self.coord = self.coord.astype(int)
+        
+    
+    def __getitem__(self, i):
+        &#39;&#39;&#39;
+        Allow for direct indexing of the class to access the coordinates.
+        &#39;&#39;&#39;
+        return self.coord.__getitem__(i)
+        
+    def __setitem__(self, i, value):
+        &#39;&#39;&#39;
+        Allow for direct indexing of the class to write in the coordinates.
+        &#39;&#39;&#39;
+        self.coord.__setitem__(i,value)
+        
+    def __call__(self, *args, **kwargs):
+        &#39;&#39;&#39;
+        Upon call, use the __call__ method of the coordinates irrarray.
+        &#39;&#39;&#39;
+        return self.coord.__call__(*args, **kwargs)
+    
+    def copy(self):
+        &#39;&#39;&#39;Deepcopy of this object.&#39;&#39;&#39;
+        return deepcopy(self)
+    
+    def to_file(self, foldername, filename=&#34;&#34;):
+        &#39;&#39;&#39;Save this instance of the object to file. A Brains object saved 
+        this way can be recreated in memory with the class method from_file().
+        
+        Parameters
+        ----------
+        foldername: string
+            Destination folder.
+        filename: string (optional)
+            Name of destination file. Default: &#34;&#34;, which is translated to the 
+            default filename for the class.
+        
+        &#39;&#39;&#39;
+        if foldername[-1]!=&#34;/&#34;: foldername += &#34;/&#34;
+        
+        diz = {}
+        diz[&#39;coordZYX&#39;] = [c.tolist() for c in self.coord]
+        diz[&#39;nInVolume&#39;] = self.nInVolume.tolist()
+        diz[&#39;zOfFrame&#39;] = [z.tolist() for z in self.zOfFrame]
+        props = {}
+        try:
+            props[&#39;curvature&#39;] = [c.tolist() for c in self.curvature]
+            props[&#39;boxIndices&#39;] = [c.tolist() for c in self.boxIndices]
+            props[&#39;boxIndicesX&#39;] = [c.tolist() for c in self.boxIndicesX]
+            props[&#39;boxIndicesY&#39;] = [c.tolist() for c in self.boxIndicesY]
+            props[&#39;boxNPlane&#39;] = self.boxNPlane
+            props[&#39;segmParam&#39;] = self.segmParam
+            props[&#39;version&#39;] = self.version
+        except:
+            pass
+            
+        diz[&#39;properties&#39;] = props
+        
+        if filename==&#34;&#34;:
+            filename = self.filename
+        
+        output = json.dumps(diz, indent=4)
+        # Prettify the json serialization 
+        o1 = re.sub(r&#39;\[\s+(\d)&#39;, r&#39;[\1&#39;, output)
+        o2 = re.sub(r&#39;(\d),\s+(\d)&#39;, r&#39;\1, \2&#39;, o1)
+        o3 = re.sub(r&#39;(\d)\s+\]&#39;,r&#39;\1]&#39;,o2)
+        
+        f = open(foldername+filename,&#39;w&#39;)
+        f.write(o3)
+        f.close()
+        
+    def trueCoords(self, vol, coord_ordering=&#39;zyx&#39;):#, returnIrrarray=False):
+        &#39;&#39;&#39;Returns the coordinates of the neurons contained in the specified
+        volumes replacing z with its actual values, from zOfFrame.
+        
+        Parameters
+        ----------
+        vol: int or list of int
+            Indices of the volume(s) requested.
+        coord_ordering: string (optional)
+            Ordering of the coordinates to be returned. Allowed values:
+            &#39;zyx&#39; for indexing order, and &#39;xyz&#39; for plotting order. 
+            Default: &#39;zyx&#39;.
+            
+        Returns
+        -------
+        trueCoords: numpy array
+            Coordinates of the neurons.
+        &#39;&#39;&#39;
+        
+        if type(vol)!=list: vol = [vol]
+        # Get the neurons in the requested volumes
+        trueCoords = self.coord(vol=vol, dtype=np.float)
+        intCoords = self.coord(vol=vol)
+        
+        L = len(vol)
+        for l in np.arange(L):
+            trueCoords[l][:,0] = self.zOfFrame[vol[l]][intCoords[l][:,0]]
+            
+            # Ordering stuff
+            if coord_ordering==&#34;xyz&#34;: 
+                trueCoords[l] = np.copy(trueCoords[l][:,::-1],order=&#34;c&#34;)
+                
+        if len(trueCoords)==1: trueCoords = trueCoords[0]
+                
+        return trueCoords
+        
+    @staticmethod
+    def _conv_coord_2d_to_3d(coord_2d, volFrame0, zOfFrame=[], dz=1, 
+            dtype=np.float, coord_2d_ordering=&#39;yx&#39;, coord_3d_ordering=&#39;zyx&#39;):
+        &#39;&#39;&#39;Converts coordinates from a list of np.array([[y,x],]) for one frame 
+        to a list of np.array([[z,y,x],]) for each volume, with the 
+        corresponding number of neurons in each volume.
+        
+        Parameters
+        ----------
+        coord_2d: list of numpy arrays
+            coord_2d[i][j,n] gives the coordinate n of neuron j in frame i
+        nInFrame: numpy array
+            nInFrame[i] gives the number of neurons in frame i
+        volFrame0: numpy array
+            volFrame0[l] gives the first frame of volume l. As last element, it
+            must contain also the last+1 frame of the last volume.
+        zOfFrame: numpy array
+            zOfFrame[i] gives the z coordinate of frame i
+        dz: scalar
+            step to build the z coordinates without passing zOfFrame
+        dtype: data type
+            This function will produce an output array of this type. Therefore,
+            an integer type and a float dz will produce floored z coordinates. And zOfFrame too.
+        coord_2d_ordering: string
+            Specifies the ordering of the coordinates inside the input array.
+            Default is &#39;yx&#39; (indexing order).
+        coord_3d_ordering: string
+            Specifies the ordering of the coordinates inside the returned array.
+            Default is &#39;zyx&#39;, for indexing. For plotting, use &#39;xyz&#39;.
+            
+        Returns
+        -------
+        coord_3d: numpy array
+            coord_3d[j, n] gives the coordinate n of neuron j.
+        nInVolume: numpy array
+            nInVolume[l] gives the number of neurons in volume l.
+        &#39;&#39;&#39;
+
+        # Make sure nInFrame is an integer and can be used as an index.
+        #nInFrame = nInFrame.astype(int, copy=False)
+        nInFrame = np.array([c.shape[0] for c in coord_2d])
+        
+        # Initialize the lists containing the neurons coordinates.
+        nTotal = np.sum(nInFrame)
+        
+        try:
+            datatype=type(coord_2d[0][0])
+        except:
+            datatype=int
+        
+        coord_3d = np.zeros((nTotal,3),dtype=datatype)
+        nInVolume = []
+        L = len(volFrame0)-1
+        
+        #For each volume
+        g = 0
+        for l in np.arange(L):
+            # First and last+1 frames of current volume
+            firstframe = volFrame0[l]
+            lastframeplus1 = volFrame0[l+1]
+            
+            # Add an entry to the array listing the number of neurons in each
+            # volume.
+            nInVolume.append(np.sum(nInFrame[firstframe:lastframeplus1]))
+            
+            # Initialize an array to be populated with the coordinates of the 
+            # neurons in the current volume. 
+            NeuronInVolume = np.zeros((nInVolume[-1],3),dtype=dtype)
+            
+            q = 0
+            # For each frame in the volume
+            for i in np.arange(firstframe, lastframeplus1):
+                # If no zOfFrame was passed, used dz to build it. If zOfFrame is
+                # present, copy the value for this frame in an array the size
+                # of the number of neurons in this frame.
+                if len(zOfFrame)==0:
+                    Z = np.ones(nInFrame[i],dtype=dtype)*(i-firstframe)*dz
+                else:
+                    Z = np.ones(nInFrame[i])*zOfFrame[l][i-firstframe]
+   
+                # Depending on the specified ordering, extract X and Y from 
+                # coord_2d
+                if coord_2d_ordering==&#39;xy&#39;:
+                    X,Y = coord_2d[i].T
+                else:
+                    Y,X = coord_2d[i].T
+                    
+                # Depending on the specified ordering, combine the X, Y, and Z
+                # coordinates.
+                if coord_3d_ordering==&#39;xyz&#39;:
+                    tmp = np.array([X,Y,Z]).T
+                elif coord_3d_ordering==&#39;zyx&#39;:
+                    tmp = np.array([Z,Y,X]).T
+                NeuronInVolume[q:q+nInFrame[i]] = tmp
+                 
+                q += nInFrame[i]
+                 
+            #coord_3d.append(NeuronInVolume)
+            coord_3d[g:g+q] = NeuronInVolume
+            g += q
+            
+        return coord_3d, np.array(nInVolume), np.array(nInFrame)
+        
+    def getOverlay(self, vol, folder=&#34;&#34;, returnLabels=False):
+        &#39;&#39;&#39;Returns the list of numpy arrays to be used as Overlay in 
+        mistofrutta.plt.hyperstack, together with the OverlayLabels. The labels
+        are not the indices of the neurons in their volume, but are the indices
+        of the matched neurons in the reference brain/volume. If the labels are
+        requested this function, therefore, assumes that a match file exists 
+        that can be loaded via wormbrain.match.load_matches().
+        
+        Parameters
+        ----------
+        vol: int or list of int
+            Indices of the volume(s) requested.
+        folder: string (optional)
+            Folder containing the match file to be loaded with 
+            wormbrain match.load_matches(). Required if returnLabels is True.
+        returnLabels: bool (optional)
+            If True, the labels are returned. Default: False
+            
+        Returns
+        -------
+        Overlay: list of numpy arrays
+            Overlay[frame_index][i] are the y,x coordinates of neuron i in
+            a given frame.
+        OverlayLabels: list of integers
+            OverlayLabels[frame_index][i] is the index of the neuron
+            in the reference brain corresponding to the neuron i in the 
+            specified frame. Returned if returnLabels is True.
+        
+        &#39;&#39;&#39;
+        try:
+            bla = vol[0]
+        except:
+            vol = [vol]
+        
+        nVolume = len(vol)
+        Overlay = []
+        OverlayLabels = []     
+        
+        # It was like this, with the loading of the file before this for.
+        #for kappa in np.arange(nVolume):
+        #    cerv = self(vol=vol[kappa])
+        #    numFrames = len(self.zOfFrame[vol[kappa]]);
+        #    match = np.asarray(MMatch_inv[kappa])
+        #    for mu in np.arange(numFrames):
+        #        Overlay.append(cerv[np.where(cerv[:,0]==mu)[0],1:][:,::-1])
+        #        OverlayLabels.append(match[cerv[:,0]==mu]);
+        #if returnLabels:        
+        #    return Overlay, OverlayLabels
+        #else:
+        #    return Overlay
+        
+        for kappa in np.arange(nVolume):
+                cerv = self(vol=vol[kappa])
+                numFrames = len(self.zOfFrame[vol[kappa]]);
+                for mu in np.arange(numFrames):
+                    Overlay.append(cerv[np.where(cerv[:,0]==mu)[0],1:][:,::-1])
+        
+        if returnLabels:
+            MMatch, info = wormb.match.load_matches(folder)
+        
+            # create an &#34;inverse&#34; matching object where the index is current vol and the value is ref vol
+            MMatch_inv = []; 
+            for kappa in np.arange(nVolume):
+                temp = [None]*self.nInVolume[vol[kappa]];
+                for ref, cur in enumerate(MMatch[vol[kappa]],0):
+                    if cur &gt;= 0:
+                        temp[int(cur)] = ref;
+                MMatch_inv.append(temp);
+                
+            for kappa in np.arange(nVolume):
+                cerv = self(vol=vol[kappa])
+                numFrames = len(self.zOfFrame[vol[kappa]]);
+                match = np.asarray(MMatch_inv[kappa])
+                for mu in np.arange(numFrames):
+                    OverlayLabels.append(match[cerv[:,0]==mu]);
+            
+            return Overlay, OverlayLabels            
+        else:
+            return Overlay
+        
+        
+    @staticmethod
+    def _stabilize_z(coord, curvature, nPlane=7, boxIndices=
+        [np.arange(1),np.arange(1,6),np.arange(6,19),np.arange(19,32),
+        np.arange(32,45),np.arange(45,50),np.arange(50,51)], 
+        coord_3d_ordering=&#34;zyx&#34;, method=&#34;&#34;):
+        &#39;&#39;&#39;Stabilizes the z position of the neuron using the local curvature 
+        around that point. This helps in obtaining less fluctuating results when
+        the neurons were found in 2D with brute-force check along z, i.e. with 
+        smoothing in xy but not in z, as it is done in the neuronsegmentation 
+        module. The z position of each neuron is shifted by the average of 
+        position in the box around the neuron weighted by the curvature.
+        
+        Parameters
+        ----------
+        coord: numpy array
+            coord_3d[j, n] gives the coordinate n of neuron j (counting from 
+            neuron 0 in volume 0).
+            The z coordinate must be the index of the corresponding frame, and
+            not the actual coordinate.
+        curvature: numpy arrays
+            curvatureVSplit[j, m] gives the curvature at point m in the box
+            (described by nPlane and boxIndices) around neuron j.
+        nPlane: integer scalar
+            number of planes spanned by the box around each neuron
+        boxIndices: list of numpy arrays
+            boxIndices[pl] gives the indices of each curvatureVSplit[l][j] that
+            reside in plane pl.
+        coord_3d_ordering: string
+            Specifies the ordering of the coordinates inside the coordinate array.
+            Default is &#39;zyx&#39;, (indexing ordering). The output array has the same
+            odering as the input array.
+        method: string (optional)
+            If &#34;xyMaxCurvature&#34;, the weighting is performed with the maximum
+            curvature in each plane. Otherwise, only with the curvatures directly
+            above and below the neuron position.
+            
+        Returns
+        -------
+        coord_3d_out: numpy array
+            coord_3d_out[j, n] gives the coordinate n of the stabilized neuron j 
+        &#39;&#39;&#39;
+        # Determine the index of the z coordinate in the input and output arrays
+        z_indices = {&#34;zyx&#34;:0,&#34;xyz&#34;:2}
+        z_index = z_indices[coord_3d_ordering]
+        
+        # Build z range around 0 for specified nPlanes
+        z = np.arange(-(nPlane//2),nPlane//2+1,dtype=np.float)
+        
+        curv = np.zeros((coord.shape[0],nPlane))
+        if method==&#34;xyMaxCurvature&#34;:
+            for pl in np.arange(nPlane):
+                # The curvature has to be flipped in sign (i.e. peak = max of
+                # flipped curvature) and the resulting negative values clipped
+                # to 0, so that only the central region of the neuron matters.
+                flipped_curv = -1.0*curvature[:,boxIndices[pl]]
+                np.clip(flipped_curv,0,None,flipped_curv)
+                c = np.max(flipped_curv,axis=1)
+                curv[:,pl] = c
+        elif method==&#34;xyAvgCurvature&#34;:
+            for pl in np.arange(nPlane):
+                # Flip and clip curvature (see above).
+                flipped_curv = -1.0*curvature[:,boxIndices[pl]]
+                np.clip(flipped_curv,0,None,flipped_curv)
+                c = np.average(flipped_curv,axis=1)
+                curv[:,pl] = c
+        else:
+            centralIndices = np.zeros(nPlane)
+            for pl in np.arange(nPlane):
+                sh0 = boxIndices[pl].shape[0]
+                centralIndices[pl] = boxIndices[pl][sh0//2]
+            curv = curvature[:,centralIndices] #look just along z
+            curv *= -1.0
+            np.clip(curv,0,None,curv)
+        
+        coord_3d_out = np.zeros_like(coord,dtype=np.float)
+        if coord_3d_ordering==&#34;zyx&#34;:
+            coord_3d_out[:,1:3] = coord[:,1:3]
+        else:
+            coord_3d_out[:,0:2] = coord[:,0:2]
+        coord_3d_out[:,z_index] = coord[:,z_index].astype(np.float) + np.sum(z*curv,axis=1)/np.sum(curv,axis=1)
+        
+        return coord_3d_out
+    
+    @staticmethod    
+    def _stabilize_x(coord, curvature, nPixelsMax=5, boxIndices=
+        [np.array([10,23,36]), np.array([2,7,11,15,29,24,28,33,37,41,46]), 
+        np.array([0,1,3,5,6,8,12,16,18,19,21,25,29,31,32,34,38,42,44,45,47,49,50]),
+        np.array([4,9,13,17,22,26,30,35,39,43,48]), np.array([14,27,40])], 
+        coord_3d_ordering=&#34;zyx&#34;, method=&#34;curvatureAverage&#34;):
+        &#39;&#39;&#39;Stabilization of the x coordinate, equivalent to _stabilize_z.&#39;&#39;&#39;
+        
+        # Determine the index of the x coordinate in the input and output arrays
+        x_indices = {&#34;zyx&#34;:2,&#34;xyz&#34;:0}
+        x_index = x_indices[coord_3d_ordering]
+        
+        # Build z range around 0 for specified nPlanes
+        x = np.arange(-(nPixelsMax//2),nPixelsMax//2+1,dtype=np.float)
+        
+        curv = np.zeros((coord.shape[0],nPixelsMax))
+        if method==&#34;curvatureAverage&#34;:
+            for pl in np.arange(nPixelsMax):
+                # The curvature has to be flipped in sign (i.e. peak = max of
+                # flipped curvature) and the resulting negative values clipped
+                # to 0, so that only the central region of the neuron matters.
+                flipped_curv = -1.0*curvature[:,boxIndices[pl]]
+                np.clip(flipped_curv,0,None,flipped_curv)
+                c = np.average(flipped_curv,axis=1)
+                curv[:,pl] = c
+        
+        coord_3d_out = np.zeros_like(coord,dtype=np.float)
+        if coord_3d_ordering==&#34;zyx&#34;:
+            coord_3d_out[:,0:2] = coord[:,0:2]
+        else:
+            coord_3d_out[:,1:3] = coord[:,1:3]
+        coord_3d_out[:,x_index] = coord[:,x_index].astype(np.float) + np.sum(x*curv,axis=1)/np.sum(curv,axis=1)
+        
+        return coord_3d_out
+    
+    @staticmethod    
+    def _stabilize_y(coord, curvature, nPixelsMax=5, boxIndices=
+        [np.array([6,19,32]), np.array([1,7,8,9,29,21,22,33,34,35,45]),
+        np.array([0,2,3,4,10,11,12,13,14,23,24,25,26,27,36,37,38,39,40,46,47,48,50]),
+        np.array([5,15,16,17,28,29,30,41,42,43,49]),np.array([18,31,44])],
+        coord_3d_ordering=&#34;zyx&#34;, method=&#34;curvatureAverage&#34;):
+        &#39;&#39;&#39;Stabilization of the y coordinate, equivalent to _stabilize_z.&#39;&#39;&#39;
+        
+        y_index = 1
+        
+        # Build z range around 0 for specified nPlanes
+        y = np.arange(-(nPixelsMax//2),nPixelsMax//2+1,dtype=np.float)
+        
+        curv = np.zeros((coord.shape[0],nPixelsMax))
+        if method==&#34;curvatureAverage&#34;:
+            for pl in np.arange(nPixelsMax):
+                # The curvature has to be flipped in sign (i.e. peak = max of
+                # flipped curvature) and the resulting negative values clipped
+                # to 0, so that only the central region of the neuron matters.
+                flipped_curv = -1.0*curvature[:,boxIndices[pl]]
+                np.clip(flipped_curv,0,None,flipped_curv)
+                c = np.average(flipped_curv,axis=1)
+                curv[:,pl] = c
+        
+        coord_3d_out = np.zeros_like(coord,dtype=np.float)
+        coord_3d_out[:,0] = coord[:,0]
+        coord_3d_out[:,2] = coord[:,2]
+        coord_3d_out[:,y_index] = coord[:,y_index].astype(np.float) + np.sum(y*curv,axis=1)/np.sum(curv,axis=1)
+        
+        return coord_3d_out
+        
+    def fit_sphere(self):
+        &#39;&#39;&#39;Fit each neuron as a sphere to stabilize its z position, which is
+        undersampled with respect to the x and y due to rougher scanning along
+        z with respect to the pixels. Currently not used.
+        
+        Returns
+        -------
+        yOverR: irrarray
+            Inverse of the radius of each neuron. (?)
+        &#39;&#39;&#39;
+        curvature = self.curvature
+        boxIndices = self.boxIndices
+        boxNPlane = self.boxNPlane
+        
+        # Calculate weights(z) [i.e. curvature] taking the maximum curvature 
+        # in each plane.
+        curv = np.zeros((self.coord.shape[0],boxNPlane))
+        for pl in np.arange(boxNPlane):
+            # The curvature has to be flipped in sign (i.e. peak = max of
+            # flipped curvature) and the resulting negative values clipped
+            # to 0, so that only the central region of the neuron matters.
+            flipped_curv = -1.0*curvature[:,boxIndices[pl]]
+            np.clip(flipped_curv,0,None,flipped_curv)
+            c = np.max(flipped_curv,axis=1)
+            curv[:,pl] = c
+        
+        # Use the value in plane nPlane//2+1 and nPlane//2+2 to &#34;fit&#34; the radius
+        # of the sphere for each neuron
+        R = self._sphere_radius(curv[:,boxNPlane//2+1:boxNPlane//2+2+1]/curv[:,boxNPlane//2+1,None])
+        
+        # Calculate the ratio between the curvature in the central plane and
+        # the radius. This is the number by which you need to multiply the
+        # signal to get the peak signal out.
+        
+        # This has become just the radius because I fitted the values after
+        # normalizing them
+        #yOverR = curv[:,boxNPlane//2+1]/R
+        yOverR = 1./R
+        
+        return irrarray(yOverR, self.nInVolume, strideNames=[&#34;vol&#34;])
+        
+    @staticmethod
+    def _sphere_radius(y, dx=1.0):
+        y0sq = y[:,0]**2
+        return np.sqrt(y0sq + ((y0sq-y[:,1]**2-dx**2)/(2.0*dx))**2)
+        
+    def plot(self, indices,mode=&#39;3d&#39;,plotNow=True,**kwargs):
+        &#39;&#39;&#39;Plots the neurons in the specified volumes. Based on the selected
+        mode, the function redirects the call to _plot_3d and _plot_2d.
+        
+        Parameters
+        ----------
+        indices: list (or numpy array)
+            Indices of the volumes to plot
+        mode: string (optional)
+            Plot mode: 3d or 2d. Default: &#39;3d&#39;.
+        plotNow: bool
+            If True, the function plots immediately. If False, the function
+            returns matplotlib figures and axes to be plotted at a later point
+            in the script. Default: True.
+        **kwargs: other
+            Other parameters to be passed to _plot_3d or _plot_2d.
+            
+        Returns
+        -------
+        fig: matplotlib figure (if plotNow is False)
+        ax: matplotlib axis (if plotNow is False)
+        
+        &#39;&#39;&#39;
+        try:
+            len(indices)
+        except:
+            indices = np.array([indices])
+        
+        if mode==&#39;3d&#39;:
+            fig, ax = self._plot_3d(indices, **kwargs)
+        if mode==&#39;2d&#39;:
+            fig, ax = self._plot_2d(indices, **kwargs)
+            
+        if plotNow==True:
+            plt.show()
+            return
+        else:
+            return fig, ax
+            
+            
+    def _plot_3d(self, indices, **kwargs):
+        &#39;&#39;&#39;Produces a 3D plot of the requested volumes. To be used via the 
+        plot() method.
+        
+        Parameters
+        ----------
+        indices: list of integers
+            Indices of the requested volumes.
+            
+        Returns
+        -------
+        fig: matplotlib figure
+        ax: matplotlib axis
+        
+        &#39;&#39;&#39;
+        cfn = plt.gcf().number
+        if len(plt.gcf().axes)!=0: cfn += 1
+        
+        showAll=True
+        if &#39;showAll&#39; in kwargs: showAll=kwargs[&#39;showAll&#39;]
+        
+        fig = plt.figure(cfn)
+        ax = fig.add_subplot(111,projection=&#39;3d&#39;)
+        
+        for index in indices:
+            brain = self.trueCoords(index)
+            ax.scatter(brain.T[2],brain.T[1],brain.T[0],&#39;o&#39;)
+                
+        return fig, ax
+        
+
+    def _plot_2d(self, indices, **kwargs):
+        &#39;&#39;&#39;Produces a 2D plot of the requested volumes. To be used via the 
+        plot() method.
+        
+        Parameters
+        ----------
+        indices: list of integers
+            Indices of the requested volumes.
+            
+        Returns
+        -------
+        fig: matplotlib figure
+        ax: matplotlib axis
+        
+        &#39;&#39;&#39;
+        # _plot_2d: plots each of the neurons at there location for the volumes specified by indices (list)
+        # Cervelli: brain object that you want to plot (this will become self in the actual class)
+        # indices: list object with the volumes that you want to plot
+        cfn = plt.gcf().number
+        if len(plt.gcf().axes)!=0: cfn += 1
+        
+        showAll=True
+        if &#39;showAll&#39; in kwargs: showAll=kwargs[&#39;showAll&#39;]
+        
+        fig = plt.figure(cfn)
+        ax = fig.add_subplot(111)
+        
+        for index in indices:
+            brain = self.trueCoords(index)
+            ax.scatter(brain.T[2],brain.T[1],marker=&#39;o&#39;)
+                
+        return fig, ax</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="wormbrain.brains.Brains.boxIndices"><code class="name">var <span class="ident">boxIndices</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="wormbrain.brains.Brains.boxIndicesX"><code class="name">var <span class="ident">boxIndicesX</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="wormbrain.brains.Brains.boxIndicesY"><code class="name">var <span class="ident">boxIndicesY</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="wormbrain.brains.Brains.boxNPlane"><code class="name">var <span class="ident">boxNPlane</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="wormbrain.brains.Brains.coord"><code class="name">var <span class="ident">coord</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="wormbrain.brains.Brains.coord_filename"><code class="name">var <span class="ident">coord_filename</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="wormbrain.brains.Brains.curvature"><code class="name">var <span class="ident">curvature</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="wormbrain.brains.Brains.filename"><code class="name">var <span class="ident">filename</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="wormbrain.brains.Brains.info"><code class="name">var <span class="ident">info</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="wormbrain.brains.Brains.nInVolume"><code class="name">var <span class="ident">nInVolume</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="wormbrain.brains.Brains.segmParam"><code class="name">var <span class="ident">segmParam</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="wormbrain.brains.Brains.version"><code class="name">var <span class="ident">version</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="wormbrain.brains.Brains.zOfFrame"><code class="name">var <span class="ident">zOfFrame</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="wormbrain.brains.Brains.from_coord_file"><code class="name flex">
+<span>def <span class="ident">from_coord_file</span></span>(<span>folder, filename='')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a Brains object from a file containing the coordinates of the
+neurons only.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>folder</code></strong> :&ensp;<code>string</code></dt>
+<dd>Folder containing the file.</dd>
+<dt><strong><code>filename</code></strong> :&ensp;<code>string (optional)</code></dt>
+<dd>Name of the file containing the coordinates of the neurons.
+Default: "", which is translated to the default filename for the
+class.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def from_coord_file(cls, folder, filename=&#34;&#34;):
+    &#39;&#39;&#39;Create a Brains object from a file containing the coordinates of the
+    neurons only.
+    
+    Parameters
+    ----------
+    folder: string
+        Folder containing the file.
+    filename: string (optional)
+        Name of the file containing the coordinates of the neurons. 
+        Default: &#34;&#34;, which is translated to the default filename for the 
+        class.
+    
+    &#39;&#39;&#39;
+    if folder[-1]!=&#34;/&#34;: folder += &#34;/&#34;
+    if filename == &#34;&#34;: filename = cls.coord_filename
+    
+    f = open(folder+filename)
+    s = f.readline()
+    f.close()
+    
+    s = s.split(&#34;;&#34;)
+    n_volume = int(s[0].split(&#34;=&#34;)[1])
+    n_neurons = int(s[1].split(&#34;=&#34;)[1])
+    nInVolume = np.ones(n_volume)*n_neurons
+    
+    coordZYX = np.loadtxt(folder+filename)
+    
+    return cls(coordZYX, nInVolume, stabilize_z=False, stabilize_xy=False)</code></pre>
+</details>
+</dd>
+<dt id="wormbrain.brains.Brains.from_file"><code class="name flex">
+<span>def <span class="ident">from_file</span></span>(<span>folder, filename='')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a Brains object loading the data from a previously created
+json file.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>folder</code></strong> :&ensp;<code>string</code></dt>
+<dd>Folder containing the file.</dd>
+<dt><strong><code>filename</code></strong> :&ensp;<code>string (optional)</code></dt>
+<dd>Name of the file containing the signal. Default: "", which is
+translated into the default filename for the class.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Instance of class.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def from_file(cls, folder, filename=&#34;&#34;):
+    &#39;&#39;&#39;Create a Brains object loading the data from a previously created
+    json file.
+    
+    Parameters
+    ----------
+    folder: string
+        Folder containing the file.
+    filename: string (optional)
+        Name of the file containing the signal. Default: &#34;&#34;, which is
+        translated into the default filename for the class.
+    
+    Returns
+    -------
+    Instance of class.
+    &#39;&#39;&#39;
+    # for future multiple methods from loading from different formats
+    #ext = filename.split(&#34;.&#34;)[-1]
+    
+    if folder[-1]!=&#34;/&#34;: folder += &#34;/&#34;
+    
+    if filename==&#34;&#34;:
+        filename = cls.filename
+    f = open(folder+filename)
+    c = json.load(f)
+    f.close()
+    
+    coordZYX = np.array(c[&#39;coordZYX&#39;])
+    nInVolume = np.array(c[&#39;nInVolume&#39;])
+    zOfFrame = [np.array(z) for z in c[&#39;zOfFrame&#39;]]
+    properties = {}
+    
+    # To be compatible with older versions of the file, there is this
+    # sequence of try/except. At some point, this can be removed and all
+    # the properties be loaded.
+    try:
+        props = c[&#39;properties&#39;]
+        properties[&#39;curvature&#39;] = [np.array(curv) for curv in props[&#39;curvature&#39;]]
+        properties[&#39;boxIndices&#39;] = [np.array(bi) for bi in props[&#39;boxIndices&#39;]]
+        properties[&#39;boxNPlane&#39;] = props[&#39;boxNPlane&#39;]
+    except:
+        pass
+        
+    try:
+        properties[&#39;boxIndicesX&#39;] = [np.array(bi) for bi in props[&#39;boxIndicesX&#39;]]
+        properties[&#39;boxIndicesY&#39;] = [np.array(bi) for bi in props[&#39;boxIndicesY&#39;]]
+    except:
+        pass
+        
+    try:
+        properties[&#39;segmParam&#39;] = props[&#39;segmParam&#39;]
+    except:
+        pass
+        
+    try:
+        properties[&#39;version&#39;] = props[&#39;version&#39;]
+    except:
+        pass
+    
+    # Don&#39;t do any implicit stabilization if loaded from file. 
+    stabilize_z = False
+    stabilize_xy = False 
+    
+    return cls(coordZYX, nInVolume, zOfFrame, properties, stabilize_z, stabilize_xy)</code></pre>
+</details>
+</dd>
+<dt id="wormbrain.brains.Brains.from_find_neurons"><code class="name flex">
+<span>def <span class="ident">from_find_neurons</span></span>(<span>coord, volFrame0=None, *args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a Brains object from the result of the results of
+wormneuronsegmentation.findNeurons().</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>coord</code></strong> :&ensp;<code>list</code> of <code>numpy array</code></dt>
+<dd>coord[i][j,coord] gives the coordinate (y,x) of point j in frame i.</dd>
+<dt><strong><code>volFrame0</code></strong> :&ensp;<code>numpy array</code>, optional</dt>
+<dd>volFrame0[m] gives the first frame of volume m. If passing results
+for M neurons, volFrame0 has to contain also the first frame of
+volume +1 (or the 1+last frame of volume M).
+If passing the results for a sequence of single frames (and not a
+volumetric recording) set to None (or don't pass anything).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Instance of class.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def from_find_neurons(cls, coord, volFrame0=None, *args, **kwargs):
+    &#39;&#39;&#39;Create a Brains object from the result of the results of 
+    wormneuronsegmentation.findNeurons().
+    
+    Parameters
+    ----------
+    coord: list of numpy array
+        coord[i][j,coord] gives the coordinate (y,x) of point j in frame i.
+    volFrame0: numpy array, optional
+        volFrame0[m] gives the first frame of volume m. If passing results
+        for M neurons, volFrame0 has to contain also the first frame of
+        volume +1 (or the 1+last frame of volume M).
+        If passing the results for a sequence of single frames (and not a 
+        volumetric recording) set to None (or don&#39;t pass anything).
+    
+    Returns
+    -------
+    Instance of class.
+    &#39;&#39;&#39;
+    if volFrame0 is None:
+        volFrame0 = np.arange(len(coord)+1,dtype=int)
+    try:
+        rectype = kwargs.pop(&#39;rectype&#39;)
+    except:
+        rectype = &#34;3d&#34;
+    if rectype == &#34;2d&#34;:
+        kwargs[&#39;stabilize_z&#39;] = False
+
+    coordZYX, nInVolume, nInFrame = cls._conv_coord_2d_to_3d(coord, 
+                                    volFrame0, dtype=int)
+                                    
+    return cls(coordZYX, nInVolume, *args, **kwargs)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="wormbrain.brains.Brains.append"><code class="name flex">
+<span>def <span class="ident">append</span></span>(<span>self, brains2)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Append to this object the content of another instance of Brains.
+It does not perform any z-stabilization. Assumes the curvature in
+brains2 was extracted the same way as in this instance.
+(Modify stuff mimicking <strong>init</strong>()).</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>brains2</code></strong> :&ensp;<code><a title="wormbrain.brains.Brains" href="#wormbrain.brains.Brains">Brains</a> object</code></dt>
+<dd>Brains object to be appended to this.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def append(self, brains2):
+    &#39;&#39;&#39;Append to this object the content of another instance of Brains.
+    It does not perform any z-stabilization. Assumes the curvature in 
+    brains2 was extracted the same way as in this instance.
+    (Modify stuff mimicking __init__()).
+    
+    Parameters
+    ----------
+    brains2: Brains object
+        Brains object to be appended to this.
+    
+    &#39;&#39;&#39;
+    self.nInVolume = np.append(self.nInVolume, brains2.nInVolume)
+    self.coord = np.append(self.coord, brains2.coord, axis=0)
+    self.coord = irrarray(self.coord, [self.nInVolume], strideNames=[&#34;vol&#34;])
+    
+    # Concatenate
+    self.zOfFrame = self.zOfFrame + brains2.zOfFrame
+    
+    self.curvature = np.append(self.curvature, brains2.curvature)
+    self.curvature = irrarray(self.curvature, self.nInVolume, 
+                                    strideNames=[&#34;vol&#34;])
+                                    
+    self.coord = self.coord.astype(int)</code></pre>
+</details>
+</dd>
+<dt id="wormbrain.brains.Brains.copy"><code class="name flex">
+<span>def <span class="ident">copy</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Deepcopy of this object.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def copy(self):
+    &#39;&#39;&#39;Deepcopy of this object.&#39;&#39;&#39;
+    return deepcopy(self)</code></pre>
+</details>
+</dd>
+<dt id="wormbrain.brains.Brains.fit_sphere"><code class="name flex">
+<span>def <span class="ident">fit_sphere</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Fit each neuron as a sphere to stabilize its z position, which is
+undersampled with respect to the x and y due to rougher scanning along
+z with respect to the pixels. Currently not used.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>yOverR</code></strong> :&ensp;<code>irrarray</code></dt>
+<dd>Inverse of the radius of each neuron. (?)</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fit_sphere(self):
+    &#39;&#39;&#39;Fit each neuron as a sphere to stabilize its z position, which is
+    undersampled with respect to the x and y due to rougher scanning along
+    z with respect to the pixels. Currently not used.
+    
+    Returns
+    -------
+    yOverR: irrarray
+        Inverse of the radius of each neuron. (?)
+    &#39;&#39;&#39;
+    curvature = self.curvature
+    boxIndices = self.boxIndices
+    boxNPlane = self.boxNPlane
+    
+    # Calculate weights(z) [i.e. curvature] taking the maximum curvature 
+    # in each plane.
+    curv = np.zeros((self.coord.shape[0],boxNPlane))
+    for pl in np.arange(boxNPlane):
+        # The curvature has to be flipped in sign (i.e. peak = max of
+        # flipped curvature) and the resulting negative values clipped
+        # to 0, so that only the central region of the neuron matters.
+        flipped_curv = -1.0*curvature[:,boxIndices[pl]]
+        np.clip(flipped_curv,0,None,flipped_curv)
+        c = np.max(flipped_curv,axis=1)
+        curv[:,pl] = c
+    
+    # Use the value in plane nPlane//2+1 and nPlane//2+2 to &#34;fit&#34; the radius
+    # of the sphere for each neuron
+    R = self._sphere_radius(curv[:,boxNPlane//2+1:boxNPlane//2+2+1]/curv[:,boxNPlane//2+1,None])
+    
+    # Calculate the ratio between the curvature in the central plane and
+    # the radius. This is the number by which you need to multiply the
+    # signal to get the peak signal out.
+    
+    # This has become just the radius because I fitted the values after
+    # normalizing them
+    #yOverR = curv[:,boxNPlane//2+1]/R
+    yOverR = 1./R
+    
+    return irrarray(yOverR, self.nInVolume, strideNames=[&#34;vol&#34;])</code></pre>
+</details>
+</dd>
+<dt id="wormbrain.brains.Brains.getOverlay"><code class="name flex">
+<span>def <span class="ident">getOverlay</span></span>(<span>self, vol, folder='', returnLabels=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the list of numpy arrays to be used as Overlay in
+mistofrutta.plt.hyperstack, together with the OverlayLabels. The labels
+are not the indices of the neurons in their volume, but are the indices
+of the matched neurons in the reference brain/volume. If the labels are
+requested this function, therefore, assumes that a match file exists
+that can be loaded via wormbrain.match.load_matches().</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>vol</code></strong> :&ensp;<code>int</code> or <code>list</code> of <code>int</code></dt>
+<dd>Indices of the volume(s) requested.</dd>
+<dt><strong><code>folder</code></strong> :&ensp;<code>string (optional)</code></dt>
+<dd>Folder containing the match file to be loaded with
+wormbrain match.load_matches(). Required if returnLabels is True.</dd>
+<dt><strong><code>returnLabels</code></strong> :&ensp;<code>bool (optional)</code></dt>
+<dd>If True, the labels are returned. Default: False</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>Overlay</code></strong> :&ensp;<code>list</code> of <code>numpy arrays</code></dt>
+<dd>Overlay[frame_index][i] are the y,x coordinates of neuron i in
+a given frame.</dd>
+<dt><strong><code>OverlayLabels</code></strong> :&ensp;<code>list</code> of <code>integers</code></dt>
+<dd>OverlayLabels[frame_index][i] is the index of the neuron
+in the reference brain corresponding to the neuron i in the
+specified frame. Returned if returnLabels is True.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getOverlay(self, vol, folder=&#34;&#34;, returnLabels=False):
+    &#39;&#39;&#39;Returns the list of numpy arrays to be used as Overlay in 
+    mistofrutta.plt.hyperstack, together with the OverlayLabels. The labels
+    are not the indices of the neurons in their volume, but are the indices
+    of the matched neurons in the reference brain/volume. If the labels are
+    requested this function, therefore, assumes that a match file exists 
+    that can be loaded via wormbrain.match.load_matches().
+    
+    Parameters
+    ----------
+    vol: int or list of int
+        Indices of the volume(s) requested.
+    folder: string (optional)
+        Folder containing the match file to be loaded with 
+        wormbrain match.load_matches(). Required if returnLabels is True.
+    returnLabels: bool (optional)
+        If True, the labels are returned. Default: False
+        
+    Returns
+    -------
+    Overlay: list of numpy arrays
+        Overlay[frame_index][i] are the y,x coordinates of neuron i in
+        a given frame.
+    OverlayLabels: list of integers
+        OverlayLabels[frame_index][i] is the index of the neuron
+        in the reference brain corresponding to the neuron i in the 
+        specified frame. Returned if returnLabels is True.
+    
+    &#39;&#39;&#39;
+    try:
+        bla = vol[0]
+    except:
+        vol = [vol]
+    
+    nVolume = len(vol)
+    Overlay = []
+    OverlayLabels = []     
+    
+    # It was like this, with the loading of the file before this for.
+    #for kappa in np.arange(nVolume):
+    #    cerv = self(vol=vol[kappa])
+    #    numFrames = len(self.zOfFrame[vol[kappa]]);
+    #    match = np.asarray(MMatch_inv[kappa])
+    #    for mu in np.arange(numFrames):
+    #        Overlay.append(cerv[np.where(cerv[:,0]==mu)[0],1:][:,::-1])
+    #        OverlayLabels.append(match[cerv[:,0]==mu]);
+    #if returnLabels:        
+    #    return Overlay, OverlayLabels
+    #else:
+    #    return Overlay
+    
+    for kappa in np.arange(nVolume):
+            cerv = self(vol=vol[kappa])
+            numFrames = len(self.zOfFrame[vol[kappa]]);
+            for mu in np.arange(numFrames):
+                Overlay.append(cerv[np.where(cerv[:,0]==mu)[0],1:][:,::-1])
+    
+    if returnLabels:
+        MMatch, info = wormb.match.load_matches(folder)
+    
+        # create an &#34;inverse&#34; matching object where the index is current vol and the value is ref vol
+        MMatch_inv = []; 
+        for kappa in np.arange(nVolume):
+            temp = [None]*self.nInVolume[vol[kappa]];
+            for ref, cur in enumerate(MMatch[vol[kappa]],0):
+                if cur &gt;= 0:
+                    temp[int(cur)] = ref;
+            MMatch_inv.append(temp);
+            
+        for kappa in np.arange(nVolume):
+            cerv = self(vol=vol[kappa])
+            numFrames = len(self.zOfFrame[vol[kappa]]);
+            match = np.asarray(MMatch_inv[kappa])
+            for mu in np.arange(numFrames):
+                OverlayLabels.append(match[cerv[:,0]==mu]);
+        
+        return Overlay, OverlayLabels            
+    else:
+        return Overlay</code></pre>
+</details>
+</dd>
+<dt id="wormbrain.brains.Brains.plot"><code class="name flex">
+<span>def <span class="ident">plot</span></span>(<span>self, indices, mode='3d', plotNow=True, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Plots the neurons in the specified volumes. Based on the selected
+mode, the function redirects the call to _plot_3d and _plot_2d.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>indices</code></strong> :&ensp;<code>list (or numpy array)</code></dt>
+<dd>Indices of the volumes to plot</dd>
+<dt><strong><code>mode</code></strong> :&ensp;<code>string (optional)</code></dt>
+<dd>Plot mode: 3d or 2d. Default: '3d'.</dd>
+<dt><strong><code>plotNow</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If True, the function plots immediately. If False, the function
+returns matplotlib figures and axes to be plotted at a later point
+in the script. Default: True.</dd>
+<dt><strong><code>**kwargs</code></strong> :&ensp;<code>other</code></dt>
+<dd>Other parameters to be passed to _plot_3d or _plot_2d.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>fig</code></strong> :&ensp;<code>matplotlib figure (if plotNow is False)</code></dt>
+<dd>&nbsp;</dd>
+<dt><strong><code>ax</code></strong> :&ensp;<code>matplotlib axis (if plotNow is False)</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plot(self, indices,mode=&#39;3d&#39;,plotNow=True,**kwargs):
+    &#39;&#39;&#39;Plots the neurons in the specified volumes. Based on the selected
+    mode, the function redirects the call to _plot_3d and _plot_2d.
+    
+    Parameters
+    ----------
+    indices: list (or numpy array)
+        Indices of the volumes to plot
+    mode: string (optional)
+        Plot mode: 3d or 2d. Default: &#39;3d&#39;.
+    plotNow: bool
+        If True, the function plots immediately. If False, the function
+        returns matplotlib figures and axes to be plotted at a later point
+        in the script. Default: True.
+    **kwargs: other
+        Other parameters to be passed to _plot_3d or _plot_2d.
+        
+    Returns
+    -------
+    fig: matplotlib figure (if plotNow is False)
+    ax: matplotlib axis (if plotNow is False)
+    
+    &#39;&#39;&#39;
+    try:
+        len(indices)
+    except:
+        indices = np.array([indices])
+    
+    if mode==&#39;3d&#39;:
+        fig, ax = self._plot_3d(indices, **kwargs)
+    if mode==&#39;2d&#39;:
+        fig, ax = self._plot_2d(indices, **kwargs)
+        
+    if plotNow==True:
+        plt.show()
+        return
+    else:
+        return fig, ax</code></pre>
+</details>
+</dd>
+<dt id="wormbrain.brains.Brains.to_file"><code class="name flex">
+<span>def <span class="ident">to_file</span></span>(<span>self, foldername, filename='')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Save this instance of the object to file. A Brains object saved
+this way can be recreated in memory with the class method from_file().</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>foldername</code></strong> :&ensp;<code>string</code></dt>
+<dd>Destination folder.</dd>
+<dt><strong><code>filename</code></strong> :&ensp;<code>string (optional)</code></dt>
+<dd>Name of destination file. Default: "", which is translated to the
+default filename for the class.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_file(self, foldername, filename=&#34;&#34;):
+    &#39;&#39;&#39;Save this instance of the object to file. A Brains object saved 
+    this way can be recreated in memory with the class method from_file().
+    
+    Parameters
+    ----------
+    foldername: string
+        Destination folder.
+    filename: string (optional)
+        Name of destination file. Default: &#34;&#34;, which is translated to the 
+        default filename for the class.
+    
+    &#39;&#39;&#39;
+    if foldername[-1]!=&#34;/&#34;: foldername += &#34;/&#34;
+    
+    diz = {}
+    diz[&#39;coordZYX&#39;] = [c.tolist() for c in self.coord]
+    diz[&#39;nInVolume&#39;] = self.nInVolume.tolist()
+    diz[&#39;zOfFrame&#39;] = [z.tolist() for z in self.zOfFrame]
+    props = {}
+    try:
+        props[&#39;curvature&#39;] = [c.tolist() for c in self.curvature]
+        props[&#39;boxIndices&#39;] = [c.tolist() for c in self.boxIndices]
+        props[&#39;boxIndicesX&#39;] = [c.tolist() for c in self.boxIndicesX]
+        props[&#39;boxIndicesY&#39;] = [c.tolist() for c in self.boxIndicesY]
+        props[&#39;boxNPlane&#39;] = self.boxNPlane
+        props[&#39;segmParam&#39;] = self.segmParam
+        props[&#39;version&#39;] = self.version
+    except:
+        pass
+        
+    diz[&#39;properties&#39;] = props
+    
+    if filename==&#34;&#34;:
+        filename = self.filename
+    
+    output = json.dumps(diz, indent=4)
+    # Prettify the json serialization 
+    o1 = re.sub(r&#39;\[\s+(\d)&#39;, r&#39;[\1&#39;, output)
+    o2 = re.sub(r&#39;(\d),\s+(\d)&#39;, r&#39;\1, \2&#39;, o1)
+    o3 = re.sub(r&#39;(\d)\s+\]&#39;,r&#39;\1]&#39;,o2)
+    
+    f = open(foldername+filename,&#39;w&#39;)
+    f.write(o3)
+    f.close()</code></pre>
+</details>
+</dd>
+<dt id="wormbrain.brains.Brains.trueCoords"><code class="name flex">
+<span>def <span class="ident">trueCoords</span></span>(<span>self, vol, coord_ordering='zyx')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the coordinates of the neurons contained in the specified
+volumes replacing z with its actual values, from zOfFrame.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>vol</code></strong> :&ensp;<code>int</code> or <code>list</code> of <code>int</code></dt>
+<dd>Indices of the volume(s) requested.</dd>
+<dt><strong><code>coord_ordering</code></strong> :&ensp;<code>string (optional)</code></dt>
+<dd>Ordering of the coordinates to be returned. Allowed values:
+'zyx' for indexing order, and 'xyz' for plotting order.
+Default: 'zyx'.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>trueCoords</code></strong> :&ensp;<code>numpy array</code></dt>
+<dd>Coordinates of the neurons.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def trueCoords(self, vol, coord_ordering=&#39;zyx&#39;):#, returnIrrarray=False):
+    &#39;&#39;&#39;Returns the coordinates of the neurons contained in the specified
+    volumes replacing z with its actual values, from zOfFrame.
+    
+    Parameters
+    ----------
+    vol: int or list of int
+        Indices of the volume(s) requested.
+    coord_ordering: string (optional)
+        Ordering of the coordinates to be returned. Allowed values:
+        &#39;zyx&#39; for indexing order, and &#39;xyz&#39; for plotting order. 
+        Default: &#39;zyx&#39;.
+        
+    Returns
+    -------
+    trueCoords: numpy array
+        Coordinates of the neurons.
+    &#39;&#39;&#39;
+    
+    if type(vol)!=list: vol = [vol]
+    # Get the neurons in the requested volumes
+    trueCoords = self.coord(vol=vol, dtype=np.float)
+    intCoords = self.coord(vol=vol)
+    
+    L = len(vol)
+    for l in np.arange(L):
+        trueCoords[l][:,0] = self.zOfFrame[vol[l]][intCoords[l][:,0]]
+        
+        # Ordering stuff
+        if coord_ordering==&#34;xyz&#34;: 
+            trueCoords[l] = np.copy(trueCoords[l][:,::-1],order=&#34;c&#34;)
+            
+    if len(trueCoords)==1: trueCoords = trueCoords[0]
+            
+    return trueCoords</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="wormbrain" href="index.html">wormbrain</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="wormbrain.brains.Brains" href="#wormbrain.brains.Brains">Brains</a></code></h4>
+<ul class="two-column">
+<li><code><a title="wormbrain.brains.Brains.append" href="#wormbrain.brains.Brains.append">append</a></code></li>
+<li><code><a title="wormbrain.brains.Brains.boxIndices" href="#wormbrain.brains.Brains.boxIndices">boxIndices</a></code></li>
+<li><code><a title="wormbrain.brains.Brains.boxIndicesX" href="#wormbrain.brains.Brains.boxIndicesX">boxIndicesX</a></code></li>
+<li><code><a title="wormbrain.brains.Brains.boxIndicesY" href="#wormbrain.brains.Brains.boxIndicesY">boxIndicesY</a></code></li>
+<li><code><a title="wormbrain.brains.Brains.boxNPlane" href="#wormbrain.brains.Brains.boxNPlane">boxNPlane</a></code></li>
+<li><code><a title="wormbrain.brains.Brains.coord" href="#wormbrain.brains.Brains.coord">coord</a></code></li>
+<li><code><a title="wormbrain.brains.Brains.coord_filename" href="#wormbrain.brains.Brains.coord_filename">coord_filename</a></code></li>
+<li><code><a title="wormbrain.brains.Brains.copy" href="#wormbrain.brains.Brains.copy">copy</a></code></li>
+<li><code><a title="wormbrain.brains.Brains.curvature" href="#wormbrain.brains.Brains.curvature">curvature</a></code></li>
+<li><code><a title="wormbrain.brains.Brains.filename" href="#wormbrain.brains.Brains.filename">filename</a></code></li>
+<li><code><a title="wormbrain.brains.Brains.fit_sphere" href="#wormbrain.brains.Brains.fit_sphere">fit_sphere</a></code></li>
+<li><code><a title="wormbrain.brains.Brains.from_coord_file" href="#wormbrain.brains.Brains.from_coord_file">from_coord_file</a></code></li>
+<li><code><a title="wormbrain.brains.Brains.from_file" href="#wormbrain.brains.Brains.from_file">from_file</a></code></li>
+<li><code><a title="wormbrain.brains.Brains.from_find_neurons" href="#wormbrain.brains.Brains.from_find_neurons">from_find_neurons</a></code></li>
+<li><code><a title="wormbrain.brains.Brains.getOverlay" href="#wormbrain.brains.Brains.getOverlay">getOverlay</a></code></li>
+<li><code><a title="wormbrain.brains.Brains.info" href="#wormbrain.brains.Brains.info">info</a></code></li>
+<li><code><a title="wormbrain.brains.Brains.nInVolume" href="#wormbrain.brains.Brains.nInVolume">nInVolume</a></code></li>
+<li><code><a title="wormbrain.brains.Brains.plot" href="#wormbrain.brains.Brains.plot">plot</a></code></li>
+<li><code><a title="wormbrain.brains.Brains.segmParam" href="#wormbrain.brains.Brains.segmParam">segmParam</a></code></li>
+<li><code><a title="wormbrain.brains.Brains.to_file" href="#wormbrain.brains.Brains.to_file">to_file</a></code></li>
+<li><code><a title="wormbrain.brains.Brains.trueCoords" href="#wormbrain.brains.Brains.trueCoords">trueCoords</a></code></li>
+<li><code><a title="wormbrain.brains.Brains.version" href="#wormbrain.brains.Brains.version">version</a></code></li>
+<li><code><a title="wormbrain.brains.Brains.zOfFrame" href="#wormbrain.brains.Brains.zOfFrame">zOfFrame</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.3</a>.</p>
+</footer>
+</body>
+</html>
