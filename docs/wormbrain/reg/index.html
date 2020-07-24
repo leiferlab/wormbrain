@@ -26,30 +26,627 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from .reg import register
-#from ._dsmm_hybrid import dsmm, _dsmm, _dsmm_parallel_wrapper, var_dict
-from ._dsmm_fullpy import _dsmm_fullpy
+<pre><code class="python">__all__ = [&#39;register&#39;,&#39;centroid&#39;,&#39;displacement&#39;,&#39;dsmmc&#39;,&#39;_dsmm_fullpy&#39;,&#39;_dsmmc_bare&#39;]
+
+from .reg import register, centroid, displacement
+from ._dsmm_c_py import dsmmc
 from ._dsmm_c import _dsmmc_bare
-from ._dsmm_c_py import *
-from .basic import centroid, displacement</code></pre>
+from ._dsmm_fullpy import _dsmm_fullpy
+
+#from .basic import centroid as centroid
+#from .basic import displacement as displacement
+#from ._dsmm_hybrid import dsmm, _dsmm, _dsmm_parallel_wrapper, var_dict</code></pre>
 </details>
 </section>
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
-<dt><code class="name"><a title="wormbrain.reg.basic" href="basic.html">wormbrain.reg.basic</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
 <dt><code class="name"><a title="wormbrain.reg.reg" href="reg.html">wormbrain.reg.reg</a></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The functions of the reg submodule are made available in the wormbrain.reg
+namespace.</p></div>
 </dd>
 </dl>
 </section>
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="wormbrain.reg.register"><code class="name flex">
+<span>def <span class="ident">register</span></span>(<span>A, B, method='dsmm', **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def register(A,B,method=&#34;dsmm&#34;,**kwargs):
+    # Useful for direct access of the registration functions.
+    if method==&#34;dsmm&#34;:
+        return wormb.reg.dsmm(A,B,**kwargs)</code></pre>
+</details>
+</dd>
+<dt id="wormbrain.reg.centroid"><code class="name flex">
+<span>def <span class="ident">centroid</span></span>(<span>A, B, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Simple registration in which the pointset B is shifted so that its
+centroid overlaps with the centroid of A.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>A</code></strong>, <strong><code>B</code></strong> :&ensp;<code>numpy arrays</code></dt>
+<dd>The two point sets.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>A</code></strong>, <strong><code>B</code></strong> :&ensp;<code>numpy arrays</code></dt>
+<dd>The two point sets, with B shifted.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def centroid(A,B,**kwargs):
+    &#39;&#39;&#39;Simple registration in which the pointset B is shifted so that its 
+    centroid overlaps with the centroid of A.
+    
+    Parameters
+    ----------
+    A, B: numpy arrays
+        The two point sets.
+        
+    Returns
+    -------
+    A, B: numpy arrays
+        The two point sets, with B shifted.
+    &#39;&#39;&#39;
+    
+    centroidAxes = kwargs[&#39;centroidAxes&#39;] #tuple
+    centroidA = np.average(A,axis=0)
+    centroidB = np.average(B,axis=0)
+    centroidAB = centroidA - centroidB
+    
+    for axis in centroidAxes:
+        B[:,axis] += centroidAB[axis]
+        
+    return A,B</code></pre>
+</details>
+</dd>
+<dt id="wormbrain.reg.displacement"><code class="name flex">
+<span>def <span class="ident">displacement</span></span>(<span>A, B, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Simple registration in which the pointset B is shifted using the median
+or the average of the nearest-neighbor distances.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>A</code></strong>, <strong><code>B</code></strong> :&ensp;<code>numpy arrays</code></dt>
+<dd>The two point sets.</dd>
+<dt><strong><code>displacementMethod</code></strong> :&ensp;<code>string (optional)</code></dt>
+<dd>If "median", the median of the nearest-neighbor distances is calculate.
+Otherwise, the average is used. Default: "average".</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>A</code></strong>, <strong><code>B</code></strong> :&ensp;<code>numpy arrays</code></dt>
+<dd>The two point sets, with B shifted.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def displacement(A,B,**kwargs):
+    &#39;&#39;&#39;Simple registration in which the pointset B is shifted using the median
+    or the average of the nearest-neighbor distances.
+    
+    Parameters
+    ----------
+    A, B: numpy arrays
+        The two point sets.
+    displacementMethod: string (optional)
+        If &#34;median&#34;, the median of the nearest-neighbor distances is calculate.
+        Otherwise, the average is used. Default: &#34;average&#34;.
+        
+    Returns
+    -------
+    A, B: numpy arrays
+        The two point sets, with B shifted.
+    &#39;&#39;&#39;
+    
+    # get both distance and vectors
+    DD, Dv = pairwise_distance(A, B, returnAll=True)
+    
+    # extract the vectors of the closest matches
+    Match = np.argsort(DD, axis=0)[0]
+    Dvp = Dv[Match,:,np.arange(len(Match))]
+    
+    if kwargs[&#39;displacementMethod&#39;]==&#34;median&#34;:
+        Dvshift = np.median(Dvp, axis=(0))
+    else:
+        Dvshift = np.average(Dvp, axis=(0))
+    
+    for i in np.arange(Dvshift.shape[0]):
+        B[:,i] += Dvshift[i]
+    
+    return A, B</code></pre>
+</details>
+</dd>
+<dt id="wormbrain.reg.dsmmc"><code class="name flex">
+<span>def <span class="ident">dsmmc</span></span>(<span>Y, X, beta=2.0, llambda=1.5, neighbor_cutoff=10.0, gamma0=3.0, conv_epsilon=0.001, eq_tol=0.0001, returnAll=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Registers Y onto X via a nonrigid pointset registration based on a
+Student's t-distribution mixture model with Dirichlet-distribution priors
+via an expectation-maximization algorithm.
+Ref: doi:10.1371/journal.pone.0091381 and doi:10.1038/s41598-018-26288-6</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>Y</code></strong>, <strong><code>X</code></strong> :&ensp;<code>numpy array</code></dt>
+<dd>Sets of points in D-dimensional space (Y gets moved onto X). These
+arrays are modified: if you need to keep the original ones, pass copies.
+Note: Should be contiguous row-major arrays, with indices
+[point, coordinate].</dd>
+<dt><strong><code>beta</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>Standard deviation of Gaussian smoothing filter. See equations in the
+references. Default: 2.0</dd>
+<dt><strong><code>llambda</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>Regularization parameter. See equations in the references. Default: 1.5</dd>
+<dt><strong><code>neighbor_cutoff</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>Multiple of the average nearest-neighbor distance within which points
+are considered neighbors. See equations in the references. Default: 10.0</dd>
+<dt><strong><code>gamma0</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>Initialization of the gamma_m parameters (degrees of freedom of the
+Student's t-distribution). See equations in the references. Default: 3.0</dd>
+<dt><strong><code>conv_epsilon</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>Relative error on the displacements of the points in Y at which the
+algorithm is considered at convergence. Default: 1e-3</dd>
+<dt><strong><code>eq_tol</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>Tolerance for convergence of the numerical solution of the equations
+for gamma_m and \bar alpha. See equations in the references.
+Default: 1e-4</dd>
+<dt><strong><code>returnAll</code></strong> :&ensp;<code>boolean</code>, optional</dt>
+<dd>If True, the function returns Y, X, p, Match. See below. If False, it
+only returns Match.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>Y</code></strong>, <strong><code>X</code></strong> :&ensp;<code>numpy array</code></dt>
+<dd>Same as input.</dd>
+<dt><strong><code>p</code></strong> :&ensp;<code>numpy array</code></dt>
+<dd>p[m,n] is the posterior probability for the match of Y[m] to X[n].</dd>
+<dt><strong><code>Match</code></strong> :&ensp;<code>numpy array</code></dt>
+<dd>X[Match[m]] is the point in X to which Y[m] has been matched. The
+built-in criterion is that the maximum posterior probability p[m,:] for
+Y[m] has to be greater than 0.5. If a different criterion is needed, set
+returnAll to True and use the returned p to calculate the matches.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def dsmmc(Y,X,beta=2.0,llambda=1.5,neighbor_cutoff=10.0,
+            gamma0=3.,conv_epsilon=1e-3,eq_tol=1e-4,returnAll=False):
+    &#39;&#39;&#39;Registers Y onto X via a nonrigid pointset registration based on a 
+    Student&#39;s t-distribution mixture model with Dirichlet-distribution priors
+    via an expectation-maximization algorithm.
+    Ref: doi:10.1371/journal.pone.0091381 and doi:10.1038/s41598-018-26288-6
+    
+    Parameters
+    ----------
+    Y, X: numpy array
+        Sets of points in D-dimensional space (Y gets moved onto X). These 
+        arrays are modified: if you need to keep the original ones, pass copies.
+        Note: Should be contiguous row-major arrays, with indices 
+        [point, coordinate].
+    beta: float, optional
+        Standard deviation of Gaussian smoothing filter. See equations in the 
+        references. Default: 2.0
+    llambda: float, optional
+        Regularization parameter. See equations in the references. Default: 1.5
+    neighbor_cutoff: float, optional
+        Multiple of the average nearest-neighbor distance within which points
+        are considered neighbors. See equations in the references. Default: 10.0
+    gamma0: float, optional
+        Initialization of the gamma_m parameters (degrees of freedom of the
+        Student&#39;s t-distribution). See equations in the references. Default: 3.0
+    conv_epsilon: float, optional
+        Relative error on the displacements of the points in Y at which the 
+        algorithm is considered at convergence. Default: 1e-3
+    eq_tol: float, optional
+        Tolerance for convergence of the numerical solution of the equations
+        for gamma_m and \\bar alpha. See equations in the references. 
+        Default: 1e-4
+    returnAll: boolean, optional
+        If True, the function returns Y, X, p, Match. See below. If False, it 
+        only returns Match.
+        
+    Returns
+    -------
+    Y, X: numpy array
+        Same as input.
+    p: numpy array
+        p[m,n] is the posterior probability for the match of Y[m] to X[n].
+    Match: numpy array
+        X[Match[m]] is the point in X to which Y[m] has been matched. The 
+        built-in criterion is that the maximum posterior probability p[m,:] for 
+        Y[m] has to be greater than 0.5. If a different criterion is needed, set
+        returnAll to True and use the returned p to calculate the matches.
+    &#39;&#39;&#39;
+    N = X.shape[0]
+    M = Y.shape[0]
+    D = X.shape[1]
+
+    # Allocate arrays
+    
+    pwise_dist = np.empty((M,N))
+    pwise_distYY = np.empty((M,M))
+    w = np.empty((M,N))
+    Gamma = np.empty(M)
+    G = np.empty((M,M))
+    F_t = np.empty((M,N))
+    wF_t = np.empty((M,N))
+    wF_t_sum = np.empty(N)
+    p = np.empty((M,N))
+    u = np.empty((M,N))
+    Match = np.ones(M,dtype=np.int32)*(-10)
+    CDE_term = np.empty(M)
+    hatP = np.empty((M,N))
+    hatPI_diag = np.empty(M)
+    hatPIG = np.empty((M,M))
+    hatPX = np.empty((M,D))
+    hatPIY = np.empty((M,D))
+    W = np.empty((M,D))
+    GW = np.empty((M,D))
+
+    #Additional stuff from new paper
+    sumPoverN = np.zeros((M,N)) 
+    expAlphaSumPoverN = np.zeros((M,N))
+    alpha=1.
+
+    wormb.reg._dsmmc_bare(X,Y,M,N,D,beta,llambda,neighbor_cutoff,alpha,gamma0,
+           conv_epsilon,eq_tol,
+           pwise_dist,pwise_distYY,Gamma,CDE_term,
+           w,F_t,wF_t,wF_t_sum,p,u,Match,
+           hatP,hatPI_diag,hatPIG,hatPX,hatPIY,
+           G,W,GW,sumPoverN,expAlphaSumPoverN)
+    
+    if returnAll:         
+        return Y,X,p,Match
+    else:
+        return Match</code></pre>
+</details>
+</dd>
+<dt id="wormbrain.reg._dsmm_fullpy"><code class="name flex">
+<span>def <span class="ident">_dsmm_fullpy</span></span>(<span>Y, X, beta=2.0, llambda=1.5, neighbor_cutoff=10.0, gamma0=3.0, conv_epsilon=0.001, eq_tol=0.01, returnAll=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>(Version implemented fully in Python. For the most efficient one, see
+dsmmc in _dsmm_c_py.py and _dsmm_c.cpp)
+Registers Y onto X via a nonrigid pointset registration based on a
+Student's t-distribution mixture model with Dirichlet-distribution priors
+via an expectation-maximization algorithm.
+Ref: doi:10.1371/journal.pone.0091381 and doi:10.1038/s41598-018-26288-6</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>Y</code></strong>, <strong><code>X</code></strong> :&ensp;<code>numpy array</code></dt>
+<dd>Sets of points in D-dimensional space (Y gets moved onto X). These
+arrays are modified: if you need to keep the original ones, pass copies.
+Note: Should be contiguous row-major arrays, with indices
+[point, coordinate].</dd>
+<dt><strong><code>beta</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>Standard deviation of Gaussian smoothing filter. See equations in the
+references. Default: 2.0</dd>
+<dt><strong><code>llambda</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>Regularization parameter. See equations in the references. Default: 1.5</dd>
+<dt><strong><code>neighbor_cutoff</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>Multiple of the average nearest-neighbor distance within which points
+are considered neighbors. See equations in the references. Default: 10.0</dd>
+<dt><strong><code>gamma0</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>Initialization of the gamma_m parameters (degrees of freedom of the
+Student's t-distribution). See equations in the references. Default: 3.0</dd>
+<dt><strong><code>conv_epsilon</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>Relative error on the displacements of the points in Y at which the
+algorithm is considered at convergence. Default: 1e-3</dd>
+<dt><strong><code>eq_tol</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>Tolerance for convergence of the numerical solution of the equations
+for gamma_m and \bar alpha. See equations in the references.
+Default: 1e-2</dd>
+<dt><strong><code>returnAll</code></strong> :&ensp;<code>boolean</code>, optional</dt>
+<dd>If True, the function returns Y, X, p, Match. See below. If False, it
+only returns Match.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>Y</code></strong>, <strong><code>X</code></strong> :&ensp;<code>numpy array</code></dt>
+<dd>Same as input.</dd>
+<dt><strong><code>p</code></strong> :&ensp;<code>numpy array</code></dt>
+<dd>p[m,n] is the posterior probability for the match of Y[m] to X[n].</dd>
+<dt><strong><code>Match</code></strong> :&ensp;<code>numpy array</code></dt>
+<dd>X[Match[m]] is the point in X to which Y[m] has been matched. The
+built-in criterion is that the maximum posterior probability p[m,:] for
+Y[m] has to be greater than 0.5. If a different criterion is needed, set
+returnAll to True and use the returned p to calculate the matches.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _dsmm_fullpy(Y,X,beta=2.0,llambda=1.5,neighbor_cutoff=10.0,gamma0=3.0,
+            conv_epsilon=1e-3,eq_tol=1e-2,returnAll=False):
+    &#39;&#39;&#39;(Version implemented fully in Python. For the most efficient one, see 
+    dsmmc in _dsmm_c_py.py and _dsmm_c.cpp)
+    Registers Y onto X via a nonrigid pointset registration based on a 
+    Student&#39;s t-distribution mixture model with Dirichlet-distribution priors
+    via an expectation-maximization algorithm.
+    Ref: doi:10.1371/journal.pone.0091381 and doi:10.1038/s41598-018-26288-6
+    
+    Parameters
+    ----------
+    Y, X: numpy array
+        Sets of points in D-dimensional space (Y gets moved onto X). These 
+        arrays are modified: if you need to keep the original ones, pass copies.
+        Note: Should be contiguous row-major arrays, with indices 
+        [point, coordinate].
+    beta: float, optional
+        Standard deviation of Gaussian smoothing filter. See equations in the 
+        references. Default: 2.0
+    llambda: float, optional
+        Regularization parameter. See equations in the references. Default: 1.5
+    neighbor_cutoff: float, optional
+        Multiple of the average nearest-neighbor distance within which points
+        are considered neighbors. See equations in the references. Default: 10.0
+    gamma0: float, optional
+        Initialization of the gamma_m parameters (degrees of freedom of the
+        Student&#39;s t-distribution). See equations in the references. Default: 3.0
+    conv_epsilon: float, optional
+        Relative error on the displacements of the points in Y at which the 
+        algorithm is considered at convergence. Default: 1e-3
+    eq_tol: float, optional
+        Tolerance for convergence of the numerical solution of the equations
+        for gamma_m and \\bar alpha. See equations in the references. 
+        Default: 1e-2
+    returnAll: boolean, optional
+        If True, the function returns Y, X, p, Match. See below. If False, it 
+        only returns Match.
+        
+    Returns
+    -------
+    Y, X: numpy array
+        Same as input.
+    p: numpy array
+        p[m,n] is the posterior probability for the match of Y[m] to X[n].
+    Match: numpy array
+        X[Match[m]] is the point in X to which Y[m] has been matched. The 
+        built-in criterion is that the maximum posterior probability p[m,:] for 
+        Y[m] has to be greater than 0.5. If a different criterion is needed, set
+        returnAll to True and use the returned p to calculate the matches.
+    &#39;&#39;&#39;
+    # This is the version running with a single pair of pointsets.
+    # This registers Y onto X (Y is what is changed)
+    # In wormb.match, I always pass A,B, where B is the refBrain.
+    
+    # Preprocess (&#34;normalize&#34; in Vemuri&#39;s language)
+    
+    X -= np.average(X,axis=0)
+    maxX = np.max(np.absolute(X),axis=0)
+    if np.all(maxX&gt;0): X /= maxX
+    Y -= np.average(Y,axis=0)
+    maxY = np.max(np.absolute(Y),axis=0)
+    if np.all(maxY&gt;0): Y /= maxY
+    
+    N = X.shape[0]
+    M = Y.shape[0]
+    D = X.shape[1]
+    
+    # Init parameters
+    pwise_dist = pairwise_distance(Y,X,squared=True)
+    #mf.approx.pwise_dist2(Y,X,M,N,D,pwise_dist)
+    beta2 = beta**2
+    w = np.ones((M,N))*(1./M/N)
+    Gamma = np.ones(M)*gamma0
+    Gamma_old = np.copy(Gamma)
+    sigma2 = np.sum(pwise_dist)/(D*M*N)
+    pwise_distYY = pairwise_distance(Y,Y,squared=True)
+    G = np.exp(-pwise_distYY/(2.*beta2))
+    Identity = np.diag(np.ones(M))
+
+    # Allocate arrays
+    F_t = np.empty((M,N))
+    wF_t = np.empty((M,N))
+    wF_t_sum = np.empty(N)
+    p = np.empty((M,N))
+    u = np.empty((M,N))
+    CDE_term = np.empty(M)
+    hatP = np.empty((M,N))
+    hatPI = np.empty((M,M))
+    hatPI_diag = np.empty(M)
+    hatPIG = np.empty((M,M))
+    hatPX = np.empty((M,D))
+    hatPIY = np.empty((M,D))
+    W = np.empty((M,D))
+    GW = np.empty((M,D))
+
+    #Additional stuff from new paper
+    sumPoverN = np.zeros((M,N)) 
+    expAlphaSumPoverN = np.zeros((M,N)) 
+    alpha=1.
+    #neighborN, neighborWeights = _neighborhood(pwise_distYY,neighbor_cutoff)
+    
+    # Convergence
+    relerr = 1000.
+    regerror = np.sum(pairwise_distance(X,Y,squared=True))
+    
+    i = 0
+    ##### array[y,x]
+    while relerr &gt; conv_epsilon:
+        #Step3 (Eq. (5))
+        F_t[:] = _studt(sigma2,Gamma,D,pwise_dist)
+
+        #Step3:E-Step
+        #Eq. (17)&#39;
+        wF_t = w*F_t
+        p[:] = wF_t / np.sum(wF_t,axis=0)[None,:]
+        #p = np.absolute(p)
+        
+        #Eq. (16) and (21)&#39;
+        u[:] = (Gamma[:,None] + D) / (Gamma[:,None] + pwise_dist/sigma2)
+        #u = np.absolute(u)
+
+        #Eq. (20)&#39;
+        neighborN, neighborWeights = _neighborhood(pwise_distYY,neighbor_cutoff)
+        sumPoverN = np.sum(neighborWeights[...,None]*p[None,...],axis=1)/neighborN[:,None] ##############TODO this takes a long time! 2.5 ms! It&#39;s because I augment the dimensionality so much.
+        
+        Result = sproot(_eqforalpha,x0=alpha,args=(p,sumPoverN),method=&#34;hybr&#34;,tol=eq_tol)
+        alpha = Result[&#39;x&#39;][0]
+        #Result = sproot_scalar(_eqforalpha,x0=alpha,args=(p,sumPoverN),method=&#34;brentq&#34;,bracket=[0.05,10.],rtol=eq_tol)
+        #alpha = Result.root
+        
+        #Step4:M-Step
+        # Eq. (18)&#39;
+        expAlphaSumPoverN = np.exp(alpha*sumPoverN)
+        w[:] = expAlphaSumPoverN*(1./np.sum(expAlphaSumPoverN,axis=0)[None,:])
+        
+        #Eq. (23)
+        Gamma_old = np.copy(Gamma)
+        # C,D,E_terms were terms in the function _eqforgamma, but since they 
+        # never change, I calculate them just once out here. 
+        Gammaoldpdhalves = np.absolute(0.5*(Gamma_old+D))
+        C_term = np.sum(p*(np.log(u)-u),axis=1)/np.sum(p,axis=1)
+        D_term = spdigamma(Gammaoldpdhalves)
+        E_term = -np.log(Gammaoldpdhalves)
+        CDE_term = C_term + D_term + E_term
+        
+        Result = sproot(_eqforgamma,x0=Gamma_old,args=(CDE_term),method=&#34;hybr&#34;,tol=eq_tol,jac=True,options={&#39;col_deriv&#39;:1})
+        &#39;&#39;&#39;for mm in np.arange(len(Gamma)):
+            for jj in np.arange(100):
+                d = (2.*np.exp(spdigamma(Gamma[mm]*0.5)-1.-CDE_term[mm])-Gamma[mm])
+                d *= -10.
+                if(CDE_term[mm]&lt;-2.): d /= float(jj)
+                if(np.abs(d)&lt;0.0001): break
+                Gamma[mm] = max(0.1,Gamma[mm]+d)&#39;&#39;&#39;
+        Gamma = Result[&#39;x&#39;]
+
+        #Eq. (26)
+        hatP[:] = p*u
+        hatPI_diag[:] = np.sum(hatP,axis=1)
+        G[:] = np.exp(-0.5/beta2*pwise_distYY) 
+        hatPIG[:] = hatPI_diag[:,None]*G
+        
+        hatPIY = hatPI_diag[:,None]*Y
+         
+        hatPX[:] = np.dot(hatP,X)
+        A = np.linalg.inv(hatPIG+llambda*sigma2*Identity)
+        B = hatPX - hatPIY
+        W = np.dot(A,B)
+        #Step5 moved here to optimize
+        Y += np.dot(G,W)
+        pwise_dist = pairwise_distance(Y,X,squared=True) 
+        pwise_distYY = pairwise_distance(Y,Y,squared=True)
+        #Back to Step4 
+        #Eq. (27)
+        AA = np.sum(hatP*pwise_dist)#np.sum((X[None,:]-Y[:,None])**2,axis=-1))
+        BB = D*np.sum(hatP) # or just p as in the old paper?
+        sigma2 = AA*(1./BB)
+        
+        #Step6
+        regerror_old = regerror
+        regerror = np.sum(pwise_dist)
+        relerr = np.absolute((regerror-regerror_old)/regerror_old)
+        
+        i += 1
+    
+    Conf = np.max(p,axis=1)
+    Match = np.where(Conf&gt;0.5,np.argmax(p,axis=1),-1)
+    
+    if returnAll:
+        return Y,X,p,Match
+    else:    
+        return Match</code></pre>
+</details>
+</dd>
+<dt id="wormbrain.reg._dsmmc_bare"><code class="name flex">
+<span>def <span class="ident">_dsmmc_bare</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Registers Y onto X via a nonrigid pointset registration based on a
+Student's t-distribution mixture model with Dirichlet-distribution priors
+via an expectation-maximization algorithm. This is the
+naked
+C++
+implementation. See the wrapped versions in Python and LabView for more
+user-friendly list of arguments that do not require preallocation of
+arrays.</p>
+<h2 id="references">References</h2>
+<p>1:doi:10.1371/journal.pone.0091381
+In the comments, referred to with Eq. ().</p>
+<p>2: doi:10.1038/s41598-018-26288-6
+In the comments, referred to with Eq. ()'.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>X</code></strong>, <strong><code>Y</code></strong> :&ensp;<code>array</code> of <code>doubles</code></dt>
+<dd>Sets of points in D-dimensional space (Y gets moved onto X). These
+arrays are modified inside this function: if you need to keep the
+original ones, pass copies.
+Note: Should be contiguous row-major arrays, with indices
+[point, coordinate].</dd>
+<dt><strong><code>M</code></strong> :&ensp;<code>integer</code></dt>
+<dd>Number of points in Y.</dd>
+<dt><strong><code>N</code></strong> :&ensp;<code>integer</code></dt>
+<dd>Number of points in X.</dd>
+<dt><strong><code>D</code></strong> :&ensp;<code>integer</code></dt>
+<dd>Number of dimensions in which X and Y live.</dd>
+<dt><strong><code>beta</code></strong> :&ensp;<code>double</code></dt>
+<dd>Standard deviation of Gaussian smoothing filter. See equations in the
+references. E.g.: 2.0</dd>
+<dt><strong><code>lambda</code></strong> :&ensp;<code>double</code></dt>
+<dd>Regularization parameter. See equations in the references. E.g.: 1.5</dd>
+<dt><strong><code>neighbor_cutoff</code></strong> :&ensp;<code>double</code></dt>
+<dd>Multiple of the average nearest-neighbor distance within which points
+are considered neighbors. See equations in the references. E.g.: 10.0</dd>
+<dt><strong><code>gamma0</code></strong> :&ensp;<code>double</code></dt>
+<dd>Initialization of the gamma_m parameters (degrees of freedom of the
+Student's t-distribution). See equations in the references. E.g.: 1.0</dd>
+<dt><strong><code>conv_epsilon</code></strong> :&ensp;<code>double</code></dt>
+<dd>Relative error on the displacements of the points in Y at which the
+algorithm is considered at convergence. E.g.: 1e-3</dd>
+<dt><strong><code>eq_tol</code></strong> :&ensp;<code>double</code></dt>
+<dd>Tolerance for convergence of the numerical solution of the equations
+for gamma_m and \bar alpha. See equations in the references.
+E.g.: 1e-4</dd>
+<dt><strong><code>arrays</code></strong> :&ensp;<code>specified dimension and type</code></dt>
+<dd>pwise_dist[M,N] double, pwise_distYY[M,M] double,
+Gamma[M] double, CDE_term[M] double,
+w[M,N] double, F_t[M,N] double, wF_t[M,N] double, wF_t_sum[N] double,
+p[M,N] double, u[M,N] double, Match[M,N] int,
+hatP[M,N] double, hatPI_diag[M] double, hatPIG[M,M] double,
+hatPX[M,D] double, hatPIY[M,D] double,
+W[M,D] double, GW[M,D] double,
+sumPoverN[M,N] double, expAlphaSumPoverN[M,N]
+Preallocated arrays, so that the memory can be reused through
+executions and their content is available to the outside.
+See description below for the relevant ones. All can be passed
+empty/uninitialized, all are populated inside this function.
+The names reflect the names of the variables in the equations in the
+references.</dd>
+<dt><strong><code>p</code></strong> :&ensp;<code>array</code> of <code>doubles</code></dt>
+<dd>p[m,n] is the posterior probability for the match of Y[m] to X[n].</dd>
+<dt><strong><code>Match</code></strong> :&ensp;<code>array</code> of <code>int</code></dt>
+<dd>X[Match[m]] is the point in X to which Y[m] has been matched. The
+built-in criterion is that the maximum posterior probability p[m,:] for
+Y[m] has to be greater than 0.3 and that the distance between the
+matched points has to be smaller than twice the average distance
+between all the matched points. If a different criterion is needed,
+use p to calculate the matches.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>None</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
+</dd>
+</dl>
 </section>
 <section>
 </section>
@@ -67,8 +664,17 @@ from .basic import centroid, displacement</code></pre>
 </li>
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
-<li><code><a title="wormbrain.reg.basic" href="basic.html">wormbrain.reg.basic</a></code></li>
 <li><code><a title="wormbrain.reg.reg" href="reg.html">wormbrain.reg.reg</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="two-column">
+<li><code><a title="wormbrain.reg.register" href="#wormbrain.reg.register">register</a></code></li>
+<li><code><a title="wormbrain.reg.centroid" href="#wormbrain.reg.centroid">centroid</a></code></li>
+<li><code><a title="wormbrain.reg.displacement" href="#wormbrain.reg.displacement">displacement</a></code></li>
+<li><code><a title="wormbrain.reg.dsmmc" href="#wormbrain.reg.dsmmc">dsmmc</a></code></li>
+<li><code><a title="wormbrain.reg._dsmm_fullpy" href="#wormbrain.reg._dsmm_fullpy">_dsmm_fullpy</a></code></li>
+<li><code><a title="wormbrain.reg._dsmmc_bare" href="#wormbrain.reg._dsmmc_bare">_dsmmc_bare</a></code></li>
 </ul>
 </li>
 </ul>

@@ -1,3 +1,5 @@
+'''The class Brains is made available in the wormbrain namespace.'''
+
 import numpy as np
 import matplotlib.pyplot as plt
 import mistofrutta.struct.irrarray as irrarray

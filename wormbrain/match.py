@@ -61,9 +61,13 @@ def match(A, B, method='nearest', registration='None', **kwargs):
         Indexes are [point_index, coordinate].
     method: string (optional)
         Method to match the neurons, after the registration between the two
-        point sets. Default: "nearest".
+        point sets. With the registration methods "centroid" and "displacement",
+        the onlhy possible value is "nearest". If the "dsmm" registration is
+        chosen, the matches will be determined by a combination of the distance
+        and probability of match. Default: "nearest".
     registration: string (optional)
-        Method to register the two point sets. Default: "None".
+        Method to register the two point sets. Possible values: "centroid", 
+        "displacement", "dsmm", "None". Default: "None".
     **kwargs:
         Other parameters to be passed to the registration function.
 
@@ -299,6 +303,8 @@ def plot_matches(A, B, Match, mode='3d',plotNow=True,**kwargs):
     plotNow: boolean (optional)
         If True, the plot is displayed immediately. If False, figure and axis
         will be returned, to be displayed later in the script. Default: True.
+    showAll: boolean (optional)
+        If True, also discarded double matches will be plotted. Default: True.
     **kwargs: 
         Any other parameter to be passed to _plot_matches_3d or _2d.
         

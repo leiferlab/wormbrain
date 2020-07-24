@@ -39,7 +39,7 @@ def dsmmc(Y,X,beta=2.0,llambda=1.5,neighbor_cutoff=10.0,
         only returns Match.
         
     Returns
-    -------        
+    -------
     Y, X: numpy array
         Same as input.
     p: numpy array

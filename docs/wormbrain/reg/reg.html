@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.3" />
 <title>wormbrain.reg.reg API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="The functions of the reg submodule are made available in the wormbrain.reg
+namespace." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css" crossorigin>
@@ -22,12 +23,80 @@
 <h1 class="title">Module <code>wormbrain.reg.reg</code></h1>
 </header>
 <section id="section-intro">
+<p>The functions of the reg submodule are made available in the wormbrain.reg
+namespace.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import wormbrain as wormb
+<pre><code class="python">&#39;&#39;&#39;The functions of the reg submodule are made available in the wormbrain.reg 
+namespace.&#39;&#39;&#39;
 
+import numpy as np
+import wormbrain
+from wormbrain.match import pairwise_distance
+
+def centroid(A,B,**kwargs):
+    &#39;&#39;&#39;Simple registration in which the pointset B is shifted so that its 
+    centroid overlaps with the centroid of A.
+    
+    Parameters
+    ----------
+    A, B: numpy arrays
+        The two point sets.
+        
+    Returns
+    -------
+    A, B: numpy arrays
+        The two point sets, with B shifted.
+    &#39;&#39;&#39;
+    
+    centroidAxes = kwargs[&#39;centroidAxes&#39;] #tuple
+    centroidA = np.average(A,axis=0)
+    centroidB = np.average(B,axis=0)
+    centroidAB = centroidA - centroidB
+    
+    for axis in centroidAxes:
+        B[:,axis] += centroidAB[axis]
+        
+    return A,B
+    
+def displacement(A,B,**kwargs):
+    &#39;&#39;&#39;Simple registration in which the pointset B is shifted using the median
+    or the average of the nearest-neighbor distances.
+    
+    Parameters
+    ----------
+    A, B: numpy arrays
+        The two point sets.
+    displacementMethod: string (optional)
+        If &#34;median&#34;, the median of the nearest-neighbor distances is calculate.
+        Otherwise, the average is used. Default: &#34;average&#34;.
+        
+    Returns
+    -------
+    A, B: numpy arrays
+        The two point sets, with B shifted.
+    &#39;&#39;&#39;
+    
+    # get both distance and vectors
+    DD, Dv = pairwise_distance(A, B, returnAll=True)
+    
+    # extract the vectors of the closest matches
+    Match = np.argsort(DD, axis=0)[0]
+    Dvp = Dv[Match,:,np.arange(len(Match))]
+    
+    if kwargs[&#39;displacementMethod&#39;]==&#34;median&#34;:
+        Dvshift = np.median(Dvp, axis=(0))
+    else:
+        Dvshift = np.average(Dvp, axis=(0))
+    
+    for i in np.arange(Dvshift.shape[0]):
+        B[:,i] += Dvshift[i]
+    
+    return A, B
+    
+    
 def register(A,B,method=&#34;dsmm&#34;,**kwargs):
     # Useful for direct access of the registration functions.
     if method==&#34;dsmm&#34;:
@@ -41,6 +110,111 @@ def register(A,B,method=&#34;dsmm&#34;,**kwargs):
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
+<dt id="wormbrain.reg.reg.centroid"><code class="name flex">
+<span>def <span class="ident">centroid</span></span>(<span>A, B, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Simple registration in which the pointset B is shifted so that its
+centroid overlaps with the centroid of A.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>A</code></strong>, <strong><code>B</code></strong> :&ensp;<code>numpy arrays</code></dt>
+<dd>The two point sets.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>A</code></strong>, <strong><code>B</code></strong> :&ensp;<code>numpy arrays</code></dt>
+<dd>The two point sets, with B shifted.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def centroid(A,B,**kwargs):
+    &#39;&#39;&#39;Simple registration in which the pointset B is shifted so that its 
+    centroid overlaps with the centroid of A.
+    
+    Parameters
+    ----------
+    A, B: numpy arrays
+        The two point sets.
+        
+    Returns
+    -------
+    A, B: numpy arrays
+        The two point sets, with B shifted.
+    &#39;&#39;&#39;
+    
+    centroidAxes = kwargs[&#39;centroidAxes&#39;] #tuple
+    centroidA = np.average(A,axis=0)
+    centroidB = np.average(B,axis=0)
+    centroidAB = centroidA - centroidB
+    
+    for axis in centroidAxes:
+        B[:,axis] += centroidAB[axis]
+        
+    return A,B</code></pre>
+</details>
+</dd>
+<dt id="wormbrain.reg.reg.displacement"><code class="name flex">
+<span>def <span class="ident">displacement</span></span>(<span>A, B, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Simple registration in which the pointset B is shifted using the median
+or the average of the nearest-neighbor distances.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>A</code></strong>, <strong><code>B</code></strong> :&ensp;<code>numpy arrays</code></dt>
+<dd>The two point sets.</dd>
+<dt><strong><code>displacementMethod</code></strong> :&ensp;<code>string (optional)</code></dt>
+<dd>If "median", the median of the nearest-neighbor distances is calculate.
+Otherwise, the average is used. Default: "average".</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>A</code></strong>, <strong><code>B</code></strong> :&ensp;<code>numpy arrays</code></dt>
+<dd>The two point sets, with B shifted.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def displacement(A,B,**kwargs):
+    &#39;&#39;&#39;Simple registration in which the pointset B is shifted using the median
+    or the average of the nearest-neighbor distances.
+    
+    Parameters
+    ----------
+    A, B: numpy arrays
+        The two point sets.
+    displacementMethod: string (optional)
+        If &#34;median&#34;, the median of the nearest-neighbor distances is calculate.
+        Otherwise, the average is used. Default: &#34;average&#34;.
+        
+    Returns
+    -------
+    A, B: numpy arrays
+        The two point sets, with B shifted.
+    &#39;&#39;&#39;
+    
+    # get both distance and vectors
+    DD, Dv = pairwise_distance(A, B, returnAll=True)
+    
+    # extract the vectors of the closest matches
+    Match = np.argsort(DD, axis=0)[0]
+    Dvp = Dv[Match,:,np.arange(len(Match))]
+    
+    if kwargs[&#39;displacementMethod&#39;]==&#34;median&#34;:
+        Dvshift = np.median(Dvp, axis=(0))
+    else:
+        Dvshift = np.average(Dvp, axis=(0))
+    
+    for i in np.arange(Dvshift.shape[0]):
+        B[:,i] += Dvshift[i]
+    
+    return A, B</code></pre>
+</details>
+</dd>
 <dt id="wormbrain.reg.reg.register"><code class="name flex">
 <span>def <span class="ident">register</span></span>(<span>A, B, method='dsmm', **kwargs)</span>
 </code></dt>
@@ -74,6 +248,8 @@ def register(A,B,method=&#34;dsmm&#34;,**kwargs):
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
+<li><code><a title="wormbrain.reg.reg.centroid" href="#wormbrain.reg.reg.centroid">centroid</a></code></li>
+<li><code><a title="wormbrain.reg.reg.displacement" href="#wormbrain.reg.reg.displacement">displacement</a></code></li>
 <li><code><a title="wormbrain.reg.reg.register" href="#wormbrain.reg.reg.register">register</a></code></li>
 </ul>
 </li>

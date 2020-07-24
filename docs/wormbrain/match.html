@@ -89,9 +89,13 @@ def match(A, B, method=&#39;nearest&#39;, registration=&#39;None&#39;, **kwargs)
         Indexes are [point_index, coordinate].
     method: string (optional)
         Method to match the neurons, after the registration between the two
-        point sets. Default: &#34;nearest&#34;.
+        point sets. With the registration methods &#34;centroid&#34; and &#34;displacement&#34;,
+        the onlhy possible value is &#34;nearest&#34;. If the &#34;dsmm&#34; registration is
+        chosen, the matches will be determined by a combination of the distance
+        and probability of match. Default: &#34;nearest&#34;.
     registration: string (optional)
-        Method to register the two point sets. Default: &#34;None&#34;.
+        Method to register the two point sets. Possible values: &#34;centroid&#34;, 
+        &#34;displacement&#34;, &#34;dsmm&#34;, &#34;None&#34;. Default: &#34;None&#34;.
     **kwargs:
         Other parameters to be passed to the registration function.
 
@@ -327,6 +331,8 @@ def plot_matches(A, B, Match, mode=&#39;3d&#39;,plotNow=True,**kwargs):
     plotNow: boolean (optional)
         If True, the plot is displayed immediately. If False, figure and axis
         will be returned, to be displayed later in the script. Default: True.
+    showAll: boolean (optional)
+        If True, also discarded double matches will be plotted. Default: True.
     **kwargs: 
         Any other parameter to be passed to _plot_matches_3d or _2d.
         
@@ -445,249 +451,6 @@ def _plot_matches_2d(A, B, Match, **kwargs):
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="wormbrain.match.invert_matches"><code class="name flex">
-<span>def <span class="ident">invert_matches</span></span>(<span>matches, N)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Transforms the matches obtained matching points in B to points in A to
-the matches of points in A to points in B.</p>
-<h2 id="parameters">Parameters</h2>
-<dl>
-<dt><strong><code>matches</code></strong> :&ensp;<code>numpy array</code> of <code>int</code></dt>
-<dd>The matches to be inverted. Obtained, e.g., with match(A,B,&hellip;).
-Contains the matches of points in B to points in A.</dd>
-<dt><strong><code>N</code></strong> :&ensp;<code>int</code></dt>
-<dd>Number of elements in A.</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>inverted matches: numpy array</code> of <code>int</code></dt>
-<dd>The inverted matches, i.e. of points of A to points of B.</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def invert_matches(matches, N):
-    &#39;&#39;&#39;Transforms the matches obtained matching points in B to points in A to
-    the matches of points in A to points in B.
-    
-    Parameters
-    ----------
-    matches: numpy array of int
-        The matches to be inverted. Obtained, e.g., with match(A,B,...).
-        Contains the matches of points in B to points in A.
-    N: int
-        Number of elements in A.
-        
-    Returns
-    -------
-    inverted matches: numpy array of int
-        The inverted matches, i.e. of points of A to points of B.
-    &#39;&#39;&#39;
-    
-    inverted_matches = -1*np.ones(N, dtype=np.int)
-    for i in np.arange(N):
-        a = np.where(matches==i)[0]
-        if len(a) &gt;0:
-            inverted_matches[i] = a[0]
-    
-    return inverted_matches</code></pre>
-</details>
-</dd>
-<dt id="wormbrain.match.load_match_parameters"><code class="name flex">
-<span>def <span class="ident">load_match_parameters</span></span>(<span>folder, filename='')</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Loads the matching parameters from file, only using its header. This
-function does not load the matches themselves. Use load_matches() for that.</p>
-<h2 id="parameters">Parameters</h2>
-<dl>
-<dt><strong><code>folder</code></strong> :&ensp;<code>string</code></dt>
-<dd>Folder containing the file.</dd>
-<dt><strong><code>filename</code></strong> :&ensp;<code>string (optional)</code></dt>
-<dd>Name of the file. Default: "", that is translated to the default
-filename for the module.</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><strong><code>parameters</code></strong> :&ensp;<code>dictionary</code></dt>
-<dd>Dictionary contained in the header, with the information about the
-matching</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def load_match_parameters(folder, filename=&#34;&#34;):
-    &#39;&#39;&#39;Loads the matching parameters from file, only using its header. This
-    function does not load the matches themselves. Use load_matches() for that.
-    
-    Parameters
-    ----------
-    folder: string
-        Folder containing the file.
-    filename: string (optional)
-        Name of the file. Default: &#34;&#34;, that is translated to the default 
-        filename for the module.
-    
-    Returns
-    -------
-    parameters: dictionary
-        Dictionary contained in the header, with the information about the 
-        matching
-    &#39;&#39;&#39;
-    if folder[-1]!=&#34;/&#34;: folder+=&#34;/&#34;
-    if filename==&#34;&#34;: filename = filename_matches
-    
-    f = open(folder+filename,&#34;r&#34;)
-    l = f.readline()
-    f.close()
-    try:
-        parameters = json.loads(l[2:])
-    except:
-        parameters = {}
-
-    return parameters</code></pre>
-</details>
-</dd>
-<dt id="wormbrain.match.load_matches"><code class="name flex">
-<span>def <span class="ident">load_matches</span></span>(<span>folder, filename='')</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Loads the matches from file.</p>
-<h2 id="parameters">Parameters</h2>
-<dl>
-<dt><strong><code>folder</code></strong> :&ensp;<code>string</code></dt>
-<dd>Folder containing the file.</dd>
-<dt><strong><code>filename</code></strong> :&ensp;<code>string (optional)</code></dt>
-<dd>Name of the file. Default: "", that is translated to the default
-filename for the module.</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><strong><code>MMatch</code></strong> :&ensp;<code>numpy array</code></dt>
-<dd>Array containing the matches.</dd>
-<dt><strong><code>parameters</code></strong> :&ensp;<code>dictionary</code></dt>
-<dd>Dictionary contained in the header, with the information about the
-matching</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def load_matches(folder, filename=&#34;&#34;):
-    &#39;&#39;&#39;Loads the matches from file.
-    
-    Parameters
-    ----------
-    folder: string
-        Folder containing the file.
-    filename: string (optional)
-        Name of the file. Default: &#34;&#34;, that is translated to the default 
-        filename for the module.
-    
-    Returns
-    -------
-    MMatch: numpy array
-        Array containing the matches.
-    parameters: dictionary
-        Dictionary contained in the header, with the information about the 
-        matching
-    &#39;&#39;&#39;
-    
-    if folder[-1]!=&#34;/&#34;: folder+=&#34;/&#34;
-    if filename==&#34;&#34;: filename = filename_matches
-    
-    f = open(folder+filename,&#34;r&#34;)
-    l = f.readline()
-    f.close()
-    try:
-        parameters = json.loads(l[2:])
-    except:
-        parameters = {}
-
-    MMatch = np.loadtxt(folder+filename_matches)
-
-    return MMatch, parameters</code></pre>
-</details>
-</dd>
-<dt id="wormbrain.match.match"><code class="name flex">
-<span>def <span class="ident">match</span></span>(<span>A, B, method='nearest', registration='None', **kwargs)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Computes the array giving the matching of points in B to points in A.</p>
-<h2 id="parameters">Parameters</h2>
-<dl>
-<dt><strong><code>A</code></strong>, <strong><code>B</code></strong> :&ensp;<code>numpy array</code></dt>
-<dd>Sets of points to match. The function will calculate matches B-&gt;A.
-Indexes are [point_index, coordinate].</dd>
-<dt><strong><code>method</code></strong> :&ensp;<code>string (optional)</code></dt>
-<dd>Method to match the neurons, after the registration between the two
-point sets. Default: "nearest".</dd>
-<dt><strong><code>registration</code></strong> :&ensp;<code>string (optional)</code></dt>
-<dd>Method to register the two point sets. Default: "None".</dd>
-</dl>
-<p>**kwargs:
-Other parameters to be passed to the registration function.</p>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><strong><code>Match</code></strong> :&ensp;<code>np.array</code></dt>
-<dd>Indexes of points in A matching points in B.
-index_point_in_A = Match[index_point_in_B]</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def match(A, B, method=&#39;nearest&#39;, registration=&#39;None&#39;, **kwargs):
-    &#39;&#39;&#39;
-    Computes the array giving the matching of points in B to points in A.
-
-    Parameters
-    ----------
-    A, B: numpy array
-        Sets of points to match. The function will calculate matches B-&gt;A.
-        Indexes are [point_index, coordinate].
-    method: string (optional)
-        Method to match the neurons, after the registration between the two
-        point sets. Default: &#34;nearest&#34;.
-    registration: string (optional)
-        Method to register the two point sets. Default: &#34;None&#34;.
-    **kwargs:
-        Other parameters to be passed to the registration function.
-
-    Returns
-    -------
-    Match: np.array
-        Indexes of points in A matching points in B.
-        index_point_in_A = Match[index_point_in_B]
-
-    &#39;&#39;&#39;
-
-    if registration==&#39;centroid&#39;:
-        A, B = wormb.reg.centroid(A,B,**kwargs)
-    elif registration==&#39;displacement&#39;:
-        A, B = wormb.reg.displacement(A,B,**kwargs)
-    #elif registration==&#39;tps&#39;:
-    #    A, B = wormb.reg.tps(A,B,**kwargs)
-    elif registration==&#34;dsmm&#34;:
-        try:
-            fullpy = kwargs.pop(&#34;fullpy&#34;)
-        except:
-            fullpy = False
-            
-        if fullpy:
-            B, A, p, Match = wormb.reg._dsmm_fullpy(B,A,returnAll=True,**kwargs)
-        else:
-            B, A, p, Match = wormb.reg.dsmmc(B,A,returnAll=True,**kwargs)
-        return Match
-
-    if method==&#39;nearest&#39;:
-        Match = _match_nearest(A,B,**kwargs)
-    return Match</code></pre>
-</details>
-</dd>
 <dt id="wormbrain.match.pairwise_distance"><code class="name flex">
 <span>def <span class="ident">pairwise_distance</span></span>(<span>A, B, returnAll=False, squared=False, thresholdDz=0.0)</span>
 </code></dt>
@@ -763,77 +526,138 @@ Indexes are D[index_point_in_A, index_point_in_B].</dd>
         return D</code></pre>
 </details>
 </dd>
-<dt id="wormbrain.match.plot_matches"><code class="name flex">
-<span>def <span class="ident">plot_matches</span></span>(<span>A, B, Match, mode='3d', plotNow=True, **kwargs)</span>
+<dt id="wormbrain.match.match"><code class="name flex">
+<span>def <span class="ident">match</span></span>(<span>A, B, method='nearest', registration='None', **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Plots the two point sets with lines representing the matches, in 2D or
-3D. The function redirects the call to _plot_matches_3d() or _2d(). If
-matplotlib has already a figure, the function uses the one after the one
-currently in use.</p>
+<div class="desc"><p>Computes the array giving the matching of points in B to points in A.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>A</code></strong>, <strong><code>B</code></strong> :&ensp;<code>numpy arrays</code></dt>
-<dd>The two point sets.</dd>
-<dt><strong><code>Match</code></strong> :&ensp;<code>numpy array</code></dt>
-<dd>The array containing the matches.</dd>
-<dt><strong><code>mode</code></strong> :&ensp;<code>string (optional)</code></dt>
-<dd>Possible values: "3d" or "2d". Default: "3d".</dd>
-<dt><strong><code>plotNow</code></strong> :&ensp;<code>boolean (optional)</code></dt>
-<dd>If True, the plot is displayed immediately. If False, figure and axis
-will be returned, to be displayed later in the script. Default: True.</dd>
-<dt><strong><code>**kwargs</code></strong></dt>
-<dd>Any other parameter to be passed to _plot_matches_3d or _2d.</dd>
+<dt><strong><code>A</code></strong>, <strong><code>B</code></strong> :&ensp;<code>numpy array</code></dt>
+<dd>Sets of points to match. The function will calculate matches B-&gt;A.
+Indexes are [point_index, coordinate].</dd>
+<dt><strong><code>method</code></strong> :&ensp;<code>string (optional)</code></dt>
+<dd>Method to match the neurons, after the registration between the two
+point sets. With the registration methods "centroid" and "displacement",
+the onlhy possible value is "nearest". If the "dsmm" registration is
+chosen, the matches will be determined by a combination of the distance
+and probability of match. Default: "nearest".</dd>
+<dt><strong><code>registration</code></strong> :&ensp;<code>string (optional)</code></dt>
+<dd>Method to register the two point sets. Possible values: "centroid",
+"displacement", "dsmm", "None". Default: "None".</dd>
 </dl>
+<p>**kwargs:
+Other parameters to be passed to the registration function.</p>
 <h2 id="returns">Returns</h2>
 <dl>
-<dt><strong><code>fig</code></strong> :&ensp;<code>matplotlib figure </code></dt>
-<dd>Returned if plotNow is False.</dd>
-<dt><strong><code>ax</code></strong> :&ensp;<code>matplotlib axis</code></dt>
-<dd>Returned if plotNow is False.</dd>
+<dt><strong><code>Match</code></strong> :&ensp;<code>np.array</code></dt>
+<dd>Indexes of points in A matching points in B.
+index_point_in_A = Match[index_point_in_B]</dd>
 </dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def plot_matches(A, B, Match, mode=&#39;3d&#39;,plotNow=True,**kwargs):
-    &#39;&#39;&#39;Plots the two point sets with lines representing the matches, in 2D or 
-    3D. The function redirects the call to _plot_matches_3d() or _2d(). If 
-    matplotlib has already a figure, the function uses the one after the one
-    currently in use.
+<pre><code class="python">def match(A, B, method=&#39;nearest&#39;, registration=&#39;None&#39;, **kwargs):
+    &#39;&#39;&#39;
+    Computes the array giving the matching of points in B to points in A.
+
+    Parameters
+    ----------
+    A, B: numpy array
+        Sets of points to match. The function will calculate matches B-&gt;A.
+        Indexes are [point_index, coordinate].
+    method: string (optional)
+        Method to match the neurons, after the registration between the two
+        point sets. With the registration methods &#34;centroid&#34; and &#34;displacement&#34;,
+        the onlhy possible value is &#34;nearest&#34;. If the &#34;dsmm&#34; registration is
+        chosen, the matches will be determined by a combination of the distance
+        and probability of match. Default: &#34;nearest&#34;.
+    registration: string (optional)
+        Method to register the two point sets. Possible values: &#34;centroid&#34;, 
+        &#34;displacement&#34;, &#34;dsmm&#34;, &#34;None&#34;. Default: &#34;None&#34;.
+    **kwargs:
+        Other parameters to be passed to the registration function.
+
+    Returns
+    -------
+    Match: np.array
+        Indexes of points in A matching points in B.
+        index_point_in_A = Match[index_point_in_B]
+
+    &#39;&#39;&#39;
+
+    if registration==&#39;centroid&#39;:
+        A, B = wormb.reg.centroid(A,B,**kwargs)
+    elif registration==&#39;displacement&#39;:
+        A, B = wormb.reg.displacement(A,B,**kwargs)
+    #elif registration==&#39;tps&#39;:
+    #    A, B = wormb.reg.tps(A,B,**kwargs)
+    elif registration==&#34;dsmm&#34;:
+        try:
+            fullpy = kwargs.pop(&#34;fullpy&#34;)
+        except:
+            fullpy = False
+            
+        if fullpy:
+            B, A, p, Match = wormb.reg._dsmm_fullpy(B,A,returnAll=True,**kwargs)
+        else:
+            B, A, p, Match = wormb.reg.dsmmc(B,A,returnAll=True,**kwargs)
+        return Match
+
+    if method==&#39;nearest&#39;:
+        Match = _match_nearest(A,B,**kwargs)
+    return Match</code></pre>
+</details>
+</dd>
+<dt id="wormbrain.match.invert_matches"><code class="name flex">
+<span>def <span class="ident">invert_matches</span></span>(<span>matches, N)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Transforms the matches obtained matching points in B to points in A to
+the matches of points in A to points in B.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>matches</code></strong> :&ensp;<code>numpy array</code> of <code>int</code></dt>
+<dd>The matches to be inverted. Obtained, e.g., with match(A,B,&hellip;).
+Contains the matches of points in B to points in A.</dd>
+<dt><strong><code>N</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of elements in A.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>inverted matches: numpy array</code> of <code>int</code></dt>
+<dd>The inverted matches, i.e. of points of A to points of B.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def invert_matches(matches, N):
+    &#39;&#39;&#39;Transforms the matches obtained matching points in B to points in A to
+    the matches of points in A to points in B.
     
     Parameters
     ----------
-    A, B: numpy arrays
-        The two point sets.
-    Match: numpy array
-        The array containing the matches.
-    mode: string (optional)
-        Possible values: &#34;3d&#34; or &#34;2d&#34;. Default: &#34;3d&#34;.
-    plotNow: boolean (optional)
-        If True, the plot is displayed immediately. If False, figure and axis
-        will be returned, to be displayed later in the script. Default: True.
-    **kwargs: 
-        Any other parameter to be passed to _plot_matches_3d or _2d.
+    matches: numpy array of int
+        The matches to be inverted. Obtained, e.g., with match(A,B,...).
+        Contains the matches of points in B to points in A.
+    N: int
+        Number of elements in A.
         
     Returns
     -------
-    fig: matplotlib figure 
-        Returned if plotNow is False.
-    ax: matplotlib axis
-        Returned if plotNow is False.
-    
+    inverted matches: numpy array of int
+        The inverted matches, i.e. of points of A to points of B.
     &#39;&#39;&#39;
-    if mode==&#39;3d&#39;:
-        fig, ax = _plot_matches_3d(A, B, Match, **kwargs)
-    if mode==&#39;2d&#39;:
-        fig, ax = _plot_matches_2d(A, B, Match, **kwargs)
-
-    if plotNow==True:
-        plt.show()
-        return
-    else:
-        return fig, ax</code></pre>
+    
+    inverted_matches = -1*np.ones(N, dtype=np.int)
+    for i in np.arange(N):
+        a = np.where(matches==i)[0]
+        if len(a) &gt;0:
+            inverted_matches[i] = a[0]
+    
+    return inverted_matches</code></pre>
 </details>
 </dd>
 <dt id="wormbrain.match.save_matches"><code class="name flex">
@@ -888,6 +712,200 @@ filename for the module.</dd>
     np.savetxt(folder+filename,MMatch,header=headerInfo)</code></pre>
 </details>
 </dd>
+<dt id="wormbrain.match.load_matches"><code class="name flex">
+<span>def <span class="ident">load_matches</span></span>(<span>folder, filename='')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Loads the matches from file.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>folder</code></strong> :&ensp;<code>string</code></dt>
+<dd>Folder containing the file.</dd>
+<dt><strong><code>filename</code></strong> :&ensp;<code>string (optional)</code></dt>
+<dd>Name of the file. Default: "", that is translated to the default
+filename for the module.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>MMatch</code></strong> :&ensp;<code>numpy array</code></dt>
+<dd>Array containing the matches.</dd>
+<dt><strong><code>parameters</code></strong> :&ensp;<code>dictionary</code></dt>
+<dd>Dictionary contained in the header, with the information about the
+matching</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_matches(folder, filename=&#34;&#34;):
+    &#39;&#39;&#39;Loads the matches from file.
+    
+    Parameters
+    ----------
+    folder: string
+        Folder containing the file.
+    filename: string (optional)
+        Name of the file. Default: &#34;&#34;, that is translated to the default 
+        filename for the module.
+    
+    Returns
+    -------
+    MMatch: numpy array
+        Array containing the matches.
+    parameters: dictionary
+        Dictionary contained in the header, with the information about the 
+        matching
+    &#39;&#39;&#39;
+    
+    if folder[-1]!=&#34;/&#34;: folder+=&#34;/&#34;
+    if filename==&#34;&#34;: filename = filename_matches
+    
+    f = open(folder+filename,&#34;r&#34;)
+    l = f.readline()
+    f.close()
+    try:
+        parameters = json.loads(l[2:])
+    except:
+        parameters = {}
+
+    MMatch = np.loadtxt(folder+filename_matches)
+
+    return MMatch, parameters</code></pre>
+</details>
+</dd>
+<dt id="wormbrain.match.load_match_parameters"><code class="name flex">
+<span>def <span class="ident">load_match_parameters</span></span>(<span>folder, filename='')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Loads the matching parameters from file, only using its header. This
+function does not load the matches themselves. Use load_matches() for that.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>folder</code></strong> :&ensp;<code>string</code></dt>
+<dd>Folder containing the file.</dd>
+<dt><strong><code>filename</code></strong> :&ensp;<code>string (optional)</code></dt>
+<dd>Name of the file. Default: "", that is translated to the default
+filename for the module.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>parameters</code></strong> :&ensp;<code>dictionary</code></dt>
+<dd>Dictionary contained in the header, with the information about the
+matching</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_match_parameters(folder, filename=&#34;&#34;):
+    &#39;&#39;&#39;Loads the matching parameters from file, only using its header. This
+    function does not load the matches themselves. Use load_matches() for that.
+    
+    Parameters
+    ----------
+    folder: string
+        Folder containing the file.
+    filename: string (optional)
+        Name of the file. Default: &#34;&#34;, that is translated to the default 
+        filename for the module.
+    
+    Returns
+    -------
+    parameters: dictionary
+        Dictionary contained in the header, with the information about the 
+        matching
+    &#39;&#39;&#39;
+    if folder[-1]!=&#34;/&#34;: folder+=&#34;/&#34;
+    if filename==&#34;&#34;: filename = filename_matches
+    
+    f = open(folder+filename,&#34;r&#34;)
+    l = f.readline()
+    f.close()
+    try:
+        parameters = json.loads(l[2:])
+    except:
+        parameters = {}
+
+    return parameters</code></pre>
+</details>
+</dd>
+<dt id="wormbrain.match.plot_matches"><code class="name flex">
+<span>def <span class="ident">plot_matches</span></span>(<span>A, B, Match, mode='3d', plotNow=True, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Plots the two point sets with lines representing the matches, in 2D or
+3D. The function redirects the call to _plot_matches_3d() or _2d(). If
+matplotlib has already a figure, the function uses the one after the one
+currently in use.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>A</code></strong>, <strong><code>B</code></strong> :&ensp;<code>numpy arrays</code></dt>
+<dd>The two point sets.</dd>
+<dt><strong><code>Match</code></strong> :&ensp;<code>numpy array</code></dt>
+<dd>The array containing the matches.</dd>
+<dt><strong><code>mode</code></strong> :&ensp;<code>string (optional)</code></dt>
+<dd>Possible values: "3d" or "2d". Default: "3d".</dd>
+<dt><strong><code>plotNow</code></strong> :&ensp;<code>boolean (optional)</code></dt>
+<dd>If True, the plot is displayed immediately. If False, figure and axis
+will be returned, to be displayed later in the script. Default: True.</dd>
+<dt><strong><code>showAll</code></strong> :&ensp;<code>boolean (optional)</code></dt>
+<dd>If True, also discarded double matches will be plotted. Default: True.</dd>
+<dt><strong><code>**kwargs</code></strong></dt>
+<dd>Any other parameter to be passed to _plot_matches_3d or _2d.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>fig</code></strong> :&ensp;<code>matplotlib figure </code></dt>
+<dd>Returned if plotNow is False.</dd>
+<dt><strong><code>ax</code></strong> :&ensp;<code>matplotlib axis</code></dt>
+<dd>Returned if plotNow is False.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plot_matches(A, B, Match, mode=&#39;3d&#39;,plotNow=True,**kwargs):
+    &#39;&#39;&#39;Plots the two point sets with lines representing the matches, in 2D or 
+    3D. The function redirects the call to _plot_matches_3d() or _2d(). If 
+    matplotlib has already a figure, the function uses the one after the one
+    currently in use.
+    
+    Parameters
+    ----------
+    A, B: numpy arrays
+        The two point sets.
+    Match: numpy array
+        The array containing the matches.
+    mode: string (optional)
+        Possible values: &#34;3d&#34; or &#34;2d&#34;. Default: &#34;3d&#34;.
+    plotNow: boolean (optional)
+        If True, the plot is displayed immediately. If False, figure and axis
+        will be returned, to be displayed later in the script. Default: True.
+    showAll: boolean (optional)
+        If True, also discarded double matches will be plotted. Default: True.
+    **kwargs: 
+        Any other parameter to be passed to _plot_matches_3d or _2d.
+        
+    Returns
+    -------
+    fig: matplotlib figure 
+        Returned if plotNow is False.
+    ax: matplotlib axis
+        Returned if plotNow is False.
+    
+    &#39;&#39;&#39;
+    if mode==&#39;3d&#39;:
+        fig, ax = _plot_matches_3d(A, B, Match, **kwargs)
+    if mode==&#39;2d&#39;:
+        fig, ax = _plot_matches_2d(A, B, Match, **kwargs)
+
+    if plotNow==True:
+        plt.show()
+        return
+    else:
+        return fig, ax</code></pre>
+</details>
+</dd>
 </dl>
 </section>
 <section>
@@ -906,13 +924,13 @@ filename for the module.</dd>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="wormbrain.match.invert_matches" href="#wormbrain.match.invert_matches">invert_matches</a></code></li>
-<li><code><a title="wormbrain.match.load_match_parameters" href="#wormbrain.match.load_match_parameters">load_match_parameters</a></code></li>
-<li><code><a title="wormbrain.match.load_matches" href="#wormbrain.match.load_matches">load_matches</a></code></li>
-<li><code><a title="wormbrain.match.match" href="#wormbrain.match.match">match</a></code></li>
 <li><code><a title="wormbrain.match.pairwise_distance" href="#wormbrain.match.pairwise_distance">pairwise_distance</a></code></li>
-<li><code><a title="wormbrain.match.plot_matches" href="#wormbrain.match.plot_matches">plot_matches</a></code></li>
+<li><code><a title="wormbrain.match.match" href="#wormbrain.match.match">match</a></code></li>
+<li><code><a title="wormbrain.match.invert_matches" href="#wormbrain.match.invert_matches">invert_matches</a></code></li>
 <li><code><a title="wormbrain.match.save_matches" href="#wormbrain.match.save_matches">save_matches</a></code></li>
+<li><code><a title="wormbrain.match.load_matches" href="#wormbrain.match.load_matches">load_matches</a></code></li>
+<li><code><a title="wormbrain.match.load_match_parameters" href="#wormbrain.match.load_match_parameters">load_match_parameters</a></code></li>
+<li><code><a title="wormbrain.match.plot_matches" href="#wormbrain.match.plot_matches">plot_matches</a></code></li>
 </ul>
 </li>
 </ul>
