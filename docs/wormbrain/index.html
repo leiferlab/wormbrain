@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.3" />
 <title>wormbrain API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Components of the package: …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css" crossorigin>
@@ -22,11 +22,70 @@
 <h1 class="title">Package <code>wormbrain</code></h1>
 </header>
 <section id="section-intro">
+<p>Components of the package:</p>
+<ul>
+<li>
+<p>The Brains class is used to represent the coordinates of multiple instances of
+the same brain, like you have in a whole-brain imaging recording. Because the
+number of detected neurons in each volume can fluctuate, the class uses the
+irregular array (irrarray) from the mistofrutta package
+(github.com/francescorandi/mistofrutta). The class also has methods for
+coordinate conversions, and stores information about how the neuron
+coordinates have been extracted and preprocessed. After instantiation, the
+main methods used will be the direct call of the object, trueCoords(), and
+plot().</p>
+</li>
+<li>
+<p>The match module contains functions to match neurons belonging to two
+different instances of the same brain. The matching can be performed using
+different criteria, and after different registrations between the pointsets
+(see the reg module). The main function is match(), which is an interface to
+both different matching <em>and</em> registration methods. Other functions are for
+saving and loading matching results to and from file, and for plotting.</p>
+</li>
+<li>
+<p>The reg module contains the functions for the different registration methods.
+In addition to simple linear registrations, it contains two implementations of
+the Dirichelet-Student's t Mixture Model (DSMM) originally published by Zhou et
+al., Scientific Reports 2018. One of the implementations is fully written in
+Python, the other one is in C++ and is wrapped in Python (see dsmm).</p>
+</li>
+</ul>
+<p>Author: Francesco Randi @ Leifer Lab, Princeton Physics Department</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">__all__ = [&#39;Brains&#39;,&#39;match&#39;,&#39;reg&#39;]
+<pre><code class="python">&#39;&#39;&#39;Components of the package:
+
+- The Brains class is used to represent the coordinates of multiple instances of
+  the same brain, like you have in a whole-brain imaging recording. Because the 
+  number of detected neurons in each volume can fluctuate, the class uses the 
+  irregular array (irrarray) from the mistofrutta package 
+  (github.com/francescorandi/mistofrutta). The class also has methods for 
+  coordinate conversions, and stores information about how the neuron 
+  coordinates have been extracted and preprocessed. After instantiation, the 
+  main methods used will be the direct call of the object, trueCoords(), and 
+  plot().
+  
+- The match module contains functions to match neurons belonging to two 
+  different instances of the same brain. The matching can be performed using 
+  different criteria, and after different registrations between the pointsets 
+  (see the reg module). The main function is match(), which is an interface to 
+  both different matching *and* registration methods. Other functions are for 
+  saving and loading matching results to and from file, and for plotting.
+  
+- The reg module contains the functions for the different registration methods. 
+  In addition to simple linear registrations, it contains two implementations of 
+  the Dirichelet-Student&#39;s t Mixture Model (DSMM) originally published by Zhou et 
+  al., Scientific Reports 2018. One of the implementations is fully written in 
+  Python, the other one is in C++ and is wrapped in Python (see dsmm).
+  
+Author: Francesco Randi @ Leifer Lab, Princeton Physics Department
+&#39;&#39;&#39;
+
+
+__all__ = [&#39;Brains&#39;,&#39;match&#39;,&#39;reg&#39;]
 
 from .brains import Brains
 from . import match
