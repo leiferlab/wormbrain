@@ -37,8 +37,9 @@ def pairwise_distance(A,B,returnAll=False,squared=False,thresholdDz=0.0):
     '''
     Dv = A[:,None]-B[None,:]
 
-    if thresholdDz!=0.0:
-        Dv[:,2,:] = 0.5*(np.sign(np.absolute(Dv[:,2,:])-thresholdDz)+1.0)*Dv[:,2,:]
+    if thresholdDz!=0.0 and A.shape[-1] == 3:
+        #Dv[:,2,:] = 0.5*(np.sign(np.absolute(Dv[:,2,:])-thresholdDz)+1.0)*Dv[:,2,:]
+        Dv[...,2] = 0.5*(np.sign(np.absolute(Dv[...,2])-thresholdDz)+1.0)*Dv[...,2]
 
     D = np.sum(np.power(Dv,2),axis=-1) # [a,b]
     if not squared:
@@ -164,7 +165,7 @@ def _match_nearest(A, B, **kwargs): #TODO implement it on multiple As
 
     # Keep only closest match
     for dm in doubleMatch:
-        if unique[dm]>0:
+        if unique[dm]>=0:
             # Bs matched to the same As
             pts = np.where(Match==unique[dm])[0]
             # Don't change the closest match
@@ -359,7 +360,7 @@ def _plot_matches_3d(A, B, Match,**kwargs):
     I = len(Match)
     for i in np.arange(I):
         j = Match[i]
-        if j>0:
+        if j>=0:
             ax.plot((A[j,0],B[i,0]),(A[j,1],B[i,1]),(A[j,2],B[i,2]),'k-')
         else:
             j = -j//10
@@ -405,7 +406,7 @@ def _plot_matches_2d(A, B, Match, **kwargs):
     I = len(Match)
     for i in np.arange(I):
         j = Match[i]
-        if j>0:
+        if j>=0:
             ax.plot((A[j,p],B[i,p]),(A[j,q],B[i,q]),'k-')
         else:
             j = -j//10
