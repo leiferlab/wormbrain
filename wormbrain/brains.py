@@ -65,6 +65,8 @@ class Brains:
     segmParam = {}
     info = {}
     
+    MMatch = None
+    
     
     def __init__(self, coordZYX, nInVolume, zOfFrame=None, properties={}, 
                  stabilize_z=True,stabilize_xy=True):
@@ -373,6 +375,9 @@ class Brains:
         f.write(o3)
         f.close()
         
+    def load_matches(self,folder):
+        self.MMatch, self.MMatch_parameters = wormb.match.load_matches(folder) 
+        
     def trueCoords(self, vol, coord_ordering='zyx'):#, returnIrrarray=False):
         '''Returns the coordinates of the neurons contained in the specified
         volumes replacing z with its actual values, from zOfFrame.
@@ -408,6 +413,22 @@ class Brains:
         if len(trueCoords)==1: trueCoords = trueCoords[0]
                 
         return trueCoords
+        
+    def get_closest_neuron(self,volume,coord,inverse_match=True,z_true=False):
+        
+        if not z_true:
+            neurons = self.coord(vol=volume)
+            closest = np.argmin(np.sum(np.power(neurons-coord[None,:],2),axis=-1))
+            
+        if inverse_match:
+            closest_ref = np.where(self.MMatch[volume]==closest)[0]
+            if closest_ref.shape[0] >0:
+                closest_ref = closest_ref[0]
+            else:
+                closest_ref = -1
+            closest = closest_ref
+        
+        return closest
         
     @staticmethod
     def _conv_coord_2d_to_3d(coord_2d, volFrame0, zOfFrame=[], dz=1, 
