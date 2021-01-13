@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def dsmmc(Y,X,beta=2.0,llambda=1.5,neighbor_cutoff=10.0,
-            gamma0=3.,conv_epsilon=1e-3,eq_tol=1e-4,returnAll=False):
+            gamma0=3.,conv_epsilon=1e-3,eq_tol=1e-4,max_iter=100,returnAll=False):
     '''Registers Y onto X via a nonrigid pointset registration based on a 
     Student's t-distribution mixture model with Dirichlet-distribution priors
     via an expectation-maximization algorithm.
@@ -82,7 +82,7 @@ def dsmmc(Y,X,beta=2.0,llambda=1.5,neighbor_cutoff=10.0,
     alpha=1.
 
     wormb.reg._dsmmc_bare(X,Y,M,N,D,beta,llambda,neighbor_cutoff,alpha,gamma0,
-           conv_epsilon,eq_tol,
+           conv_epsilon,eq_tol,max_iter,
            pwise_dist,pwise_distYY,Gamma,CDE_term,
            w,F_t,wF_t,wF_t_sum,p,u,Match,
            hatP,hatPI_diag,hatPIG,hatPX,hatPIY,

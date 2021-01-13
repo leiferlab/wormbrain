@@ -4,10 +4,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import mistofrutta.struct.irrarray as irrarray
 from copy import deepcopy as deepcopy
-import json
+import ujson as json
 import re
 import pkg_resources
 import wormbrain as wormb
+import os
+import pickle
 
 class Brains:
     '''Container for neuron coordinates. It depends on the arrays with 
@@ -50,16 +52,17 @@ class Brains:
     coord_filename = "transformed_neurons.txt"
     
     nInVolume = 0
-    coord = None
-    zOfFrame = None
+    coord = irrarray(np.zeros(1), [np.array([1])], strideNames=["vol"])
+    zOfFrame = np.zeros(1)
+    labels = []
     
-    version = None
+    version = ""
     info = {}
     
-    curvature = None
-    boxIndices = None
-    boxIndicesX = None
-    boxIndicesY = None
+    curvature = irrarray(np.zeros(1), [np.array([1])], strideNames=["vol"])
+    boxIndices = np.zeros(1)
+    boxIndicesX = np.zeros(1)
+    boxIndicesY = np.zeros(1)
     boxNPlane = 0
     
     segmParam = {}
@@ -67,9 +70,13 @@ class Brains:
     
     MMatch = None
     
+    coord_upToIndex = {}
+    coord_columnNames = []
+    
     
     def __init__(self, coordZYX, nInVolume, zOfFrame=None, properties={}, 
                  stabilize_z=True,stabilize_xy=True):
+                 #save_to_cache=False,save_to_path=None):
         '''The constructor transforms the coordinates array into an irrarray
         and, if requested to, "stabilizes" the coordinates based on the 
         local curvature around the neurons.
@@ -114,11 +121,21 @@ class Brains:
         self.info = {}
         self.info['version'] = self.version
         
+        self.labels = [[] for jj in np.arange(len(nInVolume))]
+        
         if len(properties.keys())!=0:
-            self.curvature = properties['curvature']
+            self.boxIndices = properties['boxIndices']
+            curvature_elements = 0
+            for bi in self.boxIndices: curvature_elements += len(bi)
+            self.curvature = np.array(properties['curvature'])
+            
+            if len(self.curvature.shape) == 1:
+                self.curvature = self.curvature.reshape(
+                                self.curvature.shape[0]//curvature_elements,
+                                curvature_elements)
+            
             self.curvature = irrarray(self.curvature, self.nInVolume, 
                                         strideNames=["vol"])
-            self.boxIndices = properties['boxIndices']
             
             try:
                 self.boxIndicesX = properties['boxIndicesX']
@@ -149,7 +166,12 @@ class Brains:
                 self.coord = np.rint(self.coord)
             
         self.coord = self.coord.astype(int)
-    
+        
+        #if save_to_cache and save_to_path is not None:
+        #    f = open(save_to_path,"wb")
+        #    pickle.dump(self,f)
+        #    f.close()
+        
     @classmethod
     def from_find_neurons(cls, coord, volFrame0=None, *args, **kwargs):
         '''Create a Brains object from the result of the results of 
@@ -208,47 +230,79 @@ class Brains:
         
         if filename=="":
             filename = cls.filename
-        f = open(folder+filename)
-        c = json.load(f)
-        f.close()
         
-        coordZYX = np.array(c['coordZYX'])
-        nInVolume = np.array(c['nInVolume'])
-        zOfFrame = [np.array(z) for z in c['zOfFrame']]
-        properties = {}
-        
-        # To be compatible with older versions of the file, there is this
-        # sequence of try/except. At some point, this can be removed and all
-        # the properties be loaded.
-        try:
-            props = c['properties']
-            properties['curvature'] = [np.array(curv) for curv in props['curvature']]
-            properties['boxIndices'] = [np.array(bi) for bi in props['boxIndices']]
-            properties['boxNPlane'] = props['boxNPlane']
-        except:
-            pass
+        # If pickled cache is available, load from there;
+        # Otherwise parse the json file.
+        pickle_filename = ".".join([filename.split(".")[0],"pickle"])
+        cache_present = os.path.isfile(folder+pickle_filename)
+        if False:#cache_present:
+            f = open(folder+pickle_filename,"rb")
+            obj = pickle.load(f)
+            f.close()
+            coordZYX = obj["coordZYX"]
+            nInVolume = obj["nInVolume"]
+            zOfFrame = obj["zOfFrame"]
+            properties = obj["properties"]
+        else:        
+            f = open(folder+filename)
+            c = json.load(f)
+            f.close()
             
-        try:
-            properties['boxIndicesX'] = [np.array(bi) for bi in props['boxIndicesX']]
-            properties['boxIndicesY'] = [np.array(bi) for bi in props['boxIndicesY']]
-        except:
-            pass
+            coordZYX = np.array(c['coordZYX'])
+            nInVolume = np.array(c['nInVolume'])
+            zOfFrame = [np.array(z) for z in c['zOfFrame']]
+            properties = {}
             
-        try:
-            properties['segmParam'] = props['segmParam']
-        except:
-            pass
-            
-        try:
-            properties['version'] = props['version']
-        except:
-            pass
+            # To be compatible with older versions of the file, there is this
+            # sequence of try/except. At some point, this can be removed and all
+            # the properties be loaded.
+            try:
+                props = c['properties']
+                #properties['curvature'] = [np.array(curv) for curv in props['curvature']]
+                properties['curvature'] = np.array(props['curvature'])
+                properties['boxIndices'] = [np.array(bi) for bi in props['boxIndices']]
+                properties['boxNPlane'] = props['boxNPlane']
+            except:
+                pass
+                
+            try:
+                properties['boxIndicesX'] = [np.array(bi) for bi in props['boxIndicesX']]
+                properties['boxIndicesY'] = [np.array(bi) for bi in props['boxIndicesY']]
+            except:
+                pass
+                
+            try:
+                properties['segmParam'] = props['segmParam']
+            except:
+                pass
+                
+            try:
+                properties['version'] = props['version']
+            except:
+                pass
+                
+            try:
+                labels = c['labels']
+            except:
+                labels = None
+                
+            # cache in the pickled version
+            #f = open(folder+pickle_filename,"wb")
+            #pickle.dump({"coordZYX":coordZYX,"nInVolume":nInVolume,"zOfFrame":zOfFrame,"properties":properties},f)
+            #f.close()
         
         # Don't do any implicit stabilization if loaded from file. 
         stabilize_z = False
         stabilize_xy = False 
         
-        return cls(coordZYX, nInVolume, zOfFrame, properties, stabilize_z, stabilize_xy)
+        inst = cls(coordZYX, nInVolume, zOfFrame, properties, stabilize_z, stabilize_xy)
+        
+        if labels is not None:
+            for j in np.arange(len(labels)):
+                l = labels[j]
+                inst.set_labels(j,l)
+        
+        return inst
         
     @classmethod
     def from_coord_file(cls, folder, filename=""):
@@ -271,11 +325,16 @@ class Brains:
         f = open(folder+filename)
         s = f.readline()
         f.close()
-        
-        s = s.split(";")
-        n_volume = int(s[0].split("=")[1])
-        n_neurons = int(s[1].split("=")[1])
-        nInVolume = np.ones(n_volume)*n_neurons
+
+        try:
+            sp = s.split(";")
+            n_volumes = int(sp[0].split("=")[1])
+            n_neurons = int(sp[1].split("=")[1])
+        except:
+            s = json.loads(s[1:])
+            n_volumes = s["n_volumes"]
+            n_neurons = s["n_neurons"]
+        nInVolume = np.ones(n_volumes)*n_neurons
         
         coordZYX = np.loadtxt(folder+filename)
         
@@ -341,16 +400,18 @@ class Brains:
             Name of destination file. Default: "", which is translated to the 
             default filename for the class.
         
-        '''
+        '''    
         if foldername[-1]!="/": foldername += "/"
         
         diz = {}
         diz['coordZYX'] = [c.tolist() for c in self.coord]
         diz['nInVolume'] = self.nInVolume.tolist()
         diz['zOfFrame'] = [z.tolist() for z in self.zOfFrame]
+        diz['labels'] = self.labels
         props = {}
         try:
             props['curvature'] = [c.tolist() for c in self.curvature]
+            #props['curvature'] = self.curvature.tolist()
             props['boxIndices'] = [c.tolist() for c in self.boxIndices]
             props['boxIndicesX'] = [c.tolist() for c in self.boxIndicesX]
             props['boxIndicesY'] = [c.tolist() for c in self.boxIndicesY]
@@ -376,7 +437,8 @@ class Brains:
         f.close()
         
     def load_matches(self,folder):
-        self.MMatch, self.MMatch_parameters = wormb.match.load_matches(folder) 
+        if self.MMatch is None:
+            self.MMatch, self.MMatch_parameters = wormb.match.load_matches(folder) 
         
     def trueCoords(self, vol, coord_ordering='zyx'):#, returnIrrarray=False):
         '''Returns the coordinates of the neurons contained in the specified
@@ -414,11 +476,17 @@ class Brains:
                 
         return trueCoords
         
-    def get_closest_neuron(self,volume,coord,inverse_match=True,z_true=False):
+    def get_closest_neuron(self,volume,coord,inverse_match=True,z_true=False,coord_ordering='zyx'):
         
-        if not z_true:
-            neurons = self.coord(vol=volume)
-            closest = np.argmin(np.sum(np.power(neurons-coord[None,:],2),axis=-1))
+        if coord_ordering == "xyz": coord = coord[::-1]
+        neurons = self.coord(vol=volume)
+        
+        if z_true:
+            # Convert passed true z coordinate to index
+            z_index = np.argmin(np.absolute(coord[0]-self.zOfFrame[volume]))
+            coord = np.array([z_index,coord[1],coord[2]])
+        
+        closest = np.argmin(np.sum(np.power(neurons-coord[None,:],2),axis=-1))    
             
         if inverse_match:
             closest_ref = np.where(self.MMatch[volume]==closest)[0]
@@ -429,6 +497,12 @@ class Brains:
             closest = closest_ref
         
         return closest
+        
+    def set_labels(self, vol, labels):
+        self.labels[vol] = labels
+        
+    def get_labels(self, vol):
+        return self.labels[vol]
         
     @staticmethod
     def _conv_coord_2d_to_3d(coord_2d, volFrame0, zOfFrame=[], dz=1, 
@@ -612,7 +686,24 @@ class Brains:
             return Overlay, OverlayLabels            
         else:
             return Overlay
+            
+    def get_overlay2(self,vol,return_labels=False,label_size=None,copy=True):
+        if copy:
+            overlay_ = self.coord(vol=vol).copy()
+        else:
+            overlay_ = self.coord(vol=vol)
         
+        overlay = irrarray(overlay_, irrStrides = [[self.nInVolume[vol],0]], strideNames=["ch"])
+        if return_labels:
+            if label_size is not None:
+                labels_ = [str(i).zfill(label_size) for i in np.arange(self.nInVolume[vol])]
+            else:
+                labels_ = [str(i) for i in np.arange(self.nInVolume[vol])]
+            labels = irrarray(labels_, irrStrides = [[self.nInVolume[vol],0]], strideNames=["ch"])
+            return overlay, labels
+        else:
+            return overlay
+            
         
     @staticmethod
     def _stabilize_z(coord, curvature, nPlane=7, boxIndices=
@@ -702,7 +793,7 @@ class Brains:
         [np.array([10,23,36]), np.array([2,7,11,15,29,24,28,33,37,41,46]), 
         np.array([0,1,3,5,6,8,12,16,18,19,21,25,29,31,32,34,38,42,44,45,47,49,50]),
         np.array([4,9,13,17,22,26,30,35,39,43,48]), np.array([14,27,40])], 
-        coord_3d_ordering="zyx", method="curvatureAverage"):
+        coord_3d_ordering="zyx", method="curvatureAverage", curvatureImageResize=2.0):
         '''Stabilization of the x coordinate, equivalent to _stabilize_z.'''
         
         # Determine the index of the x coordinate in the input and output arrays
@@ -728,7 +819,8 @@ class Brains:
             coord_3d_out[:,0:2] = coord[:,0:2]
         else:
             coord_3d_out[:,1:3] = coord[:,1:3]
-        coord_3d_out[:,x_index] = coord[:,x_index].astype(np.float) + np.sum(x*curv,axis=1)/np.sum(curv,axis=1)
+        
+        coord_3d_out[:,x_index] = coord[:,x_index].astype(np.float) + np.sum(x*curv,axis=1)/np.sum(curv,axis=1) * curvatureImageResize
         
         return coord_3d_out
     
@@ -737,7 +829,7 @@ class Brains:
         [np.array([6,19,32]), np.array([1,7,8,9,29,21,22,33,34,35,45]),
         np.array([0,2,3,4,10,11,12,13,14,23,24,25,26,27,36,37,38,39,40,46,47,48,50]),
         np.array([5,15,16,17,28,29,30,41,42,43,49]),np.array([18,31,44])],
-        coord_3d_ordering="zyx", method="curvatureAverage"):
+        coord_3d_ordering="zyx", method="curvatureAverage", curvatureImageResize=2.0):
         '''Stabilization of the y coordinate, equivalent to _stabilize_z.'''
         
         y_index = 1

@@ -9,7 +9,7 @@
 void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
 	double beta, double lambda, double neighbor_cutoff,
 	double alpha, double gamma0,
-	double conv_epsilon, double eq_tol,
+	double conv_epsilon, double eq_tol, int max_iter,
 	double *pwise_dist, double *pwise_distYY,
 	double *Gamma, double *CDE_term,
 	double *w, double *F_t, double *wF_t, double *wF_t_sum,
@@ -345,7 +345,7 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
         
         iter++;
         if(iter>0){beta2 *= 0.99*0.99;lambda *= 0.9*0.9;}
-        if(iter>100){break;}
+        if(iter>max_iter){break;}
     }
     
     /**

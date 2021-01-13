@@ -4,6 +4,8 @@ from mpl_toolkits.mplot3d import Axes3D
 import json
 import wormbrain as wormb
 import pkg_resources
+import os
+import pickle
 
 filename_matches = "matches.txt"
 
@@ -219,6 +221,13 @@ def save_matches(MMatch, parameters, folder, filename=""):
 
     headerInfo = json.dumps(parameters)
     np.savetxt(folder+filename,MMatch,header=headerInfo)
+    
+    pickle_filename = ".".join([filename.split(".")[0],"pickle"])  
+    if not os.path.isfile(folder+pickle_filename):
+        obj = {"MMatch":MMatch,"parameters":parameters}
+        f = open(folder+pickle_filename,"wb")
+        pickle.dump(obj,f)
+        f.close()
 
 def load_matches(folder, filename=""):
     '''Loads the matches from file.
@@ -243,6 +252,13 @@ def load_matches(folder, filename=""):
     if folder[-1]!="/": folder+="/"
     if filename=="": filename = filename_matches
     
+    pickle_filename = ".".join([filename.split(".")[0],"pickle"])    
+    if os.path.isfile(folder+pickle_filename):
+        f = open(folder+pickle_filename,"rb")
+        obj = pickle.load(f)
+        f.close()
+        return obj["MMatch"], obj["parameters"]
+    
     f = open(folder+filename,"r")
     l = f.readline()
     f.close()
@@ -251,7 +267,13 @@ def load_matches(folder, filename=""):
     except:
         parameters = {}
 
-    MMatch = np.loadtxt(folder+filename_matches)
+    MMatch = np.loadtxt(folder+filename_matches).astype(int)
+    
+    if not os.path.isfile(folder+pickle_filename):
+        obj = {"MMatch":MMatch,"parameters":parameters}
+        f = open(folder+pickle_filename,"wb")
+        pickle.dump(obj,f)
+        f.close()
 
     return MMatch, parameters
     
