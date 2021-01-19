@@ -87,6 +87,9 @@ Author: Francesco Randi @ Leifer Lab, Princeton Physics Department
 
 
 __all__ = [&#39;Brains&#39;,&#39;match&#39;,&#39;reg&#39;]
+__pdoc__ = {}
+__pdoc__[&#39;wormbrain.Brains._plot_3d&#39;] = True
+__pdoc__[&#39;wormbrain.Brains._plot_2d&#39;] = True
 
 from .brains import Brains
 from . import match
@@ -1092,8 +1095,10 @@ around the neurons. Default: True.</dd>
             
         Returns
         -------
-        fig: matplotlib figure (if plotNow is False)
-        ax: matplotlib axis (if plotNow is False)
+        fig: matplotlib figure 
+            Returned only if plotNow is False.
+        ax: matplotlib axis 
+            Returned only if plotNow is False.
         
         &#39;&#39;&#39;
         try:
@@ -1113,14 +1118,21 @@ around the neurons. Default: True.</dd>
             return fig, ax
             
             
-    def _plot_3d(self, indices, **kwargs):
+    def _plot_3d(self, indices, mask=None, mask_color=&#39;r&#39;):
         &#39;&#39;&#39;Produces a 3D plot of the requested volumes. To be used via the 
         plot() method.
         
         Parameters
         ----------
-        indices: list of integers
+        indices: integer or list of integers
             Indices of the requested volumes.
+        mask: numpy array or list of numpy arrays (optional)
+            Indices of neurons to highlight. When indices is a list, i.e. 
+            plotting multiple volumes, mask should also be a list of indices
+            for each volume. Default: None.
+        mask_color: string or list of strings(optional)
+            Color of the highlighted neurons, in matplotlib-understandable
+            format. Default: &#34;r&#34;.
             
         Returns
         -------
@@ -1131,20 +1143,25 @@ around the neurons. Default: True.</dd>
         cfn = plt.gcf().number
         if len(plt.gcf().axes)!=0: cfn += 1
         
-        showAll=True
-        if &#39;showAll&#39; in kwargs: showAll=kwargs[&#39;showAll&#39;]
-        
         fig = plt.figure(cfn)
         ax = fig.add_subplot(111,projection=&#39;3d&#39;)
         
-        for index in indices:
+        if mask is not None:
+            try: len(mask[0])
+            except: mask = [mask]
+        
+        Q = len(indices)
+        for q in np.arange(Q):
+            index = indices[q]
             brain = self.trueCoords(index)
             ax.scatter(brain.T[2],brain.T[1],brain.T[0],&#39;o&#39;)
+            if mask is not None:
+                ax.scatter(brain[mask[q]].T[2],brain[mask[q]].T[1],brain[mask[q]].T[0],&#39;o&#39;,c=mask_color)
                 
         return fig, ax
         
 
-    def _plot_2d(self, indices, **kwargs):
+    def _plot_2d(self, indices, mask=None, mask_color=&#39;r&#39;):
         &#39;&#39;&#39;Produces a 2D plot of the requested volumes. To be used via the 
         plot() method.
         
@@ -1152,6 +1169,13 @@ around the neurons. Default: True.</dd>
         ----------
         indices: list of integers
             Indices of the requested volumes.
+        mask: numpy array or list of numpy arrays (optional)
+            Indices of neurons to highlight. When indices is a list, i.e. 
+            plotting multiple volumes, mask should also be a list of indices
+            for each volume. Default: None.
+        mask_color: string (optional)
+            Color of the highlighted neurons, in matplotlib-understandable
+            format. Default: &#34;r&#34;.
             
         Returns
         -------
@@ -1164,16 +1188,21 @@ around the neurons. Default: True.</dd>
         # indices: list object with the volumes that you want to plot
         cfn = plt.gcf().number
         if len(plt.gcf().axes)!=0: cfn += 1
-        
-        showAll=True
-        if &#39;showAll&#39; in kwargs: showAll=kwargs[&#39;showAll&#39;]
-        
+               
         fig = plt.figure(cfn)
         ax = fig.add_subplot(111)
         
-        for index in indices:
+        if mask is not None:
+            try: len(mask[0])
+            except: mask = [mask]
+        
+        Q = len(indices)
+        for q in np.arange(Q):
+            index = indices[q]
             brain = self.trueCoords(index)
             ax.scatter(brain.T[2],brain.T[1],marker=&#39;o&#39;)
+            if mask is not None:
+                ax.scatter(brain[mask[q]].T[2],brain[mask[q]].T[1],marker=&#39;o&#39;,c=mask_color)
                 
         return fig, ax</code></pre>
 </details>
@@ -1964,10 +1993,10 @@ in the script. Default: True.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
-<dt><strong><code>fig</code></strong> :&ensp;<code>matplotlib figure (if plotNow is False)</code></dt>
-<dd>&nbsp;</dd>
-<dt><strong><code>ax</code></strong> :&ensp;<code>matplotlib axis (if plotNow is False)</code></dt>
-<dd>&nbsp;</dd>
+<dt><strong><code>fig</code></strong> :&ensp;<code>matplotlib figure </code></dt>
+<dd>Returned only if plotNow is False.</dd>
+<dt><strong><code>ax</code></strong> :&ensp;<code>matplotlib axis </code></dt>
+<dd>Returned only if plotNow is False.</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -1992,8 +2021,10 @@ in the script. Default: True.</dd>
         
     Returns
     -------
-    fig: matplotlib figure (if plotNow is False)
-    ax: matplotlib axis (if plotNow is False)
+    fig: matplotlib figure 
+        Returned only if plotNow is False.
+    ax: matplotlib axis 
+        Returned only if plotNow is False.
     
     &#39;&#39;&#39;
     try:
@@ -2011,6 +2042,153 @@ in the script. Default: True.</dd>
         return
     else:
         return fig, ax</code></pre>
+</details>
+</dd>
+<dt id="wormbrain.Brains._plot_3d"><code class="name flex">
+<span>def <span class="ident">_plot_3d</span></span>(<span>self, indices, mask=None, mask_color='r')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Produces a 3D plot of the requested volumes. To be used via the
+plot() method.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>indices</code></strong> :&ensp;<code>integer</code> or <code>list</code> of <code>integers</code></dt>
+<dd>Indices of the requested volumes.</dd>
+<dt><strong><code>mask</code></strong> :&ensp;<code>numpy array</code> or <code>list</code> of <code>numpy arrays (optional)</code></dt>
+<dd>Indices of neurons to highlight. When indices is a list, i.e.
+plotting multiple volumes, mask should also be a list of indices
+for each volume. Default: None.</dd>
+<dt><strong><code>mask_color</code></strong> :&ensp;<code>string</code> or <code>list</code> of <code>strings(optional)</code></dt>
+<dd>Color of the highlighted neurons, in matplotlib-understandable
+format. Default: "r".</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>fig</code></strong> :&ensp;<code>matplotlib figure</code></dt>
+<dd>&nbsp;</dd>
+<dt><strong><code>ax</code></strong> :&ensp;<code>matplotlib axis</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _plot_3d(self, indices, mask=None, mask_color=&#39;r&#39;):
+    &#39;&#39;&#39;Produces a 3D plot of the requested volumes. To be used via the 
+    plot() method.
+    
+    Parameters
+    ----------
+    indices: integer or list of integers
+        Indices of the requested volumes.
+    mask: numpy array or list of numpy arrays (optional)
+        Indices of neurons to highlight. When indices is a list, i.e. 
+        plotting multiple volumes, mask should also be a list of indices
+        for each volume. Default: None.
+    mask_color: string or list of strings(optional)
+        Color of the highlighted neurons, in matplotlib-understandable
+        format. Default: &#34;r&#34;.
+        
+    Returns
+    -------
+    fig: matplotlib figure
+    ax: matplotlib axis
+    
+    &#39;&#39;&#39;
+    cfn = plt.gcf().number
+    if len(plt.gcf().axes)!=0: cfn += 1
+    
+    fig = plt.figure(cfn)
+    ax = fig.add_subplot(111,projection=&#39;3d&#39;)
+    
+    if mask is not None:
+        try: len(mask[0])
+        except: mask = [mask]
+    
+    Q = len(indices)
+    for q in np.arange(Q):
+        index = indices[q]
+        brain = self.trueCoords(index)
+        ax.scatter(brain.T[2],brain.T[1],brain.T[0],&#39;o&#39;)
+        if mask is not None:
+            ax.scatter(brain[mask[q]].T[2],brain[mask[q]].T[1],brain[mask[q]].T[0],&#39;o&#39;,c=mask_color)
+            
+    return fig, ax</code></pre>
+</details>
+</dd>
+<dt id="wormbrain.Brains._plot_2d"><code class="name flex">
+<span>def <span class="ident">_plot_2d</span></span>(<span>self, indices, mask=None, mask_color='r')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Produces a 2D plot of the requested volumes. To be used via the
+plot() method.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>indices</code></strong> :&ensp;<code>list</code> of <code>integers</code></dt>
+<dd>Indices of the requested volumes.</dd>
+<dt><strong><code>mask</code></strong> :&ensp;<code>numpy array</code> or <code>list</code> of <code>numpy arrays (optional)</code></dt>
+<dd>Indices of neurons to highlight. When indices is a list, i.e.
+plotting multiple volumes, mask should also be a list of indices
+for each volume. Default: None.</dd>
+<dt><strong><code>mask_color</code></strong> :&ensp;<code>string (optional)</code></dt>
+<dd>Color of the highlighted neurons, in matplotlib-understandable
+format. Default: "r".</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>fig</code></strong> :&ensp;<code>matplotlib figure</code></dt>
+<dd>&nbsp;</dd>
+<dt><strong><code>ax</code></strong> :&ensp;<code>matplotlib axis</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _plot_2d(self, indices, mask=None, mask_color=&#39;r&#39;):
+    &#39;&#39;&#39;Produces a 2D plot of the requested volumes. To be used via the 
+    plot() method.
+    
+    Parameters
+    ----------
+    indices: list of integers
+        Indices of the requested volumes.
+    mask: numpy array or list of numpy arrays (optional)
+        Indices of neurons to highlight. When indices is a list, i.e. 
+        plotting multiple volumes, mask should also be a list of indices
+        for each volume. Default: None.
+    mask_color: string (optional)
+        Color of the highlighted neurons, in matplotlib-understandable
+        format. Default: &#34;r&#34;.
+        
+    Returns
+    -------
+    fig: matplotlib figure
+    ax: matplotlib axis
+    
+    &#39;&#39;&#39;
+    # _plot_2d: plots each of the neurons at there location for the volumes specified by indices (list)
+    # Cervelli: brain object that you want to plot (this will become self in the actual class)
+    # indices: list object with the volumes that you want to plot
+    cfn = plt.gcf().number
+    if len(plt.gcf().axes)!=0: cfn += 1
+           
+    fig = plt.figure(cfn)
+    ax = fig.add_subplot(111)
+    
+    if mask is not None:
+        try: len(mask[0])
+        except: mask = [mask]
+    
+    Q = len(indices)
+    for q in np.arange(Q):
+        index = indices[q]
+        brain = self.trueCoords(index)
+        ax.scatter(brain.T[2],brain.T[1],marker=&#39;o&#39;)
+        if mask is not None:
+            ax.scatter(brain[mask[q]].T[2],brain[mask[q]].T[1],marker=&#39;o&#39;,c=mask_color)
+            
+    return fig, ax</code></pre>
 </details>
 </dd>
 </dl>
@@ -2051,6 +2229,8 @@ in the script. Default: True.</dd>
 <li><code><a title="wormbrain.Brains.get_overlay2" href="#wormbrain.Brains.get_overlay2">get_overlay2</a></code></li>
 <li><code><a title="wormbrain.Brains.fit_sphere" href="#wormbrain.Brains.fit_sphere">fit_sphere</a></code></li>
 <li><code><a title="wormbrain.Brains.plot" href="#wormbrain.Brains.plot">plot</a></code></li>
+<li><code><a title="wormbrain.Brains._plot_3d" href="#wormbrain.Brains._plot_3d">_plot_3d</a></code></li>
+<li><code><a title="wormbrain.Brains._plot_2d" href="#wormbrain.Brains._plot_2d">_plot_2d</a></code></li>
 <li><code><a title="wormbrain.Brains.filename" href="#wormbrain.Brains.filename">filename</a></code></li>
 <li><code><a title="wormbrain.Brains.coord_filename" href="#wormbrain.Brains.coord_filename">coord_filename</a></code></li>
 <li><code><a title="wormbrain.Brains.nInVolume" href="#wormbrain.Brains.nInVolume">nInVolume</a></code></li>

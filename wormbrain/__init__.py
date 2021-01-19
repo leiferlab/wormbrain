@@ -28,6 +28,9 @@ Author: Francesco Randi @ Leifer Lab, Princeton Physics Department
 
 
 __all__ = ['Brains','match','reg']
+__pdoc__ = {}
+__pdoc__['wormbrain.Brains._plot_3d'] = True
+__pdoc__['wormbrain.Brains._plot_2d'] = True
 
 from .brains import Brains
 from . import match

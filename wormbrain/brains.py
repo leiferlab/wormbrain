@@ -920,8 +920,10 @@ class Brains:
             
         Returns
         -------
-        fig: matplotlib figure (if plotNow is False)
-        ax: matplotlib axis (if plotNow is False)
+        fig: matplotlib figure 
+            Returned only if plotNow is False.
+        ax: matplotlib axis 
+            Returned only if plotNow is False.
         
         '''
         try:
@@ -941,14 +943,21 @@ class Brains:
             return fig, ax
             
             
-    def _plot_3d(self, indices, **kwargs):
+    def _plot_3d(self, indices, mask=None, mask_color='r'):
         '''Produces a 3D plot of the requested volumes. To be used via the 
         plot() method.
         
         Parameters
         ----------
-        indices: list of integers
+        indices: integer or list of integers
             Indices of the requested volumes.
+        mask: numpy array or list of numpy arrays (optional)
+            Indices of neurons to highlight. When indices is a list, i.e. 
+            plotting multiple volumes, mask should also be a list of indices
+            for each volume. Default: None.
+        mask_color: string or list of strings(optional)
+            Color of the highlighted neurons, in matplotlib-understandable
+            format. Default: "r".
             
         Returns
         -------
@@ -959,20 +968,25 @@ class Brains:
         cfn = plt.gcf().number
         if len(plt.gcf().axes)!=0: cfn += 1
         
-        showAll=True
-        if 'showAll' in kwargs: showAll=kwargs['showAll']
-        
         fig = plt.figure(cfn)
         ax = fig.add_subplot(111,projection='3d')
         
-        for index in indices:
+        if mask is not None:
+            try: len(mask[0])
+            except: mask = [mask]
+        
+        Q = len(indices)
+        for q in np.arange(Q):
+            index = indices[q]
             brain = self.trueCoords(index)
             ax.scatter(brain.T[2],brain.T[1],brain.T[0],'o')
+            if mask is not None:
+                ax.scatter(brain[mask[q]].T[2],brain[mask[q]].T[1],brain[mask[q]].T[0],'o',c=mask_color)
                 
         return fig, ax
         
 
-    def _plot_2d(self, indices, **kwargs):
+    def _plot_2d(self, indices, mask=None, mask_color='r'):
         '''Produces a 2D plot of the requested volumes. To be used via the 
         plot() method.
         
@@ -980,6 +994,13 @@ class Brains:
         ----------
         indices: list of integers
             Indices of the requested volumes.
+        mask: numpy array or list of numpy arrays (optional)
+            Indices of neurons to highlight. When indices is a list, i.e. 
+            plotting multiple volumes, mask should also be a list of indices
+            for each volume. Default: None.
+        mask_color: string (optional)
+            Color of the highlighted neurons, in matplotlib-understandable
+            format. Default: "r".
             
         Returns
         -------
@@ -992,15 +1013,20 @@ class Brains:
         # indices: list object with the volumes that you want to plot
         cfn = plt.gcf().number
         if len(plt.gcf().axes)!=0: cfn += 1
-        
-        showAll=True
-        if 'showAll' in kwargs: showAll=kwargs['showAll']
-        
+               
         fig = plt.figure(cfn)
         ax = fig.add_subplot(111)
         
-        for index in indices:
+        if mask is not None:
+            try: len(mask[0])
+            except: mask = [mask]
+        
+        Q = len(indices)
+        for q in np.arange(Q):
+            index = indices[q]
             brain = self.trueCoords(index)
             ax.scatter(brain.T[2],brain.T[1],marker='o')
+            if mask is not None:
+                ax.scatter(brain[mask[q]].T[2],brain[mask[q]].T[1],marker='o',c=mask_color)
                 
         return fig, ax
