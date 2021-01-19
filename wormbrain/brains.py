@@ -49,23 +49,33 @@ class Brains:
     '''
     
     filename = "brains.json"
+    "Default destination file name for the json version of the object"
     coord_filename = "transformed_neurons.txt"
     
     nInVolume = 0
+    "Number of neurons in each volume"
     coord = irrarray(np.zeros(1), [np.array([1])], strideNames=["vol"])
+    "Irregular array containing the coordinates of the neurons"
     zOfFrame = np.zeros(1)
+    "z coordinate of each frame in each volume"
     labels = []
+    "Labels of the neurons"
     
     version = ""
+    "Version of the wormbrain module in use when instantiating the class."
     info = {}
+    "Other info about the object"
     
     curvature = irrarray(np.zeros(1), [np.array([1])], strideNames=["vol"])
+    "Irregular array containing the local curvature at the neural positions.\
+    Note: x1/2 coordinate scale."
     boxIndices = np.zeros(1)
     boxIndicesX = np.zeros(1)
     boxIndicesY = np.zeros(1)
     boxNPlane = 0
     
     segmParam = {}
+    "Parameters used for the segmentation of the neurons stored in the object."
     info = {}
     
     MMatch = None

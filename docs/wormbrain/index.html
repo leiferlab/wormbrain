@@ -224,23 +224,33 @@ around the neurons. Default: True.</dd>
     &#39;&#39;&#39;
     
     filename = &#34;brains.json&#34;
+    &#34;Default destination file name for the json version of the object&#34;
     coord_filename = &#34;transformed_neurons.txt&#34;
     
     nInVolume = 0
+    &#34;Number of neurons in each volume&#34;
     coord = irrarray(np.zeros(1), [np.array([1])], strideNames=[&#34;vol&#34;])
+    &#34;Irregular array containing the coordinates of the neurons&#34;
     zOfFrame = np.zeros(1)
+    &#34;z coordinate of each frame in each volume&#34;
     labels = []
+    &#34;Labels of the neurons&#34;
     
     version = &#34;&#34;
+    &#34;Version of the wormbrain module in use when instantiating the class.&#34;
     info = {}
+    &#34;Other info about the object&#34;
     
     curvature = irrarray(np.zeros(1), [np.array([1])], strideNames=[&#34;vol&#34;])
+    &#34;Irregular array containing the local curvature at the neural positions.\
+    Note: x1/2 coordinate scale.&#34;
     boxIndices = np.zeros(1)
     boxIndicesX = np.zeros(1)
     boxIndicesY = np.zeros(1)
     boxNPlane = 0
     
     segmParam = {}
+    &#34;Parameters used for the segmentation of the neurons stored in the object.&#34;
     info = {}
     
     MMatch = None
@@ -1210,7 +1220,7 @@ around the neurons. Default: True.</dd>
 <dl>
 <dt id="wormbrain.Brains.filename"><code class="name">var <span class="ident">filename</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Default destination file name for the json version of the object</p></div>
 </dd>
 <dt id="wormbrain.Brains.coord_filename"><code class="name">var <span class="ident">coord_filename</span></code></dt>
 <dd>
@@ -1218,31 +1228,32 @@ around the neurons. Default: True.</dd>
 </dd>
 <dt id="wormbrain.Brains.nInVolume"><code class="name">var <span class="ident">nInVolume</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Number of neurons in each volume</p></div>
 </dd>
 <dt id="wormbrain.Brains.coord"><code class="name">var <span class="ident">coord</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Irregular array containing the coordinates of the neurons</p></div>
 </dd>
 <dt id="wormbrain.Brains.zOfFrame"><code class="name">var <span class="ident">zOfFrame</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>z coordinate of each frame in each volume</p></div>
 </dd>
 <dt id="wormbrain.Brains.labels"><code class="name">var <span class="ident">labels</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Labels of the neurons</p></div>
 </dd>
 <dt id="wormbrain.Brains.version"><code class="name">var <span class="ident">version</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Version of the wormbrain module in use when instantiating the class.</p></div>
 </dd>
 <dt id="wormbrain.Brains.info"><code class="name">var <span class="ident">info</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Other info about the object</p></div>
 </dd>
 <dt id="wormbrain.Brains.curvature"><code class="name">var <span class="ident">curvature</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Irregular array containing the local curvature at the neural positions.
+Note: x1/2 coordinate scale.</p></div>
 </dd>
 <dt id="wormbrain.Brains.boxIndices"><code class="name">var <span class="ident">boxIndices</span></code></dt>
 <dd>
@@ -1262,7 +1273,7 @@ around the neurons. Default: True.</dd>
 </dd>
 <dt id="wormbrain.Brains.segmParam"><code class="name">var <span class="ident">segmParam</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Parameters used for the segmentation of the neurons stored in the object.</p></div>
 </dd>
 <dt id="wormbrain.Brains.MMatch"><code class="name">var <span class="ident">MMatch</span></code></dt>
 <dd>
