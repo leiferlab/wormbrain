@@ -3,16 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.8.3" />
+<meta name="generator" content="pdoc 0.9.2" />
 <title>wormbrain.brains API documentation</title>
 <meta name="description" content="The class Brains is made available in the wormbrain namespace." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
-<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
 <style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
 <style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js" integrity="sha256-eOgo0OtLL4cdq7RdwRUiGKLX9XsIJ7nGhWEKbohmVAQ=" crossorigin></script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS_CHTML" integrity="sha256-kZafAc6mZvK3W3v1pHOcUix30OHQN6pU/NO2oFkqZVw=" crossorigin></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
 <script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
 </head>
 <body>
@@ -33,10 +34,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import mistofrutta.struct.irrarray as irrarray
 from copy import deepcopy as deepcopy
-import json
+import ujson as json
 import re
 import pkg_resources
 import wormbrain as wormb
+import os
+import pickle
 
 class Brains:
     &#39;&#39;&#39;Container for neuron coordinates. It depends on the arrays with 
@@ -79,24 +82,31 @@ class Brains:
     coord_filename = &#34;transformed_neurons.txt&#34;
     
     nInVolume = 0
-    coord = None
-    zOfFrame = None
+    coord = irrarray(np.zeros(1), [np.array([1])], strideNames=[&#34;vol&#34;])
+    zOfFrame = np.zeros(1)
+    labels = []
     
-    version = None
+    version = &#34;&#34;
     info = {}
     
-    curvature = None
-    boxIndices = None
-    boxIndicesX = None
-    boxIndicesY = None
+    curvature = irrarray(np.zeros(1), [np.array([1])], strideNames=[&#34;vol&#34;])
+    boxIndices = np.zeros(1)
+    boxIndicesX = np.zeros(1)
+    boxIndicesY = np.zeros(1)
     boxNPlane = 0
     
     segmParam = {}
     info = {}
     
+    MMatch = None
+    
+    coord_upToIndex = {}
+    coord_columnNames = []
+    
     
     def __init__(self, coordZYX, nInVolume, zOfFrame=None, properties={}, 
                  stabilize_z=True,stabilize_xy=True):
+                 #save_to_cache=False,save_to_path=None):
         &#39;&#39;&#39;The constructor transforms the coordinates array into an irrarray
         and, if requested to, &#34;stabilizes&#34; the coordinates based on the 
         local curvature around the neurons.
@@ -141,11 +151,21 @@ class Brains:
         self.info = {}
         self.info[&#39;version&#39;] = self.version
         
+        self.labels = [[] for jj in np.arange(len(nInVolume))]
+        
         if len(properties.keys())!=0:
-            self.curvature = properties[&#39;curvature&#39;]
+            self.boxIndices = properties[&#39;boxIndices&#39;]
+            curvature_elements = 0
+            for bi in self.boxIndices: curvature_elements += len(bi)
+            self.curvature = np.array(properties[&#39;curvature&#39;])
+            
+            if len(self.curvature.shape) == 1:
+                self.curvature = self.curvature.reshape(
+                                self.curvature.shape[0]//curvature_elements,
+                                curvature_elements)
+            
             self.curvature = irrarray(self.curvature, self.nInVolume, 
                                         strideNames=[&#34;vol&#34;])
-            self.boxIndices = properties[&#39;boxIndices&#39;]
             
             try:
                 self.boxIndicesX = properties[&#39;boxIndicesX&#39;]
@@ -176,7 +196,12 @@ class Brains:
                 self.coord = np.rint(self.coord)
             
         self.coord = self.coord.astype(int)
-    
+        
+        #if save_to_cache and save_to_path is not None:
+        #    f = open(save_to_path,&#34;wb&#34;)
+        #    pickle.dump(self,f)
+        #    f.close()
+        
     @classmethod
     def from_find_neurons(cls, coord, volFrame0=None, *args, **kwargs):
         &#39;&#39;&#39;Create a Brains object from the result of the results of 
@@ -235,47 +260,79 @@ class Brains:
         
         if filename==&#34;&#34;:
             filename = cls.filename
-        f = open(folder+filename)
-        c = json.load(f)
-        f.close()
         
-        coordZYX = np.array(c[&#39;coordZYX&#39;])
-        nInVolume = np.array(c[&#39;nInVolume&#39;])
-        zOfFrame = [np.array(z) for z in c[&#39;zOfFrame&#39;]]
-        properties = {}
-        
-        # To be compatible with older versions of the file, there is this
-        # sequence of try/except. At some point, this can be removed and all
-        # the properties be loaded.
-        try:
-            props = c[&#39;properties&#39;]
-            properties[&#39;curvature&#39;] = [np.array(curv) for curv in props[&#39;curvature&#39;]]
-            properties[&#39;boxIndices&#39;] = [np.array(bi) for bi in props[&#39;boxIndices&#39;]]
-            properties[&#39;boxNPlane&#39;] = props[&#39;boxNPlane&#39;]
-        except:
-            pass
+        # If pickled cache is available, load from there;
+        # Otherwise parse the json file.
+        pickle_filename = &#34;.&#34;.join([filename.split(&#34;.&#34;)[0],&#34;pickle&#34;])
+        cache_present = os.path.isfile(folder+pickle_filename)
+        if False:#cache_present:
+            f = open(folder+pickle_filename,&#34;rb&#34;)
+            obj = pickle.load(f)
+            f.close()
+            coordZYX = obj[&#34;coordZYX&#34;]
+            nInVolume = obj[&#34;nInVolume&#34;]
+            zOfFrame = obj[&#34;zOfFrame&#34;]
+            properties = obj[&#34;properties&#34;]
+        else:        
+            f = open(folder+filename)
+            c = json.load(f)
+            f.close()
             
-        try:
-            properties[&#39;boxIndicesX&#39;] = [np.array(bi) for bi in props[&#39;boxIndicesX&#39;]]
-            properties[&#39;boxIndicesY&#39;] = [np.array(bi) for bi in props[&#39;boxIndicesY&#39;]]
-        except:
-            pass
+            coordZYX = np.array(c[&#39;coordZYX&#39;])
+            nInVolume = np.array(c[&#39;nInVolume&#39;])
+            zOfFrame = [np.array(z) for z in c[&#39;zOfFrame&#39;]]
+            properties = {}
             
-        try:
-            properties[&#39;segmParam&#39;] = props[&#39;segmParam&#39;]
-        except:
-            pass
-            
-        try:
-            properties[&#39;version&#39;] = props[&#39;version&#39;]
-        except:
-            pass
+            # To be compatible with older versions of the file, there is this
+            # sequence of try/except. At some point, this can be removed and all
+            # the properties be loaded.
+            try:
+                props = c[&#39;properties&#39;]
+                #properties[&#39;curvature&#39;] = [np.array(curv) for curv in props[&#39;curvature&#39;]]
+                properties[&#39;curvature&#39;] = np.array(props[&#39;curvature&#39;])
+                properties[&#39;boxIndices&#39;] = [np.array(bi) for bi in props[&#39;boxIndices&#39;]]
+                properties[&#39;boxNPlane&#39;] = props[&#39;boxNPlane&#39;]
+            except:
+                pass
+                
+            try:
+                properties[&#39;boxIndicesX&#39;] = [np.array(bi) for bi in props[&#39;boxIndicesX&#39;]]
+                properties[&#39;boxIndicesY&#39;] = [np.array(bi) for bi in props[&#39;boxIndicesY&#39;]]
+            except:
+                pass
+                
+            try:
+                properties[&#39;segmParam&#39;] = props[&#39;segmParam&#39;]
+            except:
+                pass
+                
+            try:
+                properties[&#39;version&#39;] = props[&#39;version&#39;]
+            except:
+                pass
+                
+            try:
+                labels = c[&#39;labels&#39;]
+            except:
+                labels = None
+                
+            # cache in the pickled version
+            #f = open(folder+pickle_filename,&#34;wb&#34;)
+            #pickle.dump({&#34;coordZYX&#34;:coordZYX,&#34;nInVolume&#34;:nInVolume,&#34;zOfFrame&#34;:zOfFrame,&#34;properties&#34;:properties},f)
+            #f.close()
         
         # Don&#39;t do any implicit stabilization if loaded from file. 
         stabilize_z = False
         stabilize_xy = False 
         
-        return cls(coordZYX, nInVolume, zOfFrame, properties, stabilize_z, stabilize_xy)
+        inst = cls(coordZYX, nInVolume, zOfFrame, properties, stabilize_z, stabilize_xy)
+        
+        if labels is not None:
+            for j in np.arange(len(labels)):
+                l = labels[j]
+                inst.set_labels(j,l)
+        
+        return inst
         
     @classmethod
     def from_coord_file(cls, folder, filename=&#34;&#34;):
@@ -298,11 +355,16 @@ class Brains:
         f = open(folder+filename)
         s = f.readline()
         f.close()
-        
-        s = s.split(&#34;;&#34;)
-        n_volume = int(s[0].split(&#34;=&#34;)[1])
-        n_neurons = int(s[1].split(&#34;=&#34;)[1])
-        nInVolume = np.ones(n_volume)*n_neurons
+
+        try:
+            sp = s.split(&#34;;&#34;)
+            n_volumes = int(sp[0].split(&#34;=&#34;)[1])
+            n_neurons = int(sp[1].split(&#34;=&#34;)[1])
+        except:
+            s = json.loads(s[1:])
+            n_volumes = s[&#34;n_volumes&#34;]
+            n_neurons = s[&#34;n_neurons&#34;]
+        nInVolume = np.ones(n_volumes)*n_neurons
         
         coordZYX = np.loadtxt(folder+filename)
         
@@ -368,16 +430,18 @@ class Brains:
             Name of destination file. Default: &#34;&#34;, which is translated to the 
             default filename for the class.
         
-        &#39;&#39;&#39;
+        &#39;&#39;&#39;    
         if foldername[-1]!=&#34;/&#34;: foldername += &#34;/&#34;
         
         diz = {}
         diz[&#39;coordZYX&#39;] = [c.tolist() for c in self.coord]
         diz[&#39;nInVolume&#39;] = self.nInVolume.tolist()
         diz[&#39;zOfFrame&#39;] = [z.tolist() for z in self.zOfFrame]
+        diz[&#39;labels&#39;] = self.labels
         props = {}
         try:
             props[&#39;curvature&#39;] = [c.tolist() for c in self.curvature]
+            #props[&#39;curvature&#39;] = self.curvature.tolist()
             props[&#39;boxIndices&#39;] = [c.tolist() for c in self.boxIndices]
             props[&#39;boxIndicesX&#39;] = [c.tolist() for c in self.boxIndicesX]
             props[&#39;boxIndicesY&#39;] = [c.tolist() for c in self.boxIndicesY]
@@ -401,6 +465,10 @@ class Brains:
         f = open(foldername+filename,&#39;w&#39;)
         f.write(o3)
         f.close()
+        
+    def load_matches(self,folder):
+        if self.MMatch is None:
+            self.MMatch, self.MMatch_parameters = wormb.match.load_matches(folder) 
         
     def trueCoords(self, vol, coord_ordering=&#39;zyx&#39;):#, returnIrrarray=False):
         &#39;&#39;&#39;Returns the coordinates of the neurons contained in the specified
@@ -437,6 +505,34 @@ class Brains:
         if len(trueCoords)==1: trueCoords = trueCoords[0]
                 
         return trueCoords
+        
+    def get_closest_neuron(self,volume,coord,inverse_match=True,z_true=False,coord_ordering=&#39;zyx&#39;):
+        
+        if coord_ordering == &#34;xyz&#34;: coord = coord[::-1]
+        neurons = self.coord(vol=volume)
+        
+        if z_true:
+            # Convert passed true z coordinate to index
+            z_index = np.argmin(np.absolute(coord[0]-self.zOfFrame[volume]))
+            coord = np.array([z_index,coord[1],coord[2]])
+        
+        closest = np.argmin(np.sum(np.power(neurons-coord[None,:],2),axis=-1))    
+            
+        if inverse_match:
+            closest_ref = np.where(self.MMatch[volume]==closest)[0]
+            if closest_ref.shape[0] &gt;0:
+                closest_ref = closest_ref[0]
+            else:
+                closest_ref = -1
+            closest = closest_ref
+        
+        return closest
+        
+    def set_labels(self, vol, labels):
+        self.labels[vol] = labels
+        
+    def get_labels(self, vol):
+        return self.labels[vol]
         
     @staticmethod
     def _conv_coord_2d_to_3d(coord_2d, volFrame0, zOfFrame=[], dz=1, 
@@ -620,7 +716,24 @@ class Brains:
             return Overlay, OverlayLabels            
         else:
             return Overlay
+            
+    def get_overlay2(self,vol,return_labels=False,label_size=None,copy=True):
+        if copy:
+            overlay_ = self.coord(vol=vol).copy()
+        else:
+            overlay_ = self.coord(vol=vol)
         
+        overlay = irrarray(overlay_, irrStrides = [[self.nInVolume[vol],0]], strideNames=[&#34;ch&#34;])
+        if return_labels:
+            if label_size is not None:
+                labels_ = [str(i).zfill(label_size) for i in np.arange(self.nInVolume[vol])]
+            else:
+                labels_ = [str(i) for i in np.arange(self.nInVolume[vol])]
+            labels = irrarray(labels_, irrStrides = [[self.nInVolume[vol],0]], strideNames=[&#34;ch&#34;])
+            return overlay, labels
+        else:
+            return overlay
+            
         
     @staticmethod
     def _stabilize_z(coord, curvature, nPlane=7, boxIndices=
@@ -710,7 +823,7 @@ class Brains:
         [np.array([10,23,36]), np.array([2,7,11,15,29,24,28,33,37,41,46]), 
         np.array([0,1,3,5,6,8,12,16,18,19,21,25,29,31,32,34,38,42,44,45,47,49,50]),
         np.array([4,9,13,17,22,26,30,35,39,43,48]), np.array([14,27,40])], 
-        coord_3d_ordering=&#34;zyx&#34;, method=&#34;curvatureAverage&#34;):
+        coord_3d_ordering=&#34;zyx&#34;, method=&#34;curvatureAverage&#34;, curvatureImageResize=2.0):
         &#39;&#39;&#39;Stabilization of the x coordinate, equivalent to _stabilize_z.&#39;&#39;&#39;
         
         # Determine the index of the x coordinate in the input and output arrays
@@ -736,7 +849,8 @@ class Brains:
             coord_3d_out[:,0:2] = coord[:,0:2]
         else:
             coord_3d_out[:,1:3] = coord[:,1:3]
-        coord_3d_out[:,x_index] = coord[:,x_index].astype(np.float) + np.sum(x*curv,axis=1)/np.sum(curv,axis=1)
+        
+        coord_3d_out[:,x_index] = coord[:,x_index].astype(np.float) + np.sum(x*curv,axis=1)/np.sum(curv,axis=1) * curvatureImageResize
         
         return coord_3d_out
     
@@ -745,7 +859,7 @@ class Brains:
         [np.array([6,19,32]), np.array([1,7,8,9,29,21,22,33,34,35,45]),
         np.array([0,2,3,4,10,11,12,13,14,23,24,25,26,27,36,37,38,39,40,46,47,48,50]),
         np.array([5,15,16,17,28,29,30,41,42,43,49]),np.array([18,31,44])],
-        coord_3d_ordering=&#34;zyx&#34;, method=&#34;curvatureAverage&#34;):
+        coord_3d_ordering=&#34;zyx&#34;, method=&#34;curvatureAverage&#34;, curvatureImageResize=2.0):
         &#39;&#39;&#39;Stabilization of the y coordinate, equivalent to _stabilize_z.&#39;&#39;&#39;
         
         y_index = 1
@@ -944,7 +1058,7 @@ for specific types of slices of numpy arrays.</p>
 from_file(). Can be saved to a json file with to_file().</p>
 <p>The coordinates of the neurons can be accessed in various ways: With
 Cervelli an instance of the class</p>
-<pre><code class="python">&gt;&gt;&gt; Cervelli[i]
+<pre><code class="language-python-repl">&gt;&gt;&gt; Cervelli[i]
 </code></pre>
 <p>will return the i-th point (counting from the very beginning in the whole
 set of points passed). The coordinates are stored in indexing-order so,
@@ -954,10 +1068,10 @@ Upon call, the internal irrarray object which
 stores the coordinates is called, giving direct access to all its
 functionalities. To obtain the coordinatesof neurons contained in volume m,
 use</p>
-<pre><code class="python">&gt;&gt;&gt; Cervelli(vol=m)     
+<pre><code class="language-python-repl">&gt;&gt;&gt; Cervelli(vol=m)     
 </code></pre>
 <p>(see mistofrutta.struct.irrarray for further documentation).</p>
-<pre><code class="python">&gt;&gt;&gt; Cervelli.trueCoords(m)
+<pre><code class="language-python-repl">&gt;&gt;&gt; Cervelli.trueCoords(m)
 </code></pre>
 <p>will return the "true" coordinates, in which z has the same dimensions as
 y and x.</p>
@@ -1038,24 +1152,31 @@ around the neurons. Default: True.</dd>
     coord_filename = &#34;transformed_neurons.txt&#34;
     
     nInVolume = 0
-    coord = None
-    zOfFrame = None
+    coord = irrarray(np.zeros(1), [np.array([1])], strideNames=[&#34;vol&#34;])
+    zOfFrame = np.zeros(1)
+    labels = []
     
-    version = None
+    version = &#34;&#34;
     info = {}
     
-    curvature = None
-    boxIndices = None
-    boxIndicesX = None
-    boxIndicesY = None
+    curvature = irrarray(np.zeros(1), [np.array([1])], strideNames=[&#34;vol&#34;])
+    boxIndices = np.zeros(1)
+    boxIndicesX = np.zeros(1)
+    boxIndicesY = np.zeros(1)
     boxNPlane = 0
     
     segmParam = {}
     info = {}
     
+    MMatch = None
+    
+    coord_upToIndex = {}
+    coord_columnNames = []
+    
     
     def __init__(self, coordZYX, nInVolume, zOfFrame=None, properties={}, 
                  stabilize_z=True,stabilize_xy=True):
+                 #save_to_cache=False,save_to_path=None):
         &#39;&#39;&#39;The constructor transforms the coordinates array into an irrarray
         and, if requested to, &#34;stabilizes&#34; the coordinates based on the 
         local curvature around the neurons.
@@ -1100,11 +1221,21 @@ around the neurons. Default: True.</dd>
         self.info = {}
         self.info[&#39;version&#39;] = self.version
         
+        self.labels = [[] for jj in np.arange(len(nInVolume))]
+        
         if len(properties.keys())!=0:
-            self.curvature = properties[&#39;curvature&#39;]
+            self.boxIndices = properties[&#39;boxIndices&#39;]
+            curvature_elements = 0
+            for bi in self.boxIndices: curvature_elements += len(bi)
+            self.curvature = np.array(properties[&#39;curvature&#39;])
+            
+            if len(self.curvature.shape) == 1:
+                self.curvature = self.curvature.reshape(
+                                self.curvature.shape[0]//curvature_elements,
+                                curvature_elements)
+            
             self.curvature = irrarray(self.curvature, self.nInVolume, 
                                         strideNames=[&#34;vol&#34;])
-            self.boxIndices = properties[&#39;boxIndices&#39;]
             
             try:
                 self.boxIndicesX = properties[&#39;boxIndicesX&#39;]
@@ -1135,7 +1266,12 @@ around the neurons. Default: True.</dd>
                 self.coord = np.rint(self.coord)
             
         self.coord = self.coord.astype(int)
-    
+        
+        #if save_to_cache and save_to_path is not None:
+        #    f = open(save_to_path,&#34;wb&#34;)
+        #    pickle.dump(self,f)
+        #    f.close()
+        
     @classmethod
     def from_find_neurons(cls, coord, volFrame0=None, *args, **kwargs):
         &#39;&#39;&#39;Create a Brains object from the result of the results of 
@@ -1194,47 +1330,79 @@ around the neurons. Default: True.</dd>
         
         if filename==&#34;&#34;:
             filename = cls.filename
-        f = open(folder+filename)
-        c = json.load(f)
-        f.close()
         
-        coordZYX = np.array(c[&#39;coordZYX&#39;])
-        nInVolume = np.array(c[&#39;nInVolume&#39;])
-        zOfFrame = [np.array(z) for z in c[&#39;zOfFrame&#39;]]
-        properties = {}
-        
-        # To be compatible with older versions of the file, there is this
-        # sequence of try/except. At some point, this can be removed and all
-        # the properties be loaded.
-        try:
-            props = c[&#39;properties&#39;]
-            properties[&#39;curvature&#39;] = [np.array(curv) for curv in props[&#39;curvature&#39;]]
-            properties[&#39;boxIndices&#39;] = [np.array(bi) for bi in props[&#39;boxIndices&#39;]]
-            properties[&#39;boxNPlane&#39;] = props[&#39;boxNPlane&#39;]
-        except:
-            pass
+        # If pickled cache is available, load from there;
+        # Otherwise parse the json file.
+        pickle_filename = &#34;.&#34;.join([filename.split(&#34;.&#34;)[0],&#34;pickle&#34;])
+        cache_present = os.path.isfile(folder+pickle_filename)
+        if False:#cache_present:
+            f = open(folder+pickle_filename,&#34;rb&#34;)
+            obj = pickle.load(f)
+            f.close()
+            coordZYX = obj[&#34;coordZYX&#34;]
+            nInVolume = obj[&#34;nInVolume&#34;]
+            zOfFrame = obj[&#34;zOfFrame&#34;]
+            properties = obj[&#34;properties&#34;]
+        else:        
+            f = open(folder+filename)
+            c = json.load(f)
+            f.close()
             
-        try:
-            properties[&#39;boxIndicesX&#39;] = [np.array(bi) for bi in props[&#39;boxIndicesX&#39;]]
-            properties[&#39;boxIndicesY&#39;] = [np.array(bi) for bi in props[&#39;boxIndicesY&#39;]]
-        except:
-            pass
+            coordZYX = np.array(c[&#39;coordZYX&#39;])
+            nInVolume = np.array(c[&#39;nInVolume&#39;])
+            zOfFrame = [np.array(z) for z in c[&#39;zOfFrame&#39;]]
+            properties = {}
             
-        try:
-            properties[&#39;segmParam&#39;] = props[&#39;segmParam&#39;]
-        except:
-            pass
-            
-        try:
-            properties[&#39;version&#39;] = props[&#39;version&#39;]
-        except:
-            pass
+            # To be compatible with older versions of the file, there is this
+            # sequence of try/except. At some point, this can be removed and all
+            # the properties be loaded.
+            try:
+                props = c[&#39;properties&#39;]
+                #properties[&#39;curvature&#39;] = [np.array(curv) for curv in props[&#39;curvature&#39;]]
+                properties[&#39;curvature&#39;] = np.array(props[&#39;curvature&#39;])
+                properties[&#39;boxIndices&#39;] = [np.array(bi) for bi in props[&#39;boxIndices&#39;]]
+                properties[&#39;boxNPlane&#39;] = props[&#39;boxNPlane&#39;]
+            except:
+                pass
+                
+            try:
+                properties[&#39;boxIndicesX&#39;] = [np.array(bi) for bi in props[&#39;boxIndicesX&#39;]]
+                properties[&#39;boxIndicesY&#39;] = [np.array(bi) for bi in props[&#39;boxIndicesY&#39;]]
+            except:
+                pass
+                
+            try:
+                properties[&#39;segmParam&#39;] = props[&#39;segmParam&#39;]
+            except:
+                pass
+                
+            try:
+                properties[&#39;version&#39;] = props[&#39;version&#39;]
+            except:
+                pass
+                
+            try:
+                labels = c[&#39;labels&#39;]
+            except:
+                labels = None
+                
+            # cache in the pickled version
+            #f = open(folder+pickle_filename,&#34;wb&#34;)
+            #pickle.dump({&#34;coordZYX&#34;:coordZYX,&#34;nInVolume&#34;:nInVolume,&#34;zOfFrame&#34;:zOfFrame,&#34;properties&#34;:properties},f)
+            #f.close()
         
         # Don&#39;t do any implicit stabilization if loaded from file. 
         stabilize_z = False
         stabilize_xy = False 
         
-        return cls(coordZYX, nInVolume, zOfFrame, properties, stabilize_z, stabilize_xy)
+        inst = cls(coordZYX, nInVolume, zOfFrame, properties, stabilize_z, stabilize_xy)
+        
+        if labels is not None:
+            for j in np.arange(len(labels)):
+                l = labels[j]
+                inst.set_labels(j,l)
+        
+        return inst
         
     @classmethod
     def from_coord_file(cls, folder, filename=&#34;&#34;):
@@ -1257,11 +1425,16 @@ around the neurons. Default: True.</dd>
         f = open(folder+filename)
         s = f.readline()
         f.close()
-        
-        s = s.split(&#34;;&#34;)
-        n_volume = int(s[0].split(&#34;=&#34;)[1])
-        n_neurons = int(s[1].split(&#34;=&#34;)[1])
-        nInVolume = np.ones(n_volume)*n_neurons
+
+        try:
+            sp = s.split(&#34;;&#34;)
+            n_volumes = int(sp[0].split(&#34;=&#34;)[1])
+            n_neurons = int(sp[1].split(&#34;=&#34;)[1])
+        except:
+            s = json.loads(s[1:])
+            n_volumes = s[&#34;n_volumes&#34;]
+            n_neurons = s[&#34;n_neurons&#34;]
+        nInVolume = np.ones(n_volumes)*n_neurons
         
         coordZYX = np.loadtxt(folder+filename)
         
@@ -1327,16 +1500,18 @@ around the neurons. Default: True.</dd>
             Name of destination file. Default: &#34;&#34;, which is translated to the 
             default filename for the class.
         
-        &#39;&#39;&#39;
+        &#39;&#39;&#39;    
         if foldername[-1]!=&#34;/&#34;: foldername += &#34;/&#34;
         
         diz = {}
         diz[&#39;coordZYX&#39;] = [c.tolist() for c in self.coord]
         diz[&#39;nInVolume&#39;] = self.nInVolume.tolist()
         diz[&#39;zOfFrame&#39;] = [z.tolist() for z in self.zOfFrame]
+        diz[&#39;labels&#39;] = self.labels
         props = {}
         try:
             props[&#39;curvature&#39;] = [c.tolist() for c in self.curvature]
+            #props[&#39;curvature&#39;] = self.curvature.tolist()
             props[&#39;boxIndices&#39;] = [c.tolist() for c in self.boxIndices]
             props[&#39;boxIndicesX&#39;] = [c.tolist() for c in self.boxIndicesX]
             props[&#39;boxIndicesY&#39;] = [c.tolist() for c in self.boxIndicesY]
@@ -1360,6 +1535,10 @@ around the neurons. Default: True.</dd>
         f = open(foldername+filename,&#39;w&#39;)
         f.write(o3)
         f.close()
+        
+    def load_matches(self,folder):
+        if self.MMatch is None:
+            self.MMatch, self.MMatch_parameters = wormb.match.load_matches(folder) 
         
     def trueCoords(self, vol, coord_ordering=&#39;zyx&#39;):#, returnIrrarray=False):
         &#39;&#39;&#39;Returns the coordinates of the neurons contained in the specified
@@ -1396,6 +1575,34 @@ around the neurons. Default: True.</dd>
         if len(trueCoords)==1: trueCoords = trueCoords[0]
                 
         return trueCoords
+        
+    def get_closest_neuron(self,volume,coord,inverse_match=True,z_true=False,coord_ordering=&#39;zyx&#39;):
+        
+        if coord_ordering == &#34;xyz&#34;: coord = coord[::-1]
+        neurons = self.coord(vol=volume)
+        
+        if z_true:
+            # Convert passed true z coordinate to index
+            z_index = np.argmin(np.absolute(coord[0]-self.zOfFrame[volume]))
+            coord = np.array([z_index,coord[1],coord[2]])
+        
+        closest = np.argmin(np.sum(np.power(neurons-coord[None,:],2),axis=-1))    
+            
+        if inverse_match:
+            closest_ref = np.where(self.MMatch[volume]==closest)[0]
+            if closest_ref.shape[0] &gt;0:
+                closest_ref = closest_ref[0]
+            else:
+                closest_ref = -1
+            closest = closest_ref
+        
+        return closest
+        
+    def set_labels(self, vol, labels):
+        self.labels[vol] = labels
+        
+    def get_labels(self, vol):
+        return self.labels[vol]
         
     @staticmethod
     def _conv_coord_2d_to_3d(coord_2d, volFrame0, zOfFrame=[], dz=1, 
@@ -1579,7 +1786,24 @@ around the neurons. Default: True.</dd>
             return Overlay, OverlayLabels            
         else:
             return Overlay
+            
+    def get_overlay2(self,vol,return_labels=False,label_size=None,copy=True):
+        if copy:
+            overlay_ = self.coord(vol=vol).copy()
+        else:
+            overlay_ = self.coord(vol=vol)
         
+        overlay = irrarray(overlay_, irrStrides = [[self.nInVolume[vol],0]], strideNames=[&#34;ch&#34;])
+        if return_labels:
+            if label_size is not None:
+                labels_ = [str(i).zfill(label_size) for i in np.arange(self.nInVolume[vol])]
+            else:
+                labels_ = [str(i) for i in np.arange(self.nInVolume[vol])]
+            labels = irrarray(labels_, irrStrides = [[self.nInVolume[vol],0]], strideNames=[&#34;ch&#34;])
+            return overlay, labels
+        else:
+            return overlay
+            
         
     @staticmethod
     def _stabilize_z(coord, curvature, nPlane=7, boxIndices=
@@ -1669,7 +1893,7 @@ around the neurons. Default: True.</dd>
         [np.array([10,23,36]), np.array([2,7,11,15,29,24,28,33,37,41,46]), 
         np.array([0,1,3,5,6,8,12,16,18,19,21,25,29,31,32,34,38,42,44,45,47,49,50]),
         np.array([4,9,13,17,22,26,30,35,39,43,48]), np.array([14,27,40])], 
-        coord_3d_ordering=&#34;zyx&#34;, method=&#34;curvatureAverage&#34;):
+        coord_3d_ordering=&#34;zyx&#34;, method=&#34;curvatureAverage&#34;, curvatureImageResize=2.0):
         &#39;&#39;&#39;Stabilization of the x coordinate, equivalent to _stabilize_z.&#39;&#39;&#39;
         
         # Determine the index of the x coordinate in the input and output arrays
@@ -1695,7 +1919,8 @@ around the neurons. Default: True.</dd>
             coord_3d_out[:,0:2] = coord[:,0:2]
         else:
             coord_3d_out[:,1:3] = coord[:,1:3]
-        coord_3d_out[:,x_index] = coord[:,x_index].astype(np.float) + np.sum(x*curv,axis=1)/np.sum(curv,axis=1)
+        
+        coord_3d_out[:,x_index] = coord[:,x_index].astype(np.float) + np.sum(x*curv,axis=1)/np.sum(curv,axis=1) * curvatureImageResize
         
         return coord_3d_out
     
@@ -1704,7 +1929,7 @@ around the neurons. Default: True.</dd>
         [np.array([6,19,32]), np.array([1,7,8,9,29,21,22,33,34,35,45]),
         np.array([0,2,3,4,10,11,12,13,14,23,24,25,26,27,36,37,38,39,40,46,47,48,50]),
         np.array([5,15,16,17,28,29,30,41,42,43,49]),np.array([18,31,44])],
-        coord_3d_ordering=&#34;zyx&#34;, method=&#34;curvatureAverage&#34;):
+        coord_3d_ordering=&#34;zyx&#34;, method=&#34;curvatureAverage&#34;, curvatureImageResize=2.0):
         &#39;&#39;&#39;Stabilization of the y coordinate, equivalent to _stabilize_z.&#39;&#39;&#39;
         
         y_index = 1
@@ -1902,6 +2127,10 @@ around the neurons. Default: True.</dd>
 <dd>
 <div class="desc"></div>
 </dd>
+<dt id="wormbrain.brains.Brains.labels"><code class="name">var <span class="ident">labels</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="wormbrain.brains.Brains.version"><code class="name">var <span class="ident">version</span></code></dt>
 <dd>
 <div class="desc"></div>
@@ -1931,6 +2160,18 @@ around the neurons. Default: True.</dd>
 <div class="desc"></div>
 </dd>
 <dt id="wormbrain.brains.Brains.segmParam"><code class="name">var <span class="ident">segmParam</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="wormbrain.brains.Brains.MMatch"><code class="name">var <span class="ident">MMatch</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="wormbrain.brains.Brains.coord_upToIndex"><code class="name">var <span class="ident">coord_upToIndex</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="wormbrain.brains.Brains.coord_columnNames"><code class="name">var <span class="ident">coord_columnNames</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -2039,47 +2280,79 @@ def from_file(cls, folder, filename=&#34;&#34;):
     
     if filename==&#34;&#34;:
         filename = cls.filename
-    f = open(folder+filename)
-    c = json.load(f)
-    f.close()
     
-    coordZYX = np.array(c[&#39;coordZYX&#39;])
-    nInVolume = np.array(c[&#39;nInVolume&#39;])
-    zOfFrame = [np.array(z) for z in c[&#39;zOfFrame&#39;]]
-    properties = {}
-    
-    # To be compatible with older versions of the file, there is this
-    # sequence of try/except. At some point, this can be removed and all
-    # the properties be loaded.
-    try:
-        props = c[&#39;properties&#39;]
-        properties[&#39;curvature&#39;] = [np.array(curv) for curv in props[&#39;curvature&#39;]]
-        properties[&#39;boxIndices&#39;] = [np.array(bi) for bi in props[&#39;boxIndices&#39;]]
-        properties[&#39;boxNPlane&#39;] = props[&#39;boxNPlane&#39;]
-    except:
-        pass
+    # If pickled cache is available, load from there;
+    # Otherwise parse the json file.
+    pickle_filename = &#34;.&#34;.join([filename.split(&#34;.&#34;)[0],&#34;pickle&#34;])
+    cache_present = os.path.isfile(folder+pickle_filename)
+    if False:#cache_present:
+        f = open(folder+pickle_filename,&#34;rb&#34;)
+        obj = pickle.load(f)
+        f.close()
+        coordZYX = obj[&#34;coordZYX&#34;]
+        nInVolume = obj[&#34;nInVolume&#34;]
+        zOfFrame = obj[&#34;zOfFrame&#34;]
+        properties = obj[&#34;properties&#34;]
+    else:        
+        f = open(folder+filename)
+        c = json.load(f)
+        f.close()
         
-    try:
-        properties[&#39;boxIndicesX&#39;] = [np.array(bi) for bi in props[&#39;boxIndicesX&#39;]]
-        properties[&#39;boxIndicesY&#39;] = [np.array(bi) for bi in props[&#39;boxIndicesY&#39;]]
-    except:
-        pass
+        coordZYX = np.array(c[&#39;coordZYX&#39;])
+        nInVolume = np.array(c[&#39;nInVolume&#39;])
+        zOfFrame = [np.array(z) for z in c[&#39;zOfFrame&#39;]]
+        properties = {}
         
-    try:
-        properties[&#39;segmParam&#39;] = props[&#39;segmParam&#39;]
-    except:
-        pass
-        
-    try:
-        properties[&#39;version&#39;] = props[&#39;version&#39;]
-    except:
-        pass
+        # To be compatible with older versions of the file, there is this
+        # sequence of try/except. At some point, this can be removed and all
+        # the properties be loaded.
+        try:
+            props = c[&#39;properties&#39;]
+            #properties[&#39;curvature&#39;] = [np.array(curv) for curv in props[&#39;curvature&#39;]]
+            properties[&#39;curvature&#39;] = np.array(props[&#39;curvature&#39;])
+            properties[&#39;boxIndices&#39;] = [np.array(bi) for bi in props[&#39;boxIndices&#39;]]
+            properties[&#39;boxNPlane&#39;] = props[&#39;boxNPlane&#39;]
+        except:
+            pass
+            
+        try:
+            properties[&#39;boxIndicesX&#39;] = [np.array(bi) for bi in props[&#39;boxIndicesX&#39;]]
+            properties[&#39;boxIndicesY&#39;] = [np.array(bi) for bi in props[&#39;boxIndicesY&#39;]]
+        except:
+            pass
+            
+        try:
+            properties[&#39;segmParam&#39;] = props[&#39;segmParam&#39;]
+        except:
+            pass
+            
+        try:
+            properties[&#39;version&#39;] = props[&#39;version&#39;]
+        except:
+            pass
+            
+        try:
+            labels = c[&#39;labels&#39;]
+        except:
+            labels = None
+            
+        # cache in the pickled version
+        #f = open(folder+pickle_filename,&#34;wb&#34;)
+        #pickle.dump({&#34;coordZYX&#34;:coordZYX,&#34;nInVolume&#34;:nInVolume,&#34;zOfFrame&#34;:zOfFrame,&#34;properties&#34;:properties},f)
+        #f.close()
     
     # Don&#39;t do any implicit stabilization if loaded from file. 
     stabilize_z = False
     stabilize_xy = False 
     
-    return cls(coordZYX, nInVolume, zOfFrame, properties, stabilize_z, stabilize_xy)</code></pre>
+    inst = cls(coordZYX, nInVolume, zOfFrame, properties, stabilize_z, stabilize_xy)
+    
+    if labels is not None:
+        for j in np.arange(len(labels)):
+            l = labels[j]
+            inst.set_labels(j,l)
+    
+    return inst</code></pre>
 </details>
 </dd>
 <dt id="wormbrain.brains.Brains.from_coord_file"><code class="name flex">
@@ -2122,11 +2395,16 @@ def from_coord_file(cls, folder, filename=&#34;&#34;):
     f = open(folder+filename)
     s = f.readline()
     f.close()
-    
-    s = s.split(&#34;;&#34;)
-    n_volume = int(s[0].split(&#34;=&#34;)[1])
-    n_neurons = int(s[1].split(&#34;=&#34;)[1])
-    nInVolume = np.ones(n_volume)*n_neurons
+
+    try:
+        sp = s.split(&#34;;&#34;)
+        n_volumes = int(sp[0].split(&#34;=&#34;)[1])
+        n_neurons = int(sp[1].split(&#34;=&#34;)[1])
+    except:
+        s = json.loads(s[1:])
+        n_volumes = s[&#34;n_volumes&#34;]
+        n_neurons = s[&#34;n_neurons&#34;]
+    nInVolume = np.ones(n_volumes)*n_neurons
     
     coordZYX = np.loadtxt(folder+filename)
     
@@ -2223,16 +2501,18 @@ default filename for the class.</dd>
         Name of destination file. Default: &#34;&#34;, which is translated to the 
         default filename for the class.
     
-    &#39;&#39;&#39;
+    &#39;&#39;&#39;    
     if foldername[-1]!=&#34;/&#34;: foldername += &#34;/&#34;
     
     diz = {}
     diz[&#39;coordZYX&#39;] = [c.tolist() for c in self.coord]
     diz[&#39;nInVolume&#39;] = self.nInVolume.tolist()
     diz[&#39;zOfFrame&#39;] = [z.tolist() for z in self.zOfFrame]
+    diz[&#39;labels&#39;] = self.labels
     props = {}
     try:
         props[&#39;curvature&#39;] = [c.tolist() for c in self.curvature]
+        #props[&#39;curvature&#39;] = self.curvature.tolist()
         props[&#39;boxIndices&#39;] = [c.tolist() for c in self.boxIndices]
         props[&#39;boxIndicesX&#39;] = [c.tolist() for c in self.boxIndicesX]
         props[&#39;boxIndicesY&#39;] = [c.tolist() for c in self.boxIndicesY]
@@ -2256,6 +2536,20 @@ default filename for the class.</dd>
     f = open(foldername+filename,&#39;w&#39;)
     f.write(o3)
     f.close()</code></pre>
+</details>
+</dd>
+<dt id="wormbrain.brains.Brains.load_matches"><code class="name flex">
+<span>def <span class="ident">load_matches</span></span>(<span>self, folder)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_matches(self,folder):
+    if self.MMatch is None:
+        self.MMatch, self.MMatch_parameters = wormb.match.load_matches(folder) </code></pre>
 </details>
 </dd>
 <dt id="wormbrain.brains.Brains.trueCoords"><code class="name flex">
@@ -2317,6 +2611,64 @@ Default: 'zyx'.</dd>
     if len(trueCoords)==1: trueCoords = trueCoords[0]
             
     return trueCoords</code></pre>
+</details>
+</dd>
+<dt id="wormbrain.brains.Brains.get_closest_neuron"><code class="name flex">
+<span>def <span class="ident">get_closest_neuron</span></span>(<span>self, volume, coord, inverse_match=True, z_true=False, coord_ordering='zyx')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_closest_neuron(self,volume,coord,inverse_match=True,z_true=False,coord_ordering=&#39;zyx&#39;):
+    
+    if coord_ordering == &#34;xyz&#34;: coord = coord[::-1]
+    neurons = self.coord(vol=volume)
+    
+    if z_true:
+        # Convert passed true z coordinate to index
+        z_index = np.argmin(np.absolute(coord[0]-self.zOfFrame[volume]))
+        coord = np.array([z_index,coord[1],coord[2]])
+    
+    closest = np.argmin(np.sum(np.power(neurons-coord[None,:],2),axis=-1))    
+        
+    if inverse_match:
+        closest_ref = np.where(self.MMatch[volume]==closest)[0]
+        if closest_ref.shape[0] &gt;0:
+            closest_ref = closest_ref[0]
+        else:
+            closest_ref = -1
+        closest = closest_ref
+    
+    return closest</code></pre>
+</details>
+</dd>
+<dt id="wormbrain.brains.Brains.set_labels"><code class="name flex">
+<span>def <span class="ident">set_labels</span></span>(<span>self, vol, labels)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_labels(self, vol, labels):
+    self.labels[vol] = labels</code></pre>
+</details>
+</dd>
+<dt id="wormbrain.brains.Brains.get_labels"><code class="name flex">
+<span>def <span class="ident">get_labels</span></span>(<span>self, vol)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_labels(self, vol):
+    return self.labels[vol]</code></pre>
 </details>
 </dd>
 <dt id="wormbrain.brains.Brains.getOverlay"><code class="name flex">
@@ -2432,6 +2784,33 @@ specified frame. Returned if returnLabels is True.</dd>
         return Overlay, OverlayLabels            
     else:
         return Overlay</code></pre>
+</details>
+</dd>
+<dt id="wormbrain.brains.Brains.get_overlay2"><code class="name flex">
+<span>def <span class="ident">get_overlay2</span></span>(<span>self, vol, return_labels=False, label_size=None, copy=True)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_overlay2(self,vol,return_labels=False,label_size=None,copy=True):
+    if copy:
+        overlay_ = self.coord(vol=vol).copy()
+    else:
+        overlay_ = self.coord(vol=vol)
+    
+    overlay = irrarray(overlay_, irrStrides = [[self.nInVolume[vol],0]], strideNames=[&#34;ch&#34;])
+    if return_labels:
+        if label_size is not None:
+            labels_ = [str(i).zfill(label_size) for i in np.arange(self.nInVolume[vol])]
+        else:
+            labels_ = [str(i) for i in np.arange(self.nInVolume[vol])]
+        labels = irrarray(labels_, irrStrides = [[self.nInVolume[vol],0]], strideNames=[&#34;ch&#34;])
+        return overlay, labels
+    else:
+        return overlay</code></pre>
 </details>
 </dd>
 <dt id="wormbrain.brains.Brains.fit_sphere"><code class="name flex">
@@ -2589,8 +2968,13 @@ in the script. Default: True.</dd>
 <li><code><a title="wormbrain.brains.Brains.append" href="#wormbrain.brains.Brains.append">append</a></code></li>
 <li><code><a title="wormbrain.brains.Brains.copy" href="#wormbrain.brains.Brains.copy">copy</a></code></li>
 <li><code><a title="wormbrain.brains.Brains.to_file" href="#wormbrain.brains.Brains.to_file">to_file</a></code></li>
+<li><code><a title="wormbrain.brains.Brains.load_matches" href="#wormbrain.brains.Brains.load_matches">load_matches</a></code></li>
 <li><code><a title="wormbrain.brains.Brains.trueCoords" href="#wormbrain.brains.Brains.trueCoords">trueCoords</a></code></li>
+<li><code><a title="wormbrain.brains.Brains.get_closest_neuron" href="#wormbrain.brains.Brains.get_closest_neuron">get_closest_neuron</a></code></li>
+<li><code><a title="wormbrain.brains.Brains.set_labels" href="#wormbrain.brains.Brains.set_labels">set_labels</a></code></li>
+<li><code><a title="wormbrain.brains.Brains.get_labels" href="#wormbrain.brains.Brains.get_labels">get_labels</a></code></li>
 <li><code><a title="wormbrain.brains.Brains.getOverlay" href="#wormbrain.brains.Brains.getOverlay">getOverlay</a></code></li>
+<li><code><a title="wormbrain.brains.Brains.get_overlay2" href="#wormbrain.brains.Brains.get_overlay2">get_overlay2</a></code></li>
 <li><code><a title="wormbrain.brains.Brains.fit_sphere" href="#wormbrain.brains.Brains.fit_sphere">fit_sphere</a></code></li>
 <li><code><a title="wormbrain.brains.Brains.plot" href="#wormbrain.brains.Brains.plot">plot</a></code></li>
 <li><code><a title="wormbrain.brains.Brains.filename" href="#wormbrain.brains.Brains.filename">filename</a></code></li>
@@ -2598,6 +2982,7 @@ in the script. Default: True.</dd>
 <li><code><a title="wormbrain.brains.Brains.nInVolume" href="#wormbrain.brains.Brains.nInVolume">nInVolume</a></code></li>
 <li><code><a title="wormbrain.brains.Brains.coord" href="#wormbrain.brains.Brains.coord">coord</a></code></li>
 <li><code><a title="wormbrain.brains.Brains.zOfFrame" href="#wormbrain.brains.Brains.zOfFrame">zOfFrame</a></code></li>
+<li><code><a title="wormbrain.brains.Brains.labels" href="#wormbrain.brains.Brains.labels">labels</a></code></li>
 <li><code><a title="wormbrain.brains.Brains.version" href="#wormbrain.brains.Brains.version">version</a></code></li>
 <li><code><a title="wormbrain.brains.Brains.info" href="#wormbrain.brains.Brains.info">info</a></code></li>
 <li><code><a title="wormbrain.brains.Brains.curvature" href="#wormbrain.brains.Brains.curvature">curvature</a></code></li>
@@ -2606,6 +2991,9 @@ in the script. Default: True.</dd>
 <li><code><a title="wormbrain.brains.Brains.boxIndicesY" href="#wormbrain.brains.Brains.boxIndicesY">boxIndicesY</a></code></li>
 <li><code><a title="wormbrain.brains.Brains.boxNPlane" href="#wormbrain.brains.Brains.boxNPlane">boxNPlane</a></code></li>
 <li><code><a title="wormbrain.brains.Brains.segmParam" href="#wormbrain.brains.Brains.segmParam">segmParam</a></code></li>
+<li><code><a title="wormbrain.brains.Brains.MMatch" href="#wormbrain.brains.Brains.MMatch">MMatch</a></code></li>
+<li><code><a title="wormbrain.brains.Brains.coord_upToIndex" href="#wormbrain.brains.Brains.coord_upToIndex">coord_upToIndex</a></code></li>
+<li><code><a title="wormbrain.brains.Brains.coord_columnNames" href="#wormbrain.brains.Brains.coord_columnNames">coord_columnNames</a></code></li>
 </ul>
 </li>
 </ul>
@@ -2614,7 +3002,7 @@ in the script. Default: True.</dd>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.3</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
 </footer>
 </body>
 </html>
