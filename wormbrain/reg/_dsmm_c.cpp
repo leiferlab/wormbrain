@@ -223,7 +223,7 @@ static PyObject *_dsmmc_bare(PyObject *self, PyObject *args) {
     //////////////////////////////////
     //////////////////////////////////
     
-    Py_BEGIN_ALLOW_THREADS
+    //Py_BEGIN_ALLOW_THREADS
     
     dsmm::_dsmm(X,Y,M,N,D,beta,lambda,neighbor_cutoff,alpha,gamma0,
            conv_epsilon,eq_tol,max_iter,
@@ -232,7 +232,7 @@ static PyObject *_dsmmc_bare(PyObject *self, PyObject *args) {
            hatP,hatPI_diag,hatPIG,hatPX,hatPIY,
            G,W,GW,sumPoverN,expAlphaSumPoverN);
            
-    Py_END_ALLOW_THREADS
+    //Py_END_ALLOW_THREADS
     
     //////////////////////////////////
     //////////////////////////////////

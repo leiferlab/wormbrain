@@ -53,6 +53,7 @@ def dsmmc(Y,X,beta=2.0,llambda=1.5,neighbor_cutoff=10.0,
     N = X.shape[0]
     M = Y.shape[0]
     D = X.shape[1]
+    if N == 0 or M == 0 or D == 0: return None
 
     # Allocate arrays
     

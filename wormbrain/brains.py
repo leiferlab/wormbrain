@@ -375,6 +375,30 @@ class Brains:
                                         
         self.coord = self.coord.astype(int)
         
+    def add_points(self, points, vol=0):
+        '''Append points to brain. Currently supported only for single brain
+        object. The function does not supplement additional information in the
+        properties, like the curvature.'''
+        
+        if len(points.shape)==1:
+            points = np.array([points])
+        
+        self.nInVolume[vol] += points.shape[0]
+        self.coord = np.append(self.coord, points, axis=0)
+        
+        for i in np.arange(points.shape[0]):
+            self.labels[vol].append("")
+        
+        
+    def delete_points(self, indices, vol=0):
+        try: len(indices)
+        except: indices = [indices]
+        indices = np.array(indices)
+        
+        indices[indices<0] = self.nInVolume[vol]+indices[indices<0]
+        
+        self.coord = np.delete(self.coord,indices,axis=0)
+        self.nInVolume[vol] -= indices.shape[0]
     
     def __getitem__(self, i):
         '''
@@ -512,6 +536,9 @@ class Brains:
         self.labels[vol] = labels
         
     def get_labels(self, vol):
+        if len(self.labels[vol])<self.nInVolume[vol]:
+            for i in np.arange(self.nInVolume[vol]-len(self.labels[vol])):
+                self.labels[vol].append("")
         return self.labels[vol]
         
     @staticmethod
@@ -709,6 +736,11 @@ class Brains:
                 labels_ = [str(i).zfill(label_size) for i in np.arange(self.nInVolume[vol])]
             else:
                 labels_ = [str(i) for i in np.arange(self.nInVolume[vol])]
+                
+            if len(self.labels)>0:
+                for ll in np.arange(len(self.labels[vol])):
+                    if self.labels[vol][ll]!='': labels_[ll] = self.labels[vol][ll]
+                              
             labels = irrarray(labels_, irrStrides = [[self.nInVolume[vol],0]], strideNames=["ch"])
             return overlay, labels
         else:

@@ -6,6 +6,7 @@ import wormbrain as wormb
 import pkg_resources
 import os
 import pickle
+import fdlc
 
 filename_matches = "matches.txt"
 
@@ -53,7 +54,8 @@ def pairwise_distance(A,B,returnAll=False,squared=False,thresholdDz=0.0):
         return D
 
 
-def match(A, B, method='nearest', registration='None', **kwargs):
+def match(A, B, method='nearest', registration='None', return_confidence=False, 
+          **kwargs):
     '''
     Computes the array giving the matching of points in B to points in A.
 
@@ -71,6 +73,8 @@ def match(A, B, method='nearest', registration='None', **kwargs):
     registration: string (optional)
         Method to register the two point sets. Possible values: "centroid", 
         "displacement", "dsmm", "None". Default: "None".
+    return_confidence: bool (optional)
+        If True, the confidences of the matchings are returned. Default: False.
     **kwargs:
         Other parameters to be passed to the registration function.
 
@@ -79,9 +83,16 @@ def match(A, B, method='nearest', registration='None', **kwargs):
     Match: np.array
         Indexes of points in A matching points in B.
         index_point_in_A = Match[index_point_in_B]
+    confidence: numpy array
+        Confidence of the matchings. Returned only if return_confidence is True.
 
     '''
-
+    confidence = None
+    
+    #########################
+    # Geometric registrations
+    #########################
+    
     if registration=='centroid':
         A, B = wormb.reg.centroid(A,B,**kwargs)
     elif registration=='displacement':
@@ -98,11 +109,34 @@ def match(A, B, method='nearest', registration='None', **kwargs):
             B, A, p, Match = wormb.reg._dsmm_fullpy(B,A,returnAll=True,**kwargs)
         else:
             B, A, p, Match = wormb.reg.dsmmc(B,A,returnAll=True,**kwargs)
-        return Match
 
+        if method=="dsmm": return Match
+    
+    ##########
+    # Matching
+    ##########
+    
     if method=='nearest':
         Match = _match_nearest(A,B,**kwargs)
-    return Match
+    elif method=='fdlc':
+        temp_pos = A
+        test_pos = B
+        temp_label = np.arange(temp_pos.shape[0]).astype(str)
+        test_label, candidate_list = fdlc.DLC_predict.predict_label(
+                                           temp_pos, temp_label, test_pos, 
+                                           None, None, cuda=False)
+        test_label = np.array(test_label)
+        Match_s = test_label[:,0]
+        Match_s[np.where(Match_s=="")] = "-1"
+        Match = Match_s.astype(int)
+        confidence = test_label[:,1]
+    
+    
+    if return_confidence:
+        if confidence is None: confidence = np.ones_like(Match)
+        return Match, confidence
+    else:   
+        return Match
     
 def invert_matches(matches, N):
     '''Transforms the matches obtained matching points in B to points in A to
@@ -223,11 +257,11 @@ def save_matches(MMatch, parameters, folder, filename=""):
     np.savetxt(folder+filename,MMatch,header=headerInfo)
     
     pickle_filename = ".".join([filename.split(".")[0],"pickle"])  
-    if not os.path.isfile(folder+pickle_filename):
-        obj = {"MMatch":MMatch,"parameters":parameters}
-        f = open(folder+pickle_filename,"wb")
-        pickle.dump(obj,f)
-        f.close()
+    #if not os.path.isfile(folder+pickle_filename):
+    obj = {"MMatch":MMatch,"parameters":parameters}
+    f = open(folder+pickle_filename,"wb")
+    pickle.dump(obj,f)
+    f.close()
 
 def load_matches(folder, filename=""):
     '''Loads the matches from file.
