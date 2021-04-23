@@ -57,30 +57,30 @@ def dsmmc(Y,X,beta=2.0,llambda=1.5,neighbor_cutoff=10.0,
 
     # Allocate arrays
     
-    pwise_dist = np.empty((M,N))
-    pwise_distYY = np.empty((M,M))
-    w = np.empty((M,N))
-    Gamma = np.empty(M)
-    G = np.empty((M,M))
-    F_t = np.empty((M,N))
-    wF_t = np.empty((M,N))
-    wF_t_sum = np.empty(N)
-    p = np.empty((M,N))
-    u = np.empty((M,N))
+    pwise_dist = np.zeros((M,N))
+    pwise_distYY = np.zeros((M,M))
+    w = np.zeros((M,N))
+    Gamma = np.zeros(M)
+    G = np.zeros((M,M))
+    F_t = np.zeros((M,N))
+    wF_t = np.zeros((M,N))
+    wF_t_sum = np.zeros(N)
+    p = np.zeros((M,N))
+    u = np.zeros((M,N))
     Match = np.ones(M,dtype=np.int32)*(-10)
-    CDE_term = np.empty(M)
-    hatP = np.empty((M,N))
-    hatPI_diag = np.empty(M)
-    hatPIG = np.empty((M,M))
-    hatPX = np.empty((M,D))
-    hatPIY = np.empty((M,D))
-    W = np.empty((M,D))
-    GW = np.empty((M,D))
+    CDE_term = np.zeros(M)
+    hatP = np.zeros((M,N))
+    hatPI_diag = np.zeros(M)
+    hatPIG = np.zeros((M,M))
+    hatPX = np.zeros((M,D))
+    hatPIY = np.zeros((M,D))
+    W = np.zeros((M,D))
+    GW = np.zeros((M,D))
 
     #Additional stuff from new paper
     sumPoverN = np.zeros((M,N)) 
     expAlphaSumPoverN = np.zeros((M,N))
-    alpha=1.
+    alpha=0.9
 
     wormb.reg._dsmmc_bare(X,Y,M,N,D,beta,llambda,neighbor_cutoff,alpha,gamma0,
            conv_epsilon,eq_tol,max_iter,

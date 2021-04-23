@@ -60,6 +60,8 @@ class Brains:
     "z coordinate of each frame in each volume"
     labels = []
     "Labels of the neurons"
+    labels_confidences = []
+    "Confidence on the neuron labeling"
     
     version = ""
     "Version of the wormbrain module in use when instantiating the class."
@@ -132,6 +134,7 @@ class Brains:
         self.info['version'] = self.version
         
         self.labels = [[] for jj in np.arange(len(nInVolume))]
+        self.labels_confidences = [[] for jj in np.arange(len(nInVolume))]
         
         if len(properties.keys())!=0:
             self.boxIndices = properties['boxIndices']
@@ -254,7 +257,7 @@ class Brains:
             zOfFrame = obj["zOfFrame"]
             properties = obj["properties"]
         else:        
-            f = open(folder+filename)
+            f = open(folder+filename,"r")
             c = json.load(f)
             f.close()
             
@@ -296,6 +299,11 @@ class Brains:
             except:
                 labels = None
                 
+            try:
+                labels_confidences = c['labels_confidences']
+            except:
+                labels_confidences = None
+                
             # cache in the pickled version
             #f = open(folder+pickle_filename,"wb")
             #pickle.dump({"coordZYX":coordZYX,"nInVolume":nInVolume,"zOfFrame":zOfFrame,"properties":properties},f)
@@ -307,10 +315,16 @@ class Brains:
         
         inst = cls(coordZYX, nInVolume, zOfFrame, properties, stabilize_z, stabilize_xy)
         
-        if labels is not None:
+        if labels is not None and labels_confidences is None:
             for j in np.arange(len(labels)):
                 l = labels[j]
                 inst.set_labels(j,l)
+        elif labels is not None and labels_confidences is not None:
+            for j in np.arange(len(labels)):
+                l = labels[j]
+                c = labels_confidences[j]
+                inst.set_labels(j,l,c)
+        
         
         return inst
         
@@ -332,7 +346,7 @@ class Brains:
         if folder[-1]!="/": folder += "/"
         if filename == "": filename = cls.coord_filename
         
-        f = open(folder+filename)
+        f = open(folder+filename,"r")
         s = f.readline()
         f.close()
 
@@ -388,6 +402,7 @@ class Brains:
         
         for i in np.arange(points.shape[0]):
             self.labels[vol].append("")
+            self.labels_confidences[vol].append(-1.0)
         
         
     def delete_points(self, indices, vol=0):
@@ -442,6 +457,7 @@ class Brains:
         diz['nInVolume'] = self.nInVolume.tolist()
         diz['zOfFrame'] = [z.tolist() for z in self.zOfFrame]
         diz['labels'] = self.labels
+        diz['labels_confidences'] = self.labels_confidences
         props = {}
         try:
             props['curvature'] = [c.tolist() for c in self.curvature]
@@ -498,14 +514,17 @@ class Brains:
         trueCoords = self.coord(vol=vol, dtype=np.float)
         intCoords = self.coord(vol=vol)
         
-        L = len(vol)
-        for l in np.arange(L):
-            trueCoords[l][:,0] = self.zOfFrame[vol[l]][intCoords[l][:,0]]
-            
-            # Ordering stuff
-            if coord_ordering=="xyz": 
-                trueCoords[l] = np.copy(trueCoords[l][:,::-1],order="c")
+        try:
+            L = len(vol)
+            for l in np.arange(L):
+                trueCoords[l][:,0] = self.zOfFrame[vol[l]][intCoords[l][:,0]]
                 
+                # Ordering stuff
+                if coord_ordering=="xyz": 
+                    trueCoords[l] = np.copy(trueCoords[l][:,::-1],order="c")
+        except:
+            pass
+        
         if len(trueCoords)==1: trueCoords = trueCoords[0]
                 
         return trueCoords
@@ -532,14 +551,25 @@ class Brains:
         
         return closest
         
-    def set_labels(self, vol, labels):
+    def set_labels(self, vol, labels, confidences=None):
         self.labels[vol] = labels
+        if confidences is not None:
+            self.labels_confidences[vol] = confidences
         
-    def get_labels(self, vol):
+    def get_labels(self, vol, attr=True, return_confidences=False):
         if len(self.labels[vol])<self.nInVolume[vol]:
             for i in np.arange(self.nInVolume[vol]-len(self.labels[vol])):
                 self.labels[vol].append("")
-        return self.labels[vol]
+                self.labels_confidences[vol].append(-1.0)
+        if attr:
+            labs = self.labels[vol]
+        else:
+            labs = [a.split("_")[0].split("*")[0].upper() for a in self.labels[vol]]
+        
+        if return_confidences:
+            return labs, self.labels_confidences[vol]
+        else:
+            return labs
         
     @staticmethod
     def _conv_coord_2d_to_3d(coord_2d, volFrame0, zOfFrame=[], dz=1, 
@@ -724,12 +754,15 @@ class Brains:
         else:
             return Overlay
             
-    def get_overlay2(self,vol,return_labels=False,label_size=None,copy=True):
+    def get_overlay2(self,vol,return_labels=False,label_size=None,copy=True,scale=1):
         if copy:
             overlay_ = self.coord(vol=vol).copy()
         else:
             overlay_ = self.coord(vol=vol)
         
+        if scale!=1: 
+            overlay_ = overlay_.copy()
+            overlay_[:,1:] *= scale
         overlay = irrarray(overlay_, irrStrides = [[self.nInVolume[vol],0]], strideNames=["ch"])
         if return_labels:
             if label_size is not None:

@@ -177,8 +177,8 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
     double gtmp;
     for(int m=0;m<M;m++){
         for(int m2=m;m2<M;m2++){
-            gtmp = dsmm::fastexp(-pwise_distYY[m*M+m2]*0.5/beta2);
-            //gtmp = exp(-pwise_distYY[m*M+m2]*0.5/beta2);
+            //gtmp = dsmm::fastexp(-pwise_distYY[m*M+m2]*0.5/beta2);
+            gtmp = exp(-pwise_distYY[m*M+m2]*0.5/beta2);
             G[m*M+m2] = gtmp;
             G[m2*M+m] = gtmp;
         }
@@ -284,8 +284,8 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
         //FIXME whole two for loops
         for(int m=0;m<M;m++){
             for(int m2=m;m2<M;m2++){
-                gtmp = dsmm::fastexp(-pwise_distYY[m*M+m2]*0.5/beta2);
-                //gtmp = exp(-pwise_distYY[m*M+m2]*0.5/beta2);
+                //gtmp = dsmm::fastexp(-pwise_distYY[m*M+m2]*0.5/beta2);
+                gtmp = exp(-pwise_distYY[m*M+m2]*0.5/beta2);
                 G[m*M+m2] = gtmp;
                 G[m2*M+m] = gtmp;
             }
