@@ -37,7 +37,7 @@ requirements = [
 repo = git.Repo('.git')
 git_hash = repo.head.object.hexsha
 git_url = repo.remotes.origin.url
-v = repo.git.describe()
+v = repo.git.describe(always=True)
 if repo.is_dirty(): v += ".dirty"
 
 setup(
