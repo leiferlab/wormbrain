@@ -62,6 +62,10 @@ class Brains:
     "Labels of the neurons"
     labels_confidences = []
     "Confidence on the neuron labeling"
+    labels_comments = []
+    "Comments on the labels"
+    labels_sources = []
+    "Sources of the neuron labels"
     
     version = ""
     "Version of the wormbrain module in use when instantiating the class."
@@ -135,6 +139,8 @@ class Brains:
         
         self.labels = [[] for jj in np.arange(len(nInVolume))]
         self.labels_confidences = [[] for jj in np.arange(len(nInVolume))]
+        self.labels_comments = [[] for jj in np.arange(len(nInVolume))]
+        self.labels_sources = [None for jj in np.arange(len(nInVolume))]
         
         if len(properties.keys())!=0:
             self.boxIndices = properties['boxIndices']
@@ -275,34 +281,31 @@ class Brains:
                 properties['curvature'] = np.array(props['curvature'])
                 properties['boxIndices'] = [np.array(bi) for bi in props['boxIndices']]
                 properties['boxNPlane'] = props['boxNPlane']
-            except:
-                pass
+            except:pass
                 
             try:
                 properties['boxIndicesX'] = [np.array(bi) for bi in props['boxIndicesX']]
                 properties['boxIndicesY'] = [np.array(bi) for bi in props['boxIndicesY']]
-            except:
-                pass
+            except:pass
                 
-            try:
-                properties['segmParam'] = props['segmParam']
-            except:
-                pass
+            try:properties['segmParam'] = props['segmParam']
+            except:pass
                 
-            try:
-                properties['version'] = props['version']
-            except:
-                pass
+            try:properties['version'] = props['version']
+            except:pass
                 
-            try:
-                labels = c['labels']
-            except:
-                labels = None
+            try:labels = c['labels']
+            except:labels = None
                 
-            try:
-                labels_confidences = c['labels_confidences']
-            except:
-                labels_confidences = None
+            try:labels_confidences = c['labels_confidences']
+            except:labels_confidences = None
+            
+            try:labels_comments = c['labels_comments']
+            except:labels_comments = None
+                
+            try:labels_sources = c['labels_sources']
+            except:labels_sources = None
+                
                 
             # cache in the pickled version
             #f = open(folder+pickle_filename,"wb")
@@ -324,6 +327,16 @@ class Brains:
                 l = labels[j]
                 c = labels_confidences[j]
                 inst.set_labels(j,l,c)
+        
+        if labels_comments is not None:
+            for j in np.arange(len(labels_comments)):
+                lc = labels_comments[j]
+                inst.labels_comments[j] = lc
+        
+        if labels_sources is not None:
+            for j in np.arange(len(labels_sources)):
+                ls = labels_sources[j]
+                inst.labels_sources[j] = ls
         
         
         return inst
@@ -403,6 +416,7 @@ class Brains:
         for i in np.arange(points.shape[0]):
             self.labels[vol].append("")
             self.labels_confidences[vol].append(-1.0)
+            self.labels_comments[vol].append("")
         
         
     def delete_points(self, indices, vol=0):
@@ -458,6 +472,8 @@ class Brains:
         diz['zOfFrame'] = [z.tolist() for z in self.zOfFrame]
         diz['labels'] = self.labels
         diz['labels_confidences'] = self.labels_confidences
+        diz['labels_comments'] = self.labels_comments
+        diz['labels_sources'] = self.labels_sources
         props = {}
         try:
             props['curvature'] = [c.tolist() for c in self.curvature]
@@ -556,15 +572,48 @@ class Brains:
         if confidences is not None:
             self.labels_confidences[vol] = confidences
         
-    def get_labels(self, vol, attr=True, return_confidences=False):
+    def get_labels(self, vol, attr=True, return_confidences=False, lookup_source=True):
         if len(self.labels[vol])<self.nInVolume[vol]:
             for i in np.arange(self.nInVolume[vol]-len(self.labels[vol])):
                 self.labels[vol].append("")
                 self.labels_confidences[vol].append(-1.0)
-        if attr:
-            labs = self.labels[vol]
-        else:
-            labs = [a.split("_")[0].split("*")[0].upper() for a in self.labels[vol]]
+        
+        labs = self.labels[vol]
+             
+        # If a source for the labels of this volume is indicated, then use
+        # these labels as indices to get the labels from the source brain
+        # object.
+        if self.labels_sources[vol] is not None and lookup_source:
+            source_brain = Brains.from_file(self.labels_sources[vol])
+            source_brain_labels = source_brain.get_labels(0)
+            
+            labs = labs.copy()
+            for pq in np.arange(len(labs)):
+                lab_s = labs[pq]
+                try:
+                    lab_i_tmp = int(lab_s)
+                    lab_tmp = source_brain_labels[lab_i_tmp]
+                except:
+                    lab_tmp = lab_s
+                labs[pq] = lab_tmp
+                
+            '''
+            labs_i = [int(lab_s) if lab_s!= "" else -1 for lab_s in labs]
+            # Make a mask to remember which ones did not have a label at all
+            labs_i_mask = np.array(labs_i)==-1
+
+            
+            for q in np.arange(len(labs_i)):
+                if not labs_i_mask[q]:
+                    if labs_i[q]>=0:
+                        labs.append(source_brain.get_labels(0)[labs_i[q]])
+                    elif labs_i[q]==-3:
+                        labs.append("vnc")
+                else:
+                    labs.append("")'''
+            
+        if not attr:
+            labs = [a.split("_")[0].split("*")[0].upper() for a in labs]
         
         if return_confidences:
             return labs, self.labels_confidences[vol]
@@ -754,25 +803,30 @@ class Brains:
         else:
             return Overlay
             
-    def get_overlay2(self,vol,return_labels=False,label_size=None,copy=True,scale=1):
+    def get_overlay2(self,vol,return_labels=False,label_size=None,copy=True,scale=1,indices_as_labels=False,index_for_unlabeled=True,**kwargs):
         if copy:
             overlay_ = self.coord(vol=vol).copy()
         else:
             overlay_ = self.coord(vol=vol)
         
+        # If the points have to be scaled to match the resizing of the image.
         if scale!=1: 
             overlay_ = overlay_.copy()
             overlay_[:,1:] *= scale
         overlay = irrarray(overlay_, irrStrides = [[self.nInVolume[vol],0]], strideNames=["ch"])
+        
+        # Deal with labels
         if return_labels:
-            if label_size is not None:
-                labels_ = [str(i).zfill(label_size) for i in np.arange(self.nInVolume[vol])]
-            else:
-                labels_ = [str(i) for i in np.arange(self.nInVolume[vol])]
+            labels_ = [str(i) for i in np.arange(self.nInVolume[vol])]
                 
-            if len(self.labels)>0:
-                for ll in np.arange(len(self.labels[vol])):
-                    if self.labels[vol][ll]!='': labels_[ll] = self.labels[vol][ll]
+            if len(self.labels)>0 and not indices_as_labels:
+                labs__ = self.get_labels(vol,**kwargs)
+                for ll in np.arange(len(labs__)):
+                    if labs__[ll]!='' or not index_for_unlabeled: 
+                        labels_[ll] = labs__[ll]
+                        
+            if label_size is not None:
+                labels_ = [label_.ljust(label_size) for label_ in labels_]
                               
             labels = irrarray(labels_, irrStrides = [[self.nInVolume[vol],0]], strideNames=["ch"])
             return overlay, labels
