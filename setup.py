@@ -52,4 +52,9 @@ setup(
     extras_require={"dev": ["pytest", "pytest-cov", "hypothesis"]},
     dependency_links=['git+https://github.com/francescorandi/mistofrutta'],
     ext_modules=ext_modules,
+    package_data={'wormbrain': ['CELL_ID_visualize_light_class_def/+Image/*.m',
+                                'CELL_ID_visualize_light_class_def/+Neurons/*.m',
+                                'from_visualize_light.m',
+                                'to_visualize_light.m',
+                  ]},
 )

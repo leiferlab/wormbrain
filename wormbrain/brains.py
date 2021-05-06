@@ -91,7 +91,7 @@ class Brains:
     
     
     def __init__(self, coordZYX, nInVolume, zOfFrame=None, properties={}, 
-                 stabilize_z=True,stabilize_xy=True):
+                 stabilize_z=True,stabilize_xy=True,source=""):
                  #save_to_cache=False,save_to_path=None):
         '''The constructor transforms the coordinates array into an irrarray
         and, if requested to, "stabilizes" the coordinates based on the 
@@ -142,19 +142,24 @@ class Brains:
         self.labels_comments = [[] for jj in np.arange(len(nInVolume))]
         self.labels_sources = [None for jj in np.arange(len(nInVolume))]
         
+        self.source = source
+        
         if len(properties.keys())!=0:
             self.boxIndices = properties['boxIndices']
             curvature_elements = 0
-            for bi in self.boxIndices: curvature_elements += len(bi)
-            self.curvature = np.array(properties['curvature'])
+            try: 
+                for bi in self.boxIndices: curvature_elements += len(bi)
             
-            if len(self.curvature.shape) == 1:
-                self.curvature = self.curvature.reshape(
-                                self.curvature.shape[0]//curvature_elements,
-                                curvature_elements)
-            
-            self.curvature = irrarray(self.curvature, self.nInVolume, 
-                                        strideNames=["vol"])
+                self.curvature = np.array(properties['curvature'])
+                
+                if len(self.curvature.shape) == 1:
+                    self.curvature = self.curvature.reshape(
+                                    self.curvature.shape[0]//curvature_elements,
+                                    curvature_elements)
+                
+                self.curvature = irrarray(self.curvature, self.nInVolume, 
+                                            strideNames=["vol"])
+            except: pass
             
             try:
                 self.boxIndicesX = properties['boxIndicesX']
@@ -275,24 +280,29 @@ class Brains:
             # To be compatible with older versions of the file, there is this
             # sequence of try/except. At some point, this can be removed and all
             # the properties be loaded.
+            no_properties = True
             try:
                 props = c['properties']
                 #properties['curvature'] = [np.array(curv) for curv in props['curvature']]
                 properties['curvature'] = np.array(props['curvature'])
                 properties['boxIndices'] = [np.array(bi) for bi in props['boxIndices']]
                 properties['boxNPlane'] = props['boxNPlane']
+                no_properties = False
             except:pass
                 
             try:
                 properties['boxIndicesX'] = [np.array(bi) for bi in props['boxIndicesX']]
                 properties['boxIndicesY'] = [np.array(bi) for bi in props['boxIndicesY']]
+                no_properties_found = False
             except:pass
                 
-            try:properties['segmParam'] = props['segmParam']
+            try:properties['segmParam'] = props['segmParam'];no_properties = False
             except:pass
                 
-            try:properties['version'] = props['version']
+            try:properties['version'] = props['version'];no_properties = False
             except:pass
+            
+            if no_properties: properties = {}
                 
             try:labels = c['labels']
             except:labels = None
@@ -377,6 +387,83 @@ class Brains:
         
         return cls(coordZYX, nInVolume, stabilize_z=False, stabilize_xy=False)
     
+    @classmethod    
+    def from_visualize_light(
+                cls,folder,fname="neuropal_data_ID.mat",
+                matlab_path="/usr/licensed/matlab-R2020a/bin/matlab"):
+        
+        if folder[-1]!="/":folder+="/"
+        module_folder = "/".join(wormb.__file__.split("/")[:-1])+"/"
+        
+        command = "touch "+folder+"out && "+\
+        matlab_path+" -nodisplay -nodesktop -nosplash -r "+\
+        "\"addpath('"+module_folder+"CELL_ID_visualize_light_class_def/');"+\
+        "load('"+folder+fname+"');"+\
+        "run('"+module_folder+"from_visualize_light.m');"+\
+        "fileID = fopen('"+folder+"neuropal_data_ID.json','w');"+\
+        "fprintf(fileID,stringa);fclose(fileID);exit;\" >> "+folder+"out "+\
+        "&& rm "+folder+"out"
+        
+        res = os.system(command)
+        
+        f = open(folder+"neuropal_data_ID.json","r")
+        c = json.load(f)
+        f.close()
+        
+        n_neurons = len(c)        
+        coordZYX = np.zeros((n_neurons,3))
+        labels = []
+        for i in np.arange(n_neurons):
+            coordZYX[i][0] = np.array(c[i]["position"][2])
+            coordZYX[i][1] = np.array(c[i]["position"][0])
+            coordZYX[i][2] = np.array(c[i]["position"][1])
+            labels.append(c[i]["annotation"])
+        
+        inst = cls(coordZYX, np.array([n_neurons]))
+        inst.set_labels(0,labels,(-1*np.ones(n_neurons)).tolist())
+        
+        return inst
+        
+    def to_visualize_light(
+                self,folder,fname="neuropal_data_ID.mat",vol=0,
+                matlab_path="/usr/licensed/matlab-R2020a/bin/matlab"):
+        if folder[-1]!="/":folder+="/"
+        module_folder = "/".join(wormb.__file__.split("/")[:-1])+"/"
+        
+        f = open(folder+"neuropal_data_ID.json","r")
+        c = json.load(f)
+        f.close()
+        
+        old_n_neurons = len(c)
+        n_additional_neurons = self.nInVolume[vol] - old_n_neurons
+        for j in np.arange(n_additional_neurons):
+            c.append(c[0])
+        
+        for i in np.arange(self.nInVolume[vol]):
+            c[i]["position"][0] = self.coord(vol=vol)[i][1].astype(float)
+            c[i]["position"][1] = self.coord(vol=vol)[i][2].astype(float)
+            c[i]["position"][2] = self.coord(vol=vol)[i][0].astype(float)
+            c[i]["annotation"] = self.labels[vol][i]
+        
+        out_string = json.dumps(c)
+        
+        f = open(folder+"neuropal_data_ID.json","w")    
+        f.write(out_string)
+        f.close()
+        
+        command = "touch "+folder+"out && "+\
+        matlab_path+" -nodisplay -nodesktop -nosplash -r "+\
+        "\"addpath('"+module_folder+"CELL_ID_visualize_light_class_def/');"+\
+        "load('"+folder+fname+"');"+\
+        "stringa = fileread('"+folder+"neuropal_data_ID.json');"+\
+        "neurons_decoded = jsondecode(stringa);"+\
+        "new_n_neurons = "+str(self.nInVolume[vol])+";"+\
+        "run('"+module_folder+"to_visualize_light.m');"+\
+        "save('"+folder+fname+"','version','mp_params','neurons');"+\
+        "exit\" >> "+folder+"out && rm "+folder+"out"
+        
+        res = os.system(command)
+        
     def append(self, brains2):
         '''Append to this object the content of another instance of Brains.
         It does not perform any z-stabilization. Assumes the curvature in 
@@ -412,6 +499,7 @@ class Brains:
         
         self.nInVolume[vol] += points.shape[0]
         self.coord = np.append(self.coord, points, axis=0)
+        self.coord = irrarray(self.coord, [self.nInVolume], strideNames=["vol"])
         
         for i in np.arange(points.shape[0]):
             self.labels[vol].append("")
