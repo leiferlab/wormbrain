@@ -707,7 +707,7 @@ class Brains:
             return labs, self.labels_confidences[vol]
         else:
             return labs
-        
+            
     @staticmethod
     def _conv_coord_2d_to_3d(coord_2d, volFrame0, zOfFrame=[], dz=1, 
             dtype=np.float, coord_2d_ordering='yx', coord_3d_ordering='zyx'):
@@ -901,7 +901,7 @@ class Brains:
         if scale!=1: 
             overlay_ = overlay_.copy()
             overlay_[:,1:] *= scale
-        overlay = irrarray(overlay_, irrStrides = [[self.nInVolume[vol],0]], strideNames=["ch"])
+        overlay = irrarray(overlay_, irrStrides = [[self.nInVolume[vol]]], strideNames=["ch"])
         
         # Deal with labels
         if return_labels:
@@ -916,7 +916,7 @@ class Brains:
             if label_size is not None:
                 labels_ = [label_.ljust(label_size) for label_ in labels_]
                               
-            labels = irrarray(labels_, irrStrides = [[self.nInVolume[vol],0]], strideNames=["ch"])
+            labels = irrarray(labels_, irrStrides = [[self.nInVolume[vol]]], strideNames=["ch"])
             return overlay, labels
         else:
             return overlay
