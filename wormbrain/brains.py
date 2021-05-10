@@ -50,6 +50,8 @@ class Brains:
     
     filename = "brains.json"
     "Default destination file name for the json version of the object"
+    filename_reference = "brains-reference.json"
+    filename_reference_suffix = "-reference"
     coord_filename = "transformed_neurons.txt"
     
     nInVolume = 0
@@ -231,7 +233,7 @@ class Brains:
         return cls(coordZYX, nInVolume, *args, **kwargs)
     
     @classmethod
-    def from_file(cls, folder, filename=""):
+    def from_file(cls, folder, filename="", ref_only=False, verbose=True):
         '''Create a Brains object loading the data from a previously created
         json file.
         
@@ -242,6 +244,12 @@ class Brains:
         filename: string (optional)
             Name of the file containing the signal. Default: "", which is
             translated into the default filename for the class.
+        ref_only: bool (optional)
+            If True, the cached reference will be loaded for speed. The cached
+            reference is effectively read-only, because it is overwritten every
+            time the full Brains is saved (with ref_index not None). If you need
+            to save changes to the reference volume, load and save the full 
+            Brains object.
         
         Returns
         -------
@@ -252,8 +260,27 @@ class Brains:
         
         if folder[-1]!="/": folder += "/"
         
-        if filename=="":
-            filename = cls.filename
+        if filename=="": filename = cls.filename
+                
+        if ref_only:
+            if verbose:
+                print("Loading cached reference. Changes to the reference "+\
+                  "volume will not be saved.")
+            ref_filename = ".".join(filename.split(".")[:-1])+\
+                           cls.filename_reference_suffix+".json"
+            if os.path.isfile(folder+ref_filename):
+                filename = ref_filename
+            else:
+                if verbose:
+                    print("Cached reference Brain not available.")
+                    print("Creating cached reference with volume "+\
+                          str(ref_index)+".")
+                match_info = wormb.match.load_match_parameters(folder)
+                ref_index = match_info["ref_index"]
+                inst_full = cls.from_file(folder,filename)
+                inst_full.to_file_cache_reference(folder, filename, 
+                                                  ref_index)
+                filename = ref_filename
         
         # If pickled cache is available, load from there;
         # Otherwise parse the json file.
@@ -347,6 +374,8 @@ class Brains:
             for j in np.arange(len(labels_sources)):
                 ls = labels_sources[j]
                 inst.labels_sources[j] = ls
+                
+        inst.is_cached_reference = ref_only
         
         
         return inst
@@ -539,7 +568,7 @@ class Brains:
         '''Deepcopy of this object.'''
         return deepcopy(self)
     
-    def to_file(self, foldername, filename=""):
+    def to_file(self, foldername, filename="", ref_index=None):
         '''Save this instance of the object to file. A Brains object saved 
         this way can be recreated in memory with the class method from_file().
         
@@ -551,7 +580,7 @@ class Brains:
             Name of destination file. Default: "", which is translated to the 
             default filename for the class.
         
-        '''    
+        '''
         if foldername[-1]!="/": foldername += "/"
         
         diz = {}
@@ -581,6 +610,60 @@ class Brains:
             filename = self.filename
         
         output = json.dumps(diz, indent=4)
+        # Prettify the json serialization 
+        o1 = re.sub(r'\[\s+(\d)', r'[\1', output)
+        o2 = re.sub(r'(\d),\s+(\d)', r'\1, \2', o1)
+        o3 = re.sub(r'(\d)\s+\]',r'\1]',o2)
+        
+        f = open(foldername+filename,'w')
+        f.write(o3)
+        f.close()
+        
+        if ref_index is not None:
+            self.to_file_cache_reference(foldername, filename, ref_index)
+        
+    def to_file_cache_reference(self, foldername, filename="", ref_index=0):
+        '''Cache a separate 
+        
+        Parameters
+        ----------
+        foldername: string
+            Destination folder.
+        filename: string (optional)
+            Name of destination file. Default: "", which is translated to the 
+            default filename for the class.
+        
+        '''    
+        if foldername[-1]!="/": foldername += "/"
+        
+        diz = {}
+        diz['coordZYX'] = [c.tolist() for c in self.coord(vol=ref_index)]
+        diz['nInVolume'] = [float(self.nInVolume[ref_index])]
+        diz['zOfFrame'] = [self.zOfFrame[ref_index].tolist()]
+        diz['labels'] = [self.labels[ref_index]]
+        diz['labels_confidences'] = [self.labels_confidences[ref_index]]
+        diz['labels_comments'] = [self.labels_comments[ref_index]]
+        diz['labels_sources'] = [self.labels_sources[ref_index]]
+        props = {}
+        props['curvature'] = [c.tolist() for c in self.curvature(vol=ref_index)]
+        props['boxIndices'] = [c.tolist() for c in self.boxIndices]
+        props['boxIndicesX'] = [c.tolist() for c in self.boxIndicesX]
+        props['boxIndicesY'] = [c.tolist() for c in self.boxIndicesY]
+        props['boxNPlane'] = self.boxNPlane
+        props['segmParam'] = self.segmParam
+        props['version'] = self.version
+        props['is_cached_reference'] = True
+                    
+        diz['properties'] = props
+        
+        if filename=="":
+            filename = self.filename_reference
+        else:
+            filename = ".".join(filename.split(".")[:-1])+\
+                        self.filename_reference_suffix+".json"
+        
+        output = json.dumps(diz, indent=4)
+        
         # Prettify the json serialization 
         o1 = re.sub(r'\[\s+(\d)', r'[\1', output)
         o2 = re.sub(r'(\d),\s+(\d)', r'\1, \2', o1)
