@@ -268,15 +268,17 @@ class Brains:
                   "volume will not be saved.")
             ref_filename = ".".join(filename.split(".")[:-1])+\
                            cls.filename_reference_suffix+".json"
-            if os.path.isfile(folder+ref_filename):
+            if os.path.isfile(folder+ref_filename) and \
+               os.path.getmtime(folder+ref_filename) > os.path.getmtime(folder+filename):
                 filename = ref_filename
             else:
                 if verbose:
-                    print("Cached reference Brain not available.")
-                    print("Creating cached reference with volume "+\
-                          str(ref_index)+".")
+                    print("Cached reference Brain not available or needs to"+\
+                          "be updated.")
                 match_info = wormb.match.load_match_parameters(folder)
                 ref_index = match_info["ref_index"]
+                print("Creating cached reference with volume "+\
+                          str(ref_index)+".")
                 inst_full = cls.from_file(folder,filename)
                 inst_full.to_file_cache_reference(folder, filename, 
                                                   ref_index)
@@ -988,7 +990,7 @@ class Brains:
         
         # Deal with labels
         if return_labels:
-            labels_ = [str(i) for i in np.arange(self.nInVolume[vol])]
+            labels_ = [str(int(i)) for i in np.arange(self.nInVolume[vol])]
                 
             if len(self.labels)>0 and not indices_as_labels:
                 labs__ = self.get_labels(vol,**kwargs)
