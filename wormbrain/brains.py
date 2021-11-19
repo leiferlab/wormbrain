@@ -342,9 +342,8 @@ class Brains:
             try:labels_comments = c['labels_comments']
             except:labels_comments = None
                 
-            try:labels_sources = c['labels_sources']
+            try:labels_sources = c['labels_sources'];
             except:labels_sources = None
-                
                 
             # cache in the pickled version
             #f = open(folder+pickle_filename,"wb")
@@ -536,6 +535,31 @@ class Brains:
             self.labels[vol].append("")
             self.labels_confidences[vol].append(-1.0)
             self.labels_comments[vol].append("")
+            
+    def add_points2(self, points, vol=0):
+        '''Append points to brain.'''
+        
+        if len(points.shape)==1:
+            points = np.array([points])
+        
+        n_points = points.shape[0]
+        last_p_in_old_vol = np.sum(self.nInVolume[:vol+1])
+        self.nInVolume[vol] += n_points
+        
+        self.coord = np.insert(self.coord,last_p_in_old_vol,points,axis=0)
+        self.coord = irrarray(self.coord, [self.nInVolume], strideNames=["vol"])
+        
+        if self.curvature.shape[0]>1 and len(self.curvature.shape)>1:
+            c_elements = self.curvature.shape[1]
+            self.curvature = np.insert(self.curvature,last_p_in_old_vol,
+                                       np.ones((n_points,c_elements)),axis=0)
+            self.curvature = irrarray(self.curvature,self.nInVolume,
+                                      strideNames=["vol"])
+        
+        for i in np.arange(points.shape[0]):
+            self.labels[vol].append("")
+            self.labels_confidences[vol].append(-1.0)
+            self.labels_comments[vol].append("")
         
         
     def delete_points(self, indices, vol=0):
@@ -547,6 +571,9 @@ class Brains:
         
         self.coord = np.delete(self.coord,indices,axis=0)
         self.nInVolume[vol] -= indices.shape[0]
+        self.labels[vol] = [self.labels[vol][i] for i in np.arange(len(self.labels[vol])) if i not in indices]
+        self.labels_confidences = [self.labels_confidences[vol][i] for i in np.arange(len(self.labels_confidences[vol])) if i not in indices]
+        self.labels_comments = [self.labels_comments[vol][i] for i in np.arange(len(self.labels_comments[vol])) if i not in indices]
     
     def __getitem__(self, i):
         '''
@@ -745,13 +772,16 @@ class Brains:
         if confidences is not None:
             self.labels_confidences[vol] = confidences
         
-    def get_labels(self, vol, attr=True, return_confidences=False, lookup_source=True):
+    def get_labels(self, vol, attr=True, return_confidences=False,
+                   lookup_source=True):
+                   
         if len(self.labels[vol])<self.nInVolume[vol]:
             for i in np.arange(self.nInVolume[vol]-len(self.labels[vol])):
                 self.labels[vol].append("")
                 self.labels_confidences[vol].append(-1.0)
         
         labs = self.labels[vol]
+        conf = self.labels_confidences[vol]
              
         # If a source for the labels of this volume is indicated, then use
         # these labels as indices to get the labels from the source brain
@@ -759,16 +789,21 @@ class Brains:
         if self.labels_sources[vol] is not None and lookup_source:
             source_brain = Brains.from_file(self.labels_sources[vol])
             source_brain_labels = source_brain.get_labels(0)
+            source_brain_conf = source_brain.labels_confidences[0]
             
             labs = labs.copy()
+            conf = np.copy(conf)
             for pq in np.arange(len(labs)):
                 lab_s = labs[pq]
                 try:
                     lab_i_tmp = int(lab_s)
                     lab_tmp = source_brain_labels[lab_i_tmp]
+                    conf_tmp = source_brain_conf[lab_i_tmp]
                 except:
                     lab_tmp = lab_s
+                    conf_tmp = conf[pq]
                 labs[pq] = lab_tmp
+                conf[pq] = conf_tmp
                 
             '''
             labs_i = [int(lab_s) if lab_s!= "" else -1 for lab_s in labs]
@@ -787,9 +822,14 @@ class Brains:
             
         if not attr:
             labs = [a.split("_")[0].split("*")[0].upper() for a in labs]
+            
+        #if index_for_unlabeled:
+        #    prefix = "mc" if lookup_source else ""
+        #    for q in np.arange(len(labs)):
+        #        if labs[q]=="": labs[q]=prefix+str(q)
         
         if return_confidences:
-            return labs, self.labels_confidences[vol]
+            return labs, conf
         else:
             return labs
             
@@ -976,7 +1016,9 @@ class Brains:
         else:
             return Overlay
             
-    def get_overlay2(self,vol,return_labels=False,label_size=None,copy=True,scale=1,indices_as_labels=False,index_for_unlabeled=True,**kwargs):
+    def get_overlay2(self,vol,return_labels=False,label_size=None,copy=True,
+                     scale=1,indices_as_labels=False,index_for_unlabeled=True,
+                     **kwargs):
         if copy:
             overlay_ = self.coord(vol=vol).copy()
         else:
@@ -997,6 +1039,13 @@ class Brains:
                 for ll in np.arange(len(labs__)):
                     if labs__[ll]!='' or not index_for_unlabeled: 
                         labels_[ll] = labs__[ll]
+            
+            if indices_as_labels and not index_for_unlabeled:
+                # Replace indices with blanks, where present
+                labs__ = self.get_labels(vol,**kwargs)
+                for ll in np.arange(len(labs__)):
+                    if labs__[ll] in [" "]:
+                        labels_[ll] = ""
                         
             if label_size is not None:
                 labels_ = [label_.ljust(label_size) for label_ in labels_]
