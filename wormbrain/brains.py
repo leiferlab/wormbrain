@@ -767,6 +767,29 @@ class Brains:
         
         return closest
         
+    def get_distance(self, volume, i, j):
+        '''Get the distance, in trueCoords units, between neuron i and neuron j.
+        
+        Parameters
+        ----------
+        volume: int
+            Index of the volume in which to compute the distance.
+        i, j: int
+            Indices of the two neurons.
+            
+        Returns
+        -------
+        d: float
+            Euclidean distance between neurons i and j.
+        '''
+        
+        c = self.trueCoords(volume)
+        ci = c[i]
+        cj = c[j]
+        d = np.sqrt(np.sum((ci-cj)**2))
+        
+        return d
+        
     def set_labels(self, vol, labels, confidences=None):
         self.labels[vol] = labels
         if confidences is not None:
