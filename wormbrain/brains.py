@@ -789,7 +789,7 @@ class Brains:
         d = np.sqrt(np.sum((ci-cj)**2))
         
         return d
-        
+    
     def set_labels(self, vol, labels, confidences=None):
         self.labels[vol] = labels
         if confidences is not None:

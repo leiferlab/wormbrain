@@ -471,3 +471,4 @@ def _plot_matches_2d(A, B, Match, **kwargs):
                 ax.plot((A[j,p],B[i,p]),(A[j,q],B[i,q]),'--',c='orange')
 
     return fig, ax
+

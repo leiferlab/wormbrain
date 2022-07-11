@@ -34,11 +34,12 @@ requirements = [
 ]
 
 # Get git commit info to build version number/tag
-repo = git.Repo('.git')
+'''repo = git.Repo('.git')
 git_hash = repo.head.object.hexsha
 git_url = repo.remotes.origin.url
 v = repo.git.describe(always=True)
-if repo.is_dirty(): v += ".dirty"
+if repo.is_dirty(): v += ".dirty"'''
+v = 1.1
 
 setup(
     name="wormbrain",
