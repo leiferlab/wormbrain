@@ -9,7 +9,7 @@
 void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
 	double beta, double lambda, double neighbor_cutoff,
 	double alpha, double gamma0,
-	double conv_epsilon, double eq_tol,
+	double conv_epsilon, double eq_tol, int max_iter,
 	double *pwise_dist, double *pwise_distYY,
 	double *Gamma, double *CDE_term,
 	double *w, double *F_t, double *wF_t, double *wF_t_sum,
@@ -91,36 +91,36 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
 
 	// "Normalize" in Vemuri's language
 	// Y -= avg of Ys
-	// Y /= max of Ys (after the subtraction above)
+	// Y /= max of Ys (after the subtraction above) [max of all dimensions!]
 	double avg, max;
-	for (int d = 0; d < D; d++) {
-		avg = 0.0;
-		max = 0.0;
-		for (int m = 0; m < M; m++) {
-			avg += Y[m*D + d];
+	max=0.0;
+	for(int d=0;d<D;d++) {
+		avg=0.0;
+		for (int m=0;m<M;m++) {
+			avg+=Y[m*D+d];
 		}
 		avg /= M;
-		for (int m = 0; m < M; m++) {
-			Y[m*D + d] -= avg;
+		for(int m=0;m<M;m++) {
+			Y[m*D+d] -= avg;
 		}
-		for (int m = 0; m < M; m++) {
-			if (max < abs(Y[m*D + d])) { max = abs(Y[m*D + d]); }
+		for(int m=0;m<M;m++) {
+			if (max<abs(Y[m*D+d])) {max = abs(Y[m*D+d]);}
 		}
-		if (max != 0.0) {
-			for (int m = 0; m < M; m++) {
-				Y[m*D + d] /= max;
-			}
-		}
+	}
+	if(max!=0.0){
+		for(int m=0;m<M;m++) { for(int d=0;d<D;d++) {
+			Y[m*D+d] /= max; 
+		}}
 	}
 
 	// Do the same for X. This time store the parameters for final 
 	// denormalization. Since Y is moved onto X, the parameters used to
 	// normalize X will be used to denormalized both X and Y.
 	double *AvgX = new double[D];
-	double *MaxX = new double[D];
+	double maxX = 0.0;
+    max = 0.0;
     for(int d=0;d<D;d++){
         avg = 0.0;
-        max = 0.0;
         for(int n=0;n<N;n++){
             avg += X[n*D+d];
         }
@@ -132,17 +132,17 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
         for(int n=0;n<N;n++){
             if(max<abs(X[n*D+d])){max=abs(X[n*D+d]);}
         }
-		
-        if(max!=0.0){
-            for(int n=0;n<N;n++){
-                X[n*D+d] /= max;
-				MaxX[d] = max;
-            }
-		}
-		else {
-			MaxX[d] = 1.0;
-		}
     }
+		
+    if(max!=0.0){
+        for(int n=0;n<N;n++){ for(int d=0;d<D;d++){
+            X[n*D+d] /= max;
+			maxX = max;
+        }}
+	}
+	else {
+		maxX = 1.0;
+	}
     
     typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> Matrice;
     typedef Eigen::Map<Matrice> MatrixMap;
@@ -177,7 +177,8 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
     double gtmp;
     for(int m=0;m<M;m++){
         for(int m2=m;m2<M;m2++){
-            gtmp = dsmm::fastexp(-pwise_distYY[m*M+m2]*0.5/beta2);
+            //gtmp = dsmm::fastexp(-pwise_distYY[m*M+m2]*0.5/beta2);
+            gtmp = exp(-pwise_distYY[m*M+m2]*0.5/beta2);
             G[m*M+m2] = gtmp;
             G[m2*M+m] = gtmp;
         }
@@ -229,6 +230,7 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
         //w[:] = expAlphaSumPoverN*(1./np.sum(expAlphaSumPoverN,axis=0)[None,:])
         for(int mn=0;mn<M*N;mn++){
             expAlphaSumPoverN[mn] = dsmm::fastexp(alpha*sumPoverN[mn]);
+            //expAlphaSumPoverN[mn] = exp(alpha*sumPoverN[mn]);
         }
         
         double somma;
@@ -258,7 +260,8 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
             }
             c_term /= p_sum;
             
-            CDE_term[m] = c_term-dsmm::logmenodigamma(goldpdhalves);//+d_term+e_term; FIXME
+            CDE_term[m] = c_term-log(goldpdhalves)+boost::math::digamma(goldpdhalves);
+            //dsmm::logmenodigamma(goldpdhalves);//+d_term+e_term; FIXME    //FIXME fast
         }
         
         dsmm::solveforgamma(CDE_term,M,Gamma,eq_tol);
@@ -281,7 +284,8 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
         //FIXME whole two for loops
         for(int m=0;m<M;m++){
             for(int m2=m;m2<M;m2++){
-                gtmp = dsmm::fastexp(-pwise_distYY[m*M+m2]*0.5/beta2);
+                //gtmp = dsmm::fastexp(-pwise_distYY[m*M+m2]*0.5/beta2);
+                gtmp = exp(-pwise_distYY[m*M+m2]*0.5/beta2);
                 G[m*M+m2] = gtmp;
                 G[m2*M+m] = gtmp;
             }
@@ -290,11 +294,9 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
         for(int m=0;m<M;m++){
             for(int m2=0;m2<M;m2++){
                 hatPIG[m*M+m2] = hatPI_diag[m]*G[m*M+m2];
-                if(m2==m){ hatPIG[m*M+m2] += lambda*sigma2;}  
+                if(m2==m){hatPIG[m*M+m2] += lambda*sigma2;}
             }
         }
-        
-        
         
         for(int m=0;m<M;m++){
             for(int d=0;d<D;d++){hatPIY[m*D+d] = hatPI_diag[m]*Y[m*D+d];}
@@ -302,7 +304,7 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
         
         //Python code
         //hatPX[:] = np.dot(hatP,X)
-        hatPX_.noalias() = hatP_*X_; 
+        hatPX_.noalias() = hatP_*X_;
         
         //Python code
         //#hatPIG+lambda*sigma2*Identity done above
@@ -339,11 +341,11 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
         regerror_old = regerror;
         regerror = pwise_dist_.sum();
         relerror = abs((regerror-regerror_old)/regerror_old);
-        if(regerror_old==0.0){mentre=false;}
+        if(regerror_old==0.0){break;}
         
         iter++;
-        //beta2 *= 0.99*0.99;
-        //lambda *= 0.4*0.4;
+        if(iter>0){beta2 *= 0.99*0.99;lambda *= 0.9*0.9;}
+        if(iter>max_iter){break;}
     }
     
     /**
@@ -356,21 +358,11 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
     //otherwise you also have the distances between points that are far because
     //the correspondence is missing.
     
+    // If loop was terminated correctly
     if(mentre==true){
         // Find average of minimum distance between any Y and X.
         double mindist;
         double avgmindist=0.0;
-        
-        /**for(int m=0;m<M;m++){
-            mindist = pwise_dist[m*N];
-            for(int m2=0;m2<M;m2++){
-                if(mindist>pwise_dist[m*N+m2]){
-                    mindist=pwise_dist[m*N+m2];
-                }
-            }
-            avgmindist += mindist;
-        }
-        avgmindist /= M;**/
 		
 		for(int m=0;m<M;m++){
             mindist = pwise_dist[m*N];
@@ -384,23 +376,57 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
         avgmindist /= M;
         
 		// Find the matches (see above for description of criterion)
-        double maxp;
+        double maxp,sump; // maxp2
         int match_index;
         for(int m=0;m<M;m++){
             match_index = -1;
             maxp = 0.0;
+            //maxp2 = 0.0;
+            sump = 0.0;
             for(int n=0;n<N;n++){
+                sump += p[m*N+n];
                 if(maxp<p[m*N+n]){
+                    //maxp2 = maxp;
                     maxp = p[m*N+n];
                     match_index = n;
                 }
             }
-            if(pwise_dist[m*N+match_index]<2.*avgmindist && maxp>(0.3)){
+            if(
+            (pwise_dist[m*N+match_index]<2.*avgmindist && (maxp/sump)>(0.3)) ||
+            (pwise_dist[m*N+match_index]<3.*avgmindist && (maxp/sump)>0.8) ||
+            (pwise_dist[m*N+match_index]<1.5*avgmindist)           
+            ){ // 
                 Match[m] = match_index;
             } else {
-				Match[m] = -1;
-			}
+			    Match[m] = -1;
+		    }
         }
+        
+        // Look for double matches
+        int32_t *counts = new int32_t[N];
+        for(int n=0;n<N;n++){counts[n]=0;}        
+        for(int m=0;m<M;m++){if(Match[m]>=0){counts[Match[m]] += 1;}}
+        
+        // Select one out of those double matches.
+        int surviving = 0;
+        for(int n=0;n<N;n++){
+            if(counts[n]>1){
+                maxp = 0.0;
+                for(int m=0;m<M;m++){
+                    surviving = m;
+                    if(Match[m]==n){
+                        //Set all the matches pointing to the double match to -1
+                        Match[m] = -1;
+                        //Find the most confident candidate (incl distance?)
+                        if(p[m*N+n]>maxp){maxp=p[m*N+n];surviving=m;}
+                    }
+                }
+                Match[surviving] = n;
+            }
+        }
+        delete[] counts;
+    
+    // If loop was not terminated correctly        
     } else {
         for(int m=0;m<M;m++){
             Match[m] = -1;
@@ -413,20 +439,19 @@ void dsmm::_dsmm(double *X, double *Y, int M, int N, int D,
 	    // denormalize both with the parameters originally used to normalize X.
 	    for(int n=0;n<N;n++){
 		    for(int d=0;d<D;d++) {
-			    X[n*D+d] *= MaxX[d];
+			    X[n*D+d] *= maxX;
 			    X[n*D+d] += AvgX[d];
 		    }
 	    }
 
 	    for(int m=0;m<M;m++){
 		    for(int d=0;d<D;d++) {
-			    Y[m*D+d] *= MaxX[d];
+			    Y[m*D+d] *= maxX;
 			    Y[m*D+d] += AvgX[d];
 		    }
 	    }
     }
 	
 	delete[] AvgX;
-	delete[] MaxX;
 
 }

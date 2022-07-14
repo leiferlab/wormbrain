@@ -1,4 +1,4 @@
-//#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+#define NPY_NO_DEPRECATED_API NPY_1_9_API_VERSION
 #include <Python.h>
 #include <numpy/arrayobject.h>
 #include "dsmm.hpp" //This is inside dsmm/ in the root of the repository
@@ -11,7 +11,82 @@ static PyObject *_dsmmc_bare(PyObject *self, PyObject *args);
 
 // The module's method table
 static PyMethodDef _dsmm_cMethods[] = {
-    {"_dsmmc_bare", _dsmmc_bare, METH_VARARGS, ""},
+    {"_dsmmc_bare", _dsmmc_bare, METH_VARARGS,
+    "Registers Y onto X via a nonrigid pointset registration based on a\n"
+    "Student's t-distribution mixture model with Dirichlet-distribution priors\n"
+    "via an expectation-maximization algorithm. This is the \n""naked\n"" C++\n"
+    "implementation. See the wrapped versions in Python and LabView for more\n"
+    "user-friendly list of arguments that do not require preallocation of\n"
+    "arrays.\n\n"
+    
+    "References\n"
+    "----------\n"
+    "1:doi:10.1371/journal.pone.0091381\n"
+    "    In the comments, referred to with Eq. ().\n\n"
+    "2: doi:10.1038/s41598-018-26288-6\n"
+    "    In the comments, referred to with Eq. ()'.\n\n"
+    //"In the comments, Eq. () refers to Ref. [1], while Eq. ()' to Ref. [2].\n\n"
+
+    "Parameters\n"
+    "----------\n"
+    "X, Y: array of doubles\n"
+    "    Sets of points in D-dimensional space (Y gets moved onto X). These\n"
+    "    arrays are modified inside this function: if you need to keep the\n"
+    "    original ones, pass copies.\n"
+    "    Note: Should be contiguous row-major arrays, with indices\n"
+    "    [point, coordinate].\n"
+    "M: integer\n"
+    "    Number of points in Y.\n"
+    "N: integer\n"
+    "    Number of points in X.\n"
+    "D: integer\n"
+    "    Number of dimensions in which X and Y live.\n"
+    "beta: double\n"
+    "    Standard deviation of Gaussian smoothing filter. See equations in the\n"
+    "    references. E.g.: 2.0\n"
+    "lambda: double\n"
+    "    Regularization parameter. See equations in the references. E.g.: 1.5\n"
+    "neighbor_cutoff: double\n"
+    "    Multiple of the average nearest-neighbor distance within which points\n"
+    "    are considered neighbors. See equations in the references. E.g.: 10.0\n"
+    "gamma0: double\n"
+    "    Initialization of the gamma_m parameters (degrees of freedom of the\n"
+    "    Student's t-distribution). See equations in the references. E.g.: 1.0\n"
+    "conv_epsilon: double\n"
+    "    Relative error on the displacements of the points in Y at which the\n"
+    "    algorithm is considered at convergence. E.g.: 1e-3\n"
+    "eq_tol: double\n"
+    "    Tolerance for convergence of the numerical solution of the equations\n"
+    "    for gamma_m and \\bar alpha. See equations in the references.\n"
+    "    E.g.: 1e-4\n"
+    "arrays: specified dimension and type\n"
+    "    pwise_dist[M,N] double, pwise_distYY[M,M] double,\n"
+    "    Gamma[M] double, CDE_term[M] double,\n"
+    "    w[M,N] double, F_t[M,N] double, wF_t[M,N] double, wF_t_sum[N] double,\n"
+    "    p[M,N] double, u[M,N] double, Match[M,N] int,\n"
+    "    hatP[M,N] double, hatPI_diag[M] double, hatPIG[M,M] double,\n"
+    "    hatPX[M,D] double, hatPIY[M,D] double,\n"
+    "    W[M,D] double, GW[M,D] double,\n"
+    "    sumPoverN[M,N] double, expAlphaSumPoverN[M,N]\n"
+    "    Preallocated arrays, so that the memory can be reused through\n"
+    "    executions and their content is available to the outside.\n"
+    "    See description below for the relevant ones. All can be passed\n"
+    "    empty/uninitialized, all are populated inside this function.\n"
+    "    The names reflect the names of the variables in the equations in the\n"
+    "    references.\n"
+    "p: array of doubles\n"
+    "    p[m,n] is the posterior probability for the match of Y[m] to X[n].\n"
+    "Match: array of int\n"
+    "    X[Match[m]] is the point in X to which Y[m] has been matched. The\n"
+    "    built-in criterion is that the maximum posterior probability p[m,:] for\n"
+    "    Y[m] has to be greater than 0.3 and that the distance between the\n"
+    "    matched points has to be smaller than twice the average distance\n"
+    "    between all the matched points. If a different criterion is needed,\n"
+    "    use p to calculate the matches.\n\n"
+    "Returns\n"
+    "-------\n"
+    "None"
+    },
     {NULL, NULL, 0, NULL}
 };
 
@@ -32,7 +107,7 @@ PyMODINIT_FUNC PyInit__dsmm_c(void) {
 
 static PyObject *_dsmmc_bare(PyObject *self, PyObject *args) {
 
-    int M, N, D;
+    int M, N, D, max_iter;
     double beta, lambda, neighbor_cutoff, alpha, gamma0, conv_epsilon, eq_tol;
     //bool releaseGIL;
     PyObject *X_o, *Y_o, *pwise_dist_o, *pwise_distYY_o, *Gamma_o, *CDE_term_o;
@@ -40,11 +115,11 @@ static PyObject *_dsmmc_bare(PyObject *self, PyObject *args) {
     PyObject *hatP_o, *hatPI_diag_o, *hatPIG_o, *hatPX_o, *hatPIY_o;
     PyObject *G_o, *W_o, *GW_o, *sumPoverN_o, *expAlphaSumPoverN_o;
     
-    if(!PyArg_ParseTuple(args, "OOiiidddddddOOOOOOOOOOOOOOOOOOOOO", 
+    if(!PyArg_ParseTuple(args, "OOiiidddddddiOOOOOOOOOOOOOOOOOOOOO", 
         &X_o, &Y_o, &M, &N, &D, 
         &beta, &lambda, &neighbor_cutoff,
         &alpha, &gamma0,
-        &conv_epsilon, &eq_tol,
+        &conv_epsilon, &eq_tol, &max_iter,
         &pwise_dist_o, &pwise_distYY_o,
         &Gamma_o, &CDE_term_o,
         &w_o, &F_t_o, &wF_t_o, &wF_t_sum_o,
@@ -53,29 +128,29 @@ static PyObject *_dsmmc_bare(PyObject *self, PyObject *args) {
         &G_o, &W_o, &GW_o,
         &sumPoverN_o, &expAlphaSumPoverN_o)) return NULL;
     
-    PyObject *X_a = PyArray_FROM_OTF(X_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *Y_a = PyArray_FROM_OTF(Y_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *pwise_dist_a = PyArray_FROM_OTF(pwise_dist_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *pwise_distYY_a = PyArray_FROM_OTF(pwise_distYY_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *Gamma_a = PyArray_FROM_OTF(Gamma_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *CDE_term_a = PyArray_FROM_OTF(CDE_term_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *w_a = PyArray_FROM_OTF(w_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *F_t_a = PyArray_FROM_OTF(F_t_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *wF_t_a = PyArray_FROM_OTF(wF_t_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *wF_t_sum_a = PyArray_FROM_OTF(wF_t_sum_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *p_a = PyArray_FROM_OTF(p_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *u_a = PyArray_FROM_OTF(u_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *Match_a = PyArray_FROM_OTF(Match_o, NPY_INT32, NPY_IN_ARRAY);
-    PyObject *hatP_a = PyArray_FROM_OTF(hatP_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *hatPI_diag_a = PyArray_FROM_OTF(hatPI_diag_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *hatPIG_a = PyArray_FROM_OTF(hatPIG_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *hatPX_a = PyArray_FROM_OTF(hatPX_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *hatPIY_a = PyArray_FROM_OTF(hatPIY_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *G_a = PyArray_FROM_OTF(G_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *W_a = PyArray_FROM_OTF(W_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *GW_a = PyArray_FROM_OTF(GW_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *sumPoverN_a = PyArray_FROM_OTF(sumPoverN_o, NPY_FLOAT64, NPY_IN_ARRAY);
-    PyObject *expAlphaSumPoverN_a = PyArray_FROM_OTF(expAlphaSumPoverN_o, NPY_FLOAT64, NPY_IN_ARRAY);
+    PyArrayObject *X_a = (PyArrayObject*) PyArray_FROM_OT(X_o, NPY_FLOAT64);
+    PyArrayObject *Y_a = (PyArrayObject*) PyArray_FROM_OT(Y_o, NPY_FLOAT64);
+    PyArrayObject *pwise_dist_a = (PyArrayObject*) PyArray_FROM_OT(pwise_dist_o, NPY_FLOAT64);
+    PyArrayObject *pwise_distYY_a = (PyArrayObject*) PyArray_FROM_OT(pwise_distYY_o, NPY_FLOAT64);
+    PyArrayObject *Gamma_a = (PyArrayObject*) PyArray_FROM_OT(Gamma_o, NPY_FLOAT64);
+    PyArrayObject *CDE_term_a = (PyArrayObject*) PyArray_FROM_OT(CDE_term_o, NPY_FLOAT64);
+    PyArrayObject *w_a = (PyArrayObject*) PyArray_FROM_OT(w_o, NPY_FLOAT64);
+    PyArrayObject *F_t_a = (PyArrayObject*) PyArray_FROM_OT(F_t_o, NPY_FLOAT64);
+    PyArrayObject *wF_t_a = (PyArrayObject*) PyArray_FROM_OT(wF_t_o, NPY_FLOAT64);
+    PyArrayObject *wF_t_sum_a = (PyArrayObject*) PyArray_FROM_OT(wF_t_sum_o, NPY_FLOAT64);
+    PyArrayObject *p_a = (PyArrayObject*) PyArray_FROM_OT(p_o, NPY_FLOAT64);
+    PyArrayObject *u_a = (PyArrayObject*) PyArray_FROM_OT(u_o, NPY_FLOAT64);
+    PyArrayObject *Match_a = (PyArrayObject*) PyArray_FROM_OT(Match_o, NPY_INT32);
+    PyArrayObject *hatP_a = (PyArrayObject*) PyArray_FROM_OT(hatP_o, NPY_FLOAT64);
+    PyArrayObject *hatPI_diag_a = (PyArrayObject*) PyArray_FROM_OT(hatPI_diag_o, NPY_FLOAT64);
+    PyArrayObject *hatPIG_a = (PyArrayObject*) PyArray_FROM_OT(hatPIG_o, NPY_FLOAT64);
+    PyArrayObject *hatPX_a = (PyArrayObject*) PyArray_FROM_OT(hatPX_o, NPY_FLOAT64);
+    PyArrayObject *hatPIY_a = (PyArrayObject*) PyArray_FROM_OT(hatPIY_o, NPY_FLOAT64);
+    PyArrayObject *G_a = (PyArrayObject*) PyArray_FROM_OT(G_o, NPY_FLOAT64);
+    PyArrayObject *W_a = (PyArrayObject*) PyArray_FROM_OT(W_o, NPY_FLOAT64);
+    PyArrayObject *GW_a = (PyArrayObject*) PyArray_FROM_OT(GW_o, NPY_FLOAT64);
+    PyArrayObject *sumPoverN_a = (PyArrayObject*) PyArray_FROM_OT(sumPoverN_o, NPY_FLOAT64);
+    PyArrayObject *expAlphaSumPoverN_a = (PyArrayObject*) PyArray_FROM_OT(expAlphaSumPoverN_o, NPY_FLOAT64);
         
     // Check that the above conversion worked, otherwise decrease the reference
     // count and return NULL.                                 
@@ -126,7 +201,7 @@ static PyObject *_dsmmc_bare(PyObject *self, PyObject *args) {
     double *wF_t_sum = (double*)PyArray_DATA(wF_t_sum_a);
     double *p = (double*)PyArray_DATA(p_a);
     double *u = (double*)PyArray_DATA(u_a);
-    int *Match = (int*)PyArray_DATA(Match_a);
+    int32_t *Match = (int32_t*)PyArray_DATA(Match_a);
     double *hatP = (double*)PyArray_DATA(hatP_a);
     double *hatPI_diag = (double*)PyArray_DATA(hatPI_diag_a);
     double *hatPIG = (double*)PyArray_DATA(hatPIG_a);
@@ -148,12 +223,16 @@ static PyObject *_dsmmc_bare(PyObject *self, PyObject *args) {
     //////////////////////////////////
     //////////////////////////////////
     
+    //Py_BEGIN_ALLOW_THREADS
+    
     dsmm::_dsmm(X,Y,M,N,D,beta,lambda,neighbor_cutoff,alpha,gamma0,
-           conv_epsilon,eq_tol,
+           conv_epsilon,eq_tol,max_iter,
            pwise_dist,pwise_distYY,Gamma,CDE_term,
            w,F_t,wF_t,wF_t_sum,p,u,Match,
            hatP,hatPI_diag,hatPIG,hatPX,hatPIY,
            G,W,GW,sumPoverN,expAlphaSumPoverN);
+           
+    //Py_END_ALLOW_THREADS
     
     //////////////////////////////////
     //////////////////////////////////
